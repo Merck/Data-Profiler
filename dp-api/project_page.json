@@ -1,0 +1,41 @@
+{
+  "project": "Project Page Foo",
+  "sub_project": "Sub Project",
+  "query": {
+    "query_type": "time_series",
+    "date_column": "foo/bar/date_column_name",
+    "query": "SELECT * FROM foo/bar WHERE foo/bar/date_column_name >= $START_TIMESTAMP AND foo/bar/date_column_name < $END_TIMESTAMP",
+    "query_visibilities": [
+      "LIST.Public_Data"
+    ],
+    "output_visibility": "LIST.Public_Data",
+    "tables": [
+      {
+        "dataset": "foo",
+        "table": "bar",
+        "column_type_overrides": [
+          {
+            "column_name": "date_column_name",
+            "type": "TimestampType"
+          }
+        ],
+        "timestamp_format": "dd MMM yyyy hh:mm:ss a",
+        "date_format": "dd MMM yyyy"
+      }
+    ],
+    "group": {
+      "type": "sum",
+      "column_name": "foo/bar/sum_column_name"
+    },
+    "windows": [
+      {
+        "name": "week",
+        "start_difference": "10800",
+        "start_timestamp": "NOW",
+        "end_difference": "0",
+        "end_timestamp": "NOW"
+      }
+    ]
+  },
+  "visibility": "LIST.Public_Data"
+}

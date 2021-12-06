@@ -1,0 +1,83 @@
+{
+  "name": "@dp-ui/treemap",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "DataProfiler",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/types.d.ts",
+  "scripts": {
+    "build": "rimraf dist/ && tsc; cp -r src/assets dist/assets",
+    "develop": "nodemon -x \"yarn run build\"",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --quiet --fix && prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
+    "test": "jest --no-cache",
+    "test:coverage": "jest --coverage --no-cache",
+    "test:watch": "jest --watch"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "dist/*"
+    ],
+    "watch": [
+      "./src/**/*"
+    ],
+    "ext": "js jsx ts tsx"
+  },
+  "dependencies": {
+    "@dp-ui/lib": "^1.0.0",
+    "@dp-ui/row-viewer": "^1.0.0",
+    "@material-ui/core": "4.11.3",
+    "@material-ui/icons": "4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "@reduxjs/toolkit": "1.5.1",
+    "d3": "^5.16.0",
+    "d3-svg-legend": "^2.25.6",
+    "lodash": "4.17.21",
+    "material-ui-popup-state": "^1.8.3",
+    "md5": "^2.3.0",
+    "moment": "^2.29.1",
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-toastify": "^7.0.3",
+    "recharts": "^1.8.5",
+    "reselect": "^4.0.0",
+    "use-query-params": "^1.1.9",
+    "uuid": "8.3.1"
+  },
+  "resolutions": {
+    "d3-selection": "1.3.0",
+    "d3-transition": "1.3.2"
+  },
+  "peerDependencies": {
+    "query-string": "^6.13.7",
+    "react": "16.x",
+    "react-dom": "16.x"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.10.3",
+    "@types/d3": "^5.7.2",
+    "@types/jest": "^26.0.0",
+    "@types/lodash": "4.14.168",
+    "@types/md5": "^2.2.0",
+    "@types/moment": "^2.13.0",
+    "@types/node": "^14.0.5",
+    "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-redux": "^7.1.9",
+    "@types/recharts": "^1.8.16",
+    "@types/reselect": "^2.2.0",
+    "@types/uuid": "^8.3.0",
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "@typescript-eslint/parser": "^2.10.0",
+    "babel-jest": "^26.1.0",
+    "eslint": "^7.1.0",
+    "jest": "^26.0.1",
+    "nodemon": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.1.1",
+    "typescript": "^3.9.3"
+  }
+}

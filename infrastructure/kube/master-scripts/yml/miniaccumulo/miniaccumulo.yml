@@ -1,0 +1,87 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: miniaccumulo
+  labels:
+    app: miniaccumulo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: miniaccumulo
+  template:
+    metadata:
+      labels:
+        app: miniaccumulo
+    spec:
+      containers:
+        - name: miniaccumulo
+          image: openjdk:8-jre-alpine
+          ports:
+            - containerPort: 2181
+          volumeMounts:
+            - mountPath: /data/jars/dataprofiler-tools.jar
+              name: datajars
+            - mountPath: /data/jars/basic_test.csv
+              name: basicdata
+          resources:
+            limits:
+              memory: "2048Mi"
+              cpu: "2000m"
+            requests:
+              memory: "1024Mi"
+              cpu: "2000m"
+          #command: [ "/bin/sh" ]
+          #args: [ "-ec", "sleep 1000"]
+          command: ["java"]
+          #args: [ "-version" ]
+          args: ["-cp", "/data/jars/dataprofiler-tools.jar", "com.dataprofiler.MiniAccumuloWithData", "--s3-bucket", "dataprofiler-modern-development", "/data/jars/basic_test.csv"]
+          #env:
+          #  - name: ACCUMULO_PORT
+          #    value: "34422"
+      volumes:
+        - name: datajars
+          hostPath:
+            path: /data/jars/dataprofiler-tools-demo.jar
+            type: File
+        - name: basicdata
+          hostPath:
+            path: /data/jars/basic_test.csv
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: miniaccumulo
+  labels:
+    app: miniaccumulo
+spec:
+  ports:
+  - port: 2181
+    protocol: TCP
+    targetPort: 2181
+  selector:
+    app: miniaccumulo
+  type: ClusterIP

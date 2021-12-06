@@ -1,0 +1,63 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: Check if NameNode is running
+  shell: jps | grep " NameNode" | grep -v grep
+  ignore_errors: yes
+  changed_when: false
+  register: namenode_status
+
+- name: "bootstrap standby"
+  command: "nohup {{ hadoop_home }}/bin/hdfs namenode -bootstrapStandby -force"
+  become: yes
+  become_user: hdfs
+  when: namenode_status.rc == 1
+
+- name: Enable namenode systemd service
+  become: yes
+  shell: systemctl enable hdfs@namenode.service
+
+- name: Reload namenode systemd service config
+  become: yes
+  shell: systemctl daemon-reload
+
+- name: Start namenode systemd service
+  become: yes
+  shell: systemctl restart hdfs@namenode.service
+
+- name: Check secondary namenode state
+  become: yes
+  become_user: hdfs
+  ignore_errors: yes
+  no_log: yes
+  shell: "{{ hadoop_home }}/bin/hdfs haadmin -getServiceState nn2 | grep 'active'"
+  register: namenode_service_state
+
+#- name: Force primary namenode to 'active'
+#  become: yes
+#  become_user: hdfs
+#  shell: "{{ hadoop_home }}/bin/hdfs haadmin -failover nn1 nn2"
+#  when: namenode_service_state.rc == 1
+
+- name: Check secondary namenode health
+  become: yes
+  become_user: hdfs
+  command: "{{ hadoop_home }}/bin/hdfs haadmin -checkHealth nn2"

@@ -1,0 +1,45 @@
+// Master Local Configuration
+
+{{ ansible_managed | comment('c') }}
+
+zone "{{ bind_forward_zone }}" {
+    type master;
+    file "{{ bind_config_directory }}/zones/db.{{ bind_forward_zone }}";
+
+    allow-transfer {
+    {% for host in groups['dns_secondary'] %}
+        {{ hostvars[host]['ansible_facts']['default_ipv4']['address'] }};
+    {% endfor %}
+    };
+
+    allow-update {
+    {% if bind_dnssec_enabled == 'yes' %}
+        key {{ bind_forward_zone }}.;
+    {% else %}
+    {% for acl in bind_acl %}
+        {{ acl.name }};
+    {% endfor %}
+    {% endif %}
+    };
+};
+
+zone "{{ bind_reverse_zone_addr }}.in-addr.arpa" {
+    type master;
+    file "{{ bind_config_directory }}/zones/db.{{ bind_reverse_zone }}";
+
+    allow-transfer {
+    {% for host in groups['dns_secondary'] %}
+        {{ hostvars[host]['ansible_facts']['default_ipv4']['address'] }};
+    {% endfor %}
+    };
+
+    allow-update {
+    {% if bind_dnssec_enabled == 'yes' %}
+        key {{ bind_forward_zone }}.;
+    {% else %}
+    {% for acl in bind_acl %}
+        {{ acl.name }};
+    {% endfor %}
+    {% endif%}
+    };
+};

@@ -1,0 +1,39 @@
+{
+    "downloads": [
+        {
+            "type": "row",
+            "dataset": "Baltimore",
+            "table": "311_Customer_Service_Requests",
+            "limit": -1,
+            "columnOrder": [
+                "SRRecordID",
+                "ServiceRequestNum",
+                "SRType",
+                "MethodReceived",
+                "CreatedDate",
+                "SRStatus",
+                "StatusDate",
+                "DueDate",
+                "CloseDate",
+                "Agency",
+                "LastActivity",
+                "LastActivityDate",
+                "Outcome",
+                "Address",
+                "ZipCode",
+                "Neighborhood",
+                "CouncilDistrict",
+                "PoliceDistrict",
+                "PolicePost",
+                "Latitude",
+                "Longitude",
+                "GeoLocation"
+            ],
+            "filters": {
+                "SRType": [
+                    "SW-Dirty Alley"
+                ]
+            }
+        }
+    ]
+}

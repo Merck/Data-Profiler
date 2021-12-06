@@ -1,0 +1,21 @@
+FROM container-registry.dataprofiler.com/hadoop:latest
+
+RUN pip3 install --upgrade pip
+
+ENV WHEEL dataprofiler_api-1.0-py3-none-any.whl
+
+WORKDIR /opt/app
+
+RUN pip3 install boto3
+RUN apt install -y zip
+
+ADD python_packages/${WHEEL} .
+RUN pip3 install ${WHEEL}
+ADD data_profiler_core_jars/dataprofiler-tools-current.jar .
+ADD loop.sh /tmp/loop.sh
+RUN chmod +x /tmp/loop.sh
+ADD sqlsync.sh .
+ADD sqlsync.py .
+
+ENTRYPOINT ["/tmp/loop.sh"]
+

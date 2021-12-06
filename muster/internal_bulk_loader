@@ -1,0 +1,93 @@
+#! /usr/bin/env python3
+
+import subprocess
+import argparse
+
+import sys
+
+
+class Dataset:
+    MDL = '/usr/bin/dataprofiler_loader'
+    VIS = 'LIST.Public_Data'
+
+    def __init__(self, dataset_fname, extra_args=None):
+        self.dataset_fname = dataset_fname
+        self.dataset_name = dataset_fname.replace('_', ' ')
+        self.extra_args = extra_args
+        if self.extra_args is None:
+            self.extra_args = []
+
+    def load(self):
+        subprocess.call([self.MDL, 'load-from-hdfs', self.dataset_fname, self.dataset_name, self.VIS] + self.extra_args)
+
+
+class Datasets:
+    def __init__(self):
+        self.datasets = {}
+
+    def add(self, name, extra_args=None):
+        self.datasets[name] = Dataset(name, extra_args=extra_args)
+
+loadable = ['--hdfs-prefix', '/data/loadable']
+
+d = Datasets()
+d.add('CDC_Vaccines')
+d.add('CERNER_DIM')
+d.add('CMS_-_Medicare_Disparities_Study', loadable)
+d.add('CMS_-_Service_Market_Saturation_and_Utilization_2018-04-13', loadable)
+d.add('CPRD')
+d.add('Data_Healthcare_Gov')
+d.add('FLATIRON')
+d.add('Minority_Health_Indicators-Births', loadable)
+d.add('Minority_Health_Indicators-Demographics', loadable)
+d.add('Minority_Health_Indicators-HIV_AIDS', loadable)
+d.add('Minority_Health_Indicators-Health_Coverage', loadable)
+d.add('Minority_Health_Indicators-Health_Status', loadable)
+d.add('Minority_Health_Indicators-Medical_School_Graduates_By_Race', loadable)
+d.add('Minority_Health_Indicators-Men_Health_Disparities', loadable)
+d.add('Minority_Health_Indicators-Mortality', loadable)
+d.add('Minority_Health_Indicators-Women_Health_Disparities', loadable)
+d.add('National_Mental_Health_Services_Survey', loadable)
+d.add('National_Cancer_Institute', loadable)
+d.add('National_Employment_Hours_and_Earnings')
+d.add('National_Survey_on_Drug_Use_and_Health', loadable)
+d.add('NCBI_NLM_NIH_GOV', loadable)
+d.add('NHGRI_genenames_org', loadable)
+d.add('Oklahoma', loadable)
+d.add('OPENSNP', loadable)
+d.add('Patient_Claims_DB1')
+d.add('Patient_Claims_DB2')
+d.add('Patient_Claims_DB3')
+d.add('PREMIER')
+d.add('TRUVEN_EARLYVIEW')
+d.add('TRUVEN_MEDICAID')
+d.add('US_Census_Bureau')
+d.add('US_Vital_Statistics_Data')
+d.add('VEEVA')
+
+parser = argparse.ArgumentParser(description='Load existing datasets')
+parser.add_argument('name', nargs='?', default=None)
+parser.add_argument('--all', default=False, action='store_true')
+parser.add_argument('--list', default=False, action='store_true')
+
+args = parser.parse_args()
+
+if args.list:
+    for dataset in d.datasets.keys():
+        print(dataset)
+
+    sys.exit(0)
+
+
+if args.name is None and args.all == False:
+    parser.print_help()
+
+if args.all:
+    for dataset in d.datasets.values():
+        dataset.load()
+else:
+    if not args.name in d.datasets:
+        print("Unknown dataset: " + args.name)
+        sys.exit(1)
+
+    d.datasets[args.name].load()

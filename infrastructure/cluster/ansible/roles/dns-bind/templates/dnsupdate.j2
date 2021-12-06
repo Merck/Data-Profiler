@@ -1,0 +1,45 @@
+#!/bin/bash
+
+log_file=/var/log/dnsupdate.log
+
+log_info() {
+  printf '%s %s\n' "$(date)" "$1" >> "$log_file"
+}
+
+ttl=86400
+short_host=`hostname -s`
+
+log_info "dhclient-exit-hook dnsupdate"
+
+log_info "short_host: $short_host"
+log_info "reason: $reason"
+log_info "new_ip_address: $new_ip_address"
+log_info "old_ip_address: $old_ip_address"
+
+if [ -z "$short_host" ] || [ -z "$new_ip_address" ]; then
+    exit 1
+fi
+
+if ([ $reason = "RENEW" ] && [ $old_ip_address != $new_ip_address ]) || ([ $reason = "REBOOT" ] || [ $reason = "BOUND"]); then
+        default_interface=`route | grep '^default' | head -n1| grep -o '[^ ]*$'`
+        addr=`ip -4 addr show dev ${default_interface} | grep "inet" | awk '{print $2}' | sed 's|/.*||'`
+        host=`hostname -f`
+        reverse_addr=`echo ${new_ip_address} | awk -F. '{print $4"."$3"."$2"."$1}'`
+        reverse_addr_zone=`echo ${addr} | awk -F. '{print $3"."$2"."$1}'`
+        reverse_addr_existing=`echo ${old_ip_address} | awk -F. '{print $4"."$3"."$2"."$1}'`
+
+        echo "
+{% for host in groups['dns_primary'] %}
+        zone {{ bind_forward_zone }}
+{% endfor %}
+        update delete ${host} A
+        update add ${host} ${ttl} A ${new_ip_address}
+        update delete ${host} ${ttl} AAAA ${addr6}
+        show
+
+        zone ${reverse_addr_zone}.in-addr.arpa
+        update add ${reverse_addr}.in-addr.arpa. ${ttl} PTR ${host}.
+        show
+        send
+    "| nsupdate -v >> "$log_file" 2>&1
+fi

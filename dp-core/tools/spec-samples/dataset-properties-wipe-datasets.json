@@ -1,0 +1,7 @@
+{
+  "allDatasets": true,
+  "actions": [
+    "WIPE_DELTA",
+    "WIPE_SYSTEM_COMMENTS"
+  ]
+}

@@ -1,0 +1,95 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+type Query {
+    metadataByDatasetName(id: ID): Metadata
+    metadata: [Metadata]
+}
+
+type Metadata {
+    visibility: String
+    timestamp: String  # Long
+    metadata_level: Int
+    version_id: String
+    dataset_name: String  # Example NiFi Tests, this is the 'id' noted in the query byDatasetName; parsed here: datasetMetadataFetcherById in AccumuloController
+    dataset_display_name: String
+    table_id: String  # Null most of the time
+    table_name: String  # Null most of the time
+    table_display_name: String  # Null most of the time
+    column_name: String  # Null most of the time
+    column_display_name: String  # Null most of the time
+    data_type: String
+    load_time: String  # Long 
+    update_time: String  # Long
+    num_tables: String  # Long
+    num_columns: String  # Long
+    num_values: String  # Long
+    num_unique_values: String  # Long
+    pat_id: Boolean
+    column_num: Int
+    properties: MetadataProperties
+}
+
+type MetadataProperties {
+    chartData: String  # [ChartData]
+    performance: String  # Performance
+    numUsersWithAttribute: String  # Int?
+    delta: String  # Delta
+    updatedOnMillis: String  # Long
+    quality: String  # Quality
+    description: String # Description
+}
+
+type ChartData {
+    day: String
+    views: Int
+}
+
+type Performance {
+    updatedOnMillis: String  # Long
+    numUsersWithAttribute: Int
+    numUserWithAttributeAndContractor: Int
+    chartData: [ChartData]
+    searchAppearanceData: AppearanceData
+    downloadData: AppearanceData
+}
+
+type AppearanceData {
+    allTime: Int
+    lastSevenFromToday: Int
+    lastSevenFromYesterday: Int
+}
+
+type Delta {
+    updatedOnMillis: String  # Long
+    lastKnownVersions: String
+    deltas: [String]
+}
+
+type LastKnownVersion {
+    tables: String
+    dataset: String
+    version: String
+}
+
+type Quality {
+    qualities: [String]
+}

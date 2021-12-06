@@ -1,0 +1,19 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          create-spark-pid-dir
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     S 2 3 4 5 6 .
+# Default-Stop:      1
+# Short-Description: create /var/run/spark
+# Description: create /var/run/spark
+### END INIT INFO
+
+DAEMONUSER=spark
+PIDDIR=/var/run/spark
+
+if [ ! -d $PIDDIR ]; then
+  mkdir -p $PIDDIR
+  chown $DAEMONUSER:$DAEMONUSER $PIDDIR
+fi

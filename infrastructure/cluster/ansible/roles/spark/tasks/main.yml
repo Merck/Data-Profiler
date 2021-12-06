@@ -1,0 +1,149 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: "Create Spark user"
+  user:
+    name: "{{ spark_user }}"
+  become: true
+
+# Generate ssh key for passwordless ssh
+- import_tasks: ssh.yml
+
+- name: "Set ~/ssh/config for spark"
+  copy:
+    src: ssh_config
+    dest: "~{{ spark_user }}/.ssh/config"
+    owner: "{{ spark_user }}"
+    group: "{{ spark_user }}"
+    mode: "0644"
+  become: true
+
+- name: "Create installation directory for Spark"
+  file:
+    path: "{{ spark_base_path }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  become: true
+
+- name: Download Spark tarball from S3
+  aws_s3:
+    bucket: "{{ s3_bucket }}"
+    object: "/{{ s3_sources_folder }}/spark/{{ spark_version }}/{{ spark_tarball }}"
+    dest: "/tmp/{{ spark_tarball }}"
+    mode: get
+
+- name: Install Spark from tarball
+  unarchive: 
+    src: "/tmp/{{ spark_tarball }}"
+    dest: "{{ spark_base_path }}"
+    creates: "{{ spark_base_path }}/{{ spark_version_name }}"
+    remote_src: yes
+    owner: root
+    group: root
+  become: true
+
+- name: "Create symlink to the latest version of Spark"
+  file:
+    src: "{{ spark_base_path }}/{{ spark_version_name }}"
+    dest: "{{ spark_home }}"
+    state: link
+    owner: root
+    group: root
+  become: yes
+
+- name: "Download patched Avro jar from S3"
+  aws_s3:
+    bucket: "{{ s3_bucket }}"
+    object: "/{{ s3_sources_folder }}/avro/avro-1.8.2.jar"
+    dest: "{{ spark_home }}/jars/avro-1.8.2.jar"
+    mode: get
+  become: yes
+
+- name: "Update Spark configurations"
+  template:
+    src: "{{ item }}"
+    dest: "{{ spark_home }}/conf/{{ item }}"
+    owner: "root"
+    group: "root"
+  with_items:
+    - spark-defaults.conf
+    - spark-env.sh
+  become: yes
+
+- name: "Configure conf/slave on all Spark hosts"
+  template:
+    src: slaves.j2
+    dest: "{{ spark_home }}/conf/slaves"
+    mode: 644
+  become: true
+
+- name: "Set JAVA_HOME"
+  lineinfile:
+    path: "{{ spark_home }}/sbin/spark-config.sh"
+    line: "export JAVA_HOME={{ java_home }}"
+  become: yes
+
+# Set JAVA_HOME for all users
+- import_tasks: set-java-home.yml
+
+- name: "Create directories for Spark"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ spark_user }}"
+    group: "{{ spark_group }}"
+  with_items:
+    - "{{ spark_log_directory }}"
+    - "{{ spark_history_log_directory }}"
+    - "{{ spark_pid_directory }}"
+    - "{{ spark_work_directory }}"
+  become: true
+
+- name: "copy spark pid directory creation startup script"
+  copy: src=create-spark-pid-dir dest=/etc/init.d/create-spark-pid-dir mode='0755' owner=root group=root
+  become: yes
+
+- name: "install create-spark-pid-dir startup script"
+  shell: "update-rc.d create-spark-pid-dir remove && update-rc.d -f create-spark-pid-dir defaults 99"
+  become: yes
+
+- name: Configure spark master systemd service template
+  become: yes
+  template: src=spark-master.service.j2 dest=/etc/systemd/system/spark-master.service
+  when: "'spark_masters' in group_names"
+
+- name: Configure spark worker systemd service template
+  become: yes
+  template: src=spark-worker.service.j2 dest=/etc/systemd/system/spark-worker.service
+  when: "'spark_workers' in group_names"
+
+- name: Configure spark history server systemd service template
+  become: yes
+  template: src=spark-history-server.service.j2 dest=/etc/systemd/system/spark-history-server.service
+  when: "'spark_history_server' in group_names"
+
+- name: Configure spark shuffle service systemd service template
+  become: yes
+  template: src=spark-shuffle-service.service.j2 dest=/etc/systemd/system/spark-shuffle-service.service
+  when: "'spark_workers' in group_names"

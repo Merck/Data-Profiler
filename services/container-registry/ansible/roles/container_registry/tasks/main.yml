@@ -1,0 +1,148 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: Install Docker
+  become: true
+  block:
+    - name: Create a docker group
+      group:
+        name: docker
+        state: present
+
+    - name: Let ubuntu do docker
+      user:
+        name: ubuntu
+        shell: /bin/bash
+        groups: docker
+        append: yes
+
+    - name: Add docker key to apt
+      apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+
+    - name: Add docker repo
+      command: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+
+    - name: Add docker packages
+      apt: name=docker-ce update_cache=yes
+
+    - name: Add dataprofiler-docker user
+      user:
+        name: dataprofiler-docker
+        state: present
+        groups: docker
+        append: yes
+
+    - name: Give docker access to /data
+      become: true
+      file:
+        path: /data
+        state: directory
+        owner: dataprofiler-docker
+        group: dataprofiler-docker
+        mode: 0755
+
+    - name: Download docker compose
+      get_url: 
+        dest: /usr/local/bin/docker-compose
+        url: https://github.com/docker/compose/releases/download/1.15.0/docker-compose-Linux-x86_64
+
+    - name: Make docker compose executable
+      command: chmod +x /usr/local/bin/docker-compose
+
+    - name: Make sure the .ssh directory exists for dataprofiler-docker
+      file:
+        path: /root/.docker
+        state: directory
+        owner: dataprofiler-docker
+        group: dataprofiler-docker
+        mode: 0700
+
+    - name: Login to docker
+      copy: src=dockerconfig.json dest=/root/.docker/config.json mode=660
+
+    - name: Create docker tool directory
+      file:
+        path: /usr/lib/dataprofiler/docker_tools
+        state: directory
+        owner: dataprofiler-docker
+        group: docker
+
+    - name: Add the muster-docker-up command to docker_tools
+      copy:
+        src: muster-docker-up.sh
+        dest: /usr/lib/dataprofiler/docker_tools/muster-docker-up.sh
+        mode: 0770
+      become: true
+
+    - name: Add the muster-docker-down command to docker_tools
+      copy:
+        src: muster-docker-down.sh
+        dest: /usr/lib/dataprofiler/docker_tools/muster-docker-down.sh
+        mode: 0770
+      become: true
+
+
+- name: Setup docker container registry
+  become: true
+  block:
+    - name: Create container repository storage directory
+      file:
+        path: /home/dataprofiler-docker/docker-hub-storage
+        owner: dataprofiler-docker
+        recurse: true
+        group: dataprofiler-docker
+        mode: 0775
+        state: directory
+
+    - name: Create container repository auth directory
+      file:
+        path: /home/dataprofiler-docker/auth
+        owner: dataprofiler-docker
+        group: dataprofiler-docker
+        recurse: true
+        mode: 0700
+        state: directory
+
+    - name: Install docker login file
+      copy:
+        src: htpasswd
+        dest: /home/dataprofiler-docker/auth/htpasswd
+        mode: 0644
+
+    - name: Install docker-compose file
+      template: src=docker-compose.yml.j2 dest=/home/dataprofiler-docker/docker-compose.yml mode=0644
+
+    - name: Install the container systemd unit
+      copy: src=container-registry.service dest=/lib/systemd/system/container-registry.service
+
+    - name: Enable container service
+      systemd:
+        name: container-registry
+        enabled: yes
+        daemon_reload: yes
+        state: started
+      register: container_registry_status
+
+    - name: Rebuild container if needed
+      command: systemd-cat -t container_registry docker-compose up -d --build
+      args:
+        chdir: "/home/dataprofiler-docker"
+      when: container_registry_status.status.SubState == "running"

@@ -1,0 +1,1 @@
+scan -t curr.datawaveRows -c "I\x00Central/Outlying County"

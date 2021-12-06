@@ -1,0 +1,107 @@
+#! /usr/bin/env python3
+
+import argparse
+import sys
+from dataprofiler import Api, versions, util
+
+DATAPROFILER_JAR = "/usr/lib/dataprofiler/tools/dataprofiler-tools-current.jar"
+
+def list_datasets(args):
+    if args.all_versions:
+        versions.show_all_datasets(DATAPROFILER_JAR)
+    else:
+        api = Api()
+        print(api.get_dataset_names())
+
+def list_tables(args):
+    if args.all_versions:
+        if args.table is not None:
+            versions.show_table(args.dataset_name, args.table_name, DATAPROFILER_JAR)
+        else:
+            versions.show_dataset(args.dataset_name, DATAPROFILER_JAR)
+    else:
+        api = Api()
+        print(api.get_table_names(args.dataset_name))
+
+
+def delete_dataset(args):
+    all_versions = True
+    msg = "Delete dataset '" + args.dataset_name + "'"
+
+    if args.only_previous_versions:
+        all_versions = False
+        msg = f"Delete previous versions of dataset {args.dataset_name} (current version will remain)?"
+
+    util.verify(msg)
+
+    if args.purge:
+        versions.purge_dataset(args.dataset_name, args.only_previous_versions, all_versions,
+                     args.delete_index, args.delete_aliases, DATAPROFILER_JAR)
+    else:
+        versions.delete_dataset(args.dataset_name, DATAPROFILER_JAR)
+
+def delete_table(args):
+    all_versions = True
+    msg = f"Delete table {args.table_name} from dataset {args.dataset_name}?"
+    if args.only_previous_versions:
+        msg = f"Delete previous versions of table {args.table_name} from dataset {args.dataset_name} (current version will remain)?"
+        all_versions = False
+    elif args.table_id:
+        all_versions = False
+        msg = f"Delete table id {args.table_id} of table {args.table_name} from dataset {args.dataset_name}?"
+    
+    util.verify(msg)
+
+    if args.purge:
+        versions.purge_table(args.dataset_name, args.table_name, args.table_id, args.only_previous_versions,
+            all_versions, args.delete_index, args.delete_aliases, DATAPROFILER_JAR)
+    else:
+        versions.delete_table(args.dataset_name, args.table_name, DATAPROFILER_JAR)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Dataprofiler data version management tool")
+    parser.add_argument("--dev-jar")
+
+    subparsers = parser.add_subparsers(help="commands", dest="command")
+
+    c = subparsers.add_parser('list-datasets', help="List all datasets")
+    c.add_argument("--all-versions", help="List all versions for the datasets(warning: this is slow", action="store_true", default=False)
+    c.set_defaults(func=list_datasets)
+
+    c = subparsers.add_parser('list-tables', help='List all tables for a dataset')
+    c.add_argument('dataset_name')
+    c.add_argument('--table', help='Only list this specific table name (only compatible with --all-versions', default=None)
+    c.add_argument('--all-versions', help='List all versions of the tables (warning: this is slow)', action='store_true', default=False)
+    c.set_defaults(func=list_tables)
+
+    c = subparsers.add_parser('delete-dataset',
+                              help='Delete a dataset from Accumulo')
+    c.add_argument('dataset_name')
+    c.add_argument('--only-previous-versions', action='store_true', default=False)
+    c.add_argument('--delete-index', action='store_true', default=True)
+    c.add_argument("--delete-aliases", action="store_false", default=True)
+    c.add_argument('--purge', action='store_true', default=False, help='Purge data from disk - this makes the action take much longer and cannot be undone.')
+    c.set_defaults(func=delete_dataset)
+
+    c = subparsers.add_parser("delete-table", help="Delete a table from Accumulo")
+    c.add_argument("dataset_name")
+    c.add_argument("table_name")
+    group = c.add_mutually_exclusive_group()
+    group.add_argument('--only-previous-versions', action='store_true', default=False)
+    group.add_argument("--table-id", help="Specific table id to delete", default=None)
+    c.add_argument('--delete-index', action='store_false', default=True)
+    c.add_argument("--delete-aliases", action="store_false", default=True)
+    c.add_argument("--purge", action="store_true", default=False, help="Purge data from disk - this makes the action take much longer and cannot be undone.")
+    c.set_defaults(func=delete_table)
+
+    args = parser.parse_args()
+
+    if args.dev_jar:
+        DATAPROFILER_JAR = args.dev_jar
+
+    if args.command is None:
+        parser.print_help()
+        sys.exit(1)
+
+    args.func(args)

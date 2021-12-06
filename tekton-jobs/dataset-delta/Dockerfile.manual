@@ -1,0 +1,19 @@
+FROM container-registry.dataprofiler.com/dataprofiler-alpine:latest
+
+
+RUN pip3 install --upgrade pip
+
+ENV WHEEL dataprofiler_api-1.0-py3-none-any.whl
+
+WORKDIR /opt/app
+
+ADD python_packages/${WHEEL} .
+RUN pip3 install ${WHEEL}
+ADD data_profiler_core_jars/dataprofiler-tools-current.jar .
+ADD loop.sh /tmp/loop.sh
+RUN chmod +x /tmp/loop.sh
+
+ADD dataset-delta.sh .
+ADD dataset-delta.py .
+
+ENTRYPOINT ["/tmp/loop.sh"]

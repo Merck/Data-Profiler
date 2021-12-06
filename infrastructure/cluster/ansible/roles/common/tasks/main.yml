@@ -1,0 +1,154 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: Set the hostname
+  hostname:
+    name: "{{ hostvars[inventory_hostname]['dataprofiler_hostname'] }}"
+  become: true
+  when: "'kube' not in group_names"
+
+- name: Uninstall packages
+  apt:
+    name: "{{ packages }}"
+    state: absent
+  become: true
+  vars:
+    packages:
+      - ntp
+
+- name: Install default packages
+  apt:
+    name: "{{ packages }}"
+    state: latest
+    update_cache: yes
+  become: true
+  vars:
+    packages:
+      - openjdk-8-jdk
+      - openjdk-8-jre
+      - maven
+      - awscli
+      - jq
+      - nload
+      - iftop
+      - chrony
+      - wget
+      - htop
+      - hugepages
+      - libffi-dev
+      - python-minimal
+      - python3
+      - python3-pip
+      - tmux
+      - sysstat
+      - zip
+      - unzip
+      - nvme-cli
+
+- name: Create install directory
+  file:
+    path: "{{ install_dir }}"
+    state: directory
+    owner: "root"
+    group: "root"
+
+- name: Disable default python cert verification
+  copy:
+    src: cert_verification.cfg
+    dest: /etc/python/cert_verification.cfg
+    mode: "644"
+  become: true
+  tags:
+    - python_certs
+
+- name: Install needed python packages
+  pip:
+    name: boto3
+    executable: pip3
+    state: latest
+  become: true
+
+# This is for use within tmux session to get access to ssh agent working correctly
+- name: Add the fixssh alias to profile.d
+  copy:
+    src: fixssh.sh
+    dest: /etc/profile.d/fixssh.sh
+  become: true
+
+- name: Add script to mount EBS NVME volume
+  copy:
+    src: ebs-nvme-mapping
+    dest: /usr/local/bin/ebs-nvme-mapping
+    mode: "755"
+  become: true
+
+- name: Add udev rule to run EBS NVME script at boot
+  copy:
+    src: 999-aws-ebs-nvme.rules
+    dest: /etc/udev/rules.d/999-aws-ebs-nvme.rules
+    mode: "644"
+  become: true
+
+- name: Create hdfs group
+  group:
+    name: hdfs
+    state: present
+
+- name: Create mapred group
+  group:
+    name: mapred
+    state: present
+
+- name: Create hdfs user
+  user:
+    name: hdfs
+    shell: /bin/bash
+    groups: hdfs
+    append: yes
+    password: "!"
+
+- name: Create mapred user
+  user:
+    name: mapred
+    shell: /bin/bash
+    groups: mapred
+    append: yes
+    password: "!"
+
+- name: Create accumulo user
+  user:
+    name: accumulo
+    shell: /bin/bash
+    groups: hdfs
+    append: yes
+    password: "!"
+
+- name: Create zookeeper user
+  user:
+    name: zookeeper
+    shell: /bin/bash
+    password: "!"
+
+- name: Create livy user
+  user:
+    name: livy
+    shell: /bin/bash
+    password: "!"

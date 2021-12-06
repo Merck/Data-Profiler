@@ -1,0 +1,76 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+#- name: "Check if Spark is already running"
+#  stat:
+#    path: "{{ spark_pid_directory }}/spark-spark-org.apache.spark.deploy.master.Master-1.pid"
+#  register: spark_status
+#
+#- name: "Start the Spark history server"
+#  command: "{{ spark_home }}/sbin/start-all.sh"
+#  delegate_to: "{{ hostvars[groups['spark_masters'][0]].private_ip_address }}"
+#  register: sparkhist
+#  changed_when: "'org.apache.spark.deploy.history.HistoryServer running as process' not in sparkhist.stdout"
+#  failed_when: sparkhist.rc != 0
+#  become: true
+#  become_user: "{{ spark_user }}"
+#  when: spark_status.stat.exists == false
+
+#- name: Start Spark Master daemons
+#  service: name=spark-master.service enabled=yes state=started
+#  when: "'spark_masters' in group_names"
+#
+#- name: Start Spark HistoryServer daemon
+#  service: name=spark-history-server.service enabled=yes state=started
+#  when: "'spark_history_server' in group_names"
+#
+#- name: Start Spark Worker daemons
+#  service: name=spark-worker.service enabled=yes state=started
+#  when: "'spark_workers' in group_names"
+
+- name: Start Spark Master daemons
+  become: yes
+  shell: systemctl enable spark-master && systemctl start spark-master
+  when: "'spark_masters' in group_names"
+
+- name: Start Spark HistoryServer daemon
+  become: yes
+  shell: systemctl enable spark-history-server && systemctl start spark-history-server
+  when: "'spark_history_server' in group_names"
+
+- name: Start Spark Worker daemons
+  become: yes
+  shell: systemctl enable spark-worker && systemctl start spark-worker
+  when: "'spark_workers' in group_names"
+
+- name: Start Spark Shuffle Service daemons
+  become: yes
+  shell: systemctl enable spark-shuffle-service && systemctl start spark-shuffle-service
+  when: "'spark_workers' in group_names"
+
+- name: Cleanup Jars
+  ansible.builtin.cron:
+    name: "CleanupJars"
+    minute: "0"
+    hour: "0"
+    job: "find /data/spark/work -name '*.jar' | xargs -L 50 rm -f"
+  become: yes
+  when: "'spark_workers' in group_names"

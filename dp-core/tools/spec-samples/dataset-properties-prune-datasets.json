@@ -1,0 +1,7 @@
+{
+  "allDatasets": true,
+  "actions": [
+    "PRUNE_DELTA_COMMENTS",
+    "PRUNE_SYSTEM_COMMENTS"
+  ]
+}

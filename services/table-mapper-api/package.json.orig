@@ -1,0 +1,37 @@
+{
+  "type": "module",
+  "name": "table-mapper",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "dependencies": {
+    "apollo-server-koa": "^2.19.0",
+    "graphql": "^14.7.0",
+    "graphql-iso-date": "^3.6.1",
+    "koa": "^2.13.0",
+    "koa-bodyparser": "^4.3.0",
+    "koa-router": "^10.0.0",
+    "lodash": "^4.17.20",
+    "pg": "^8.5.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.3.5",
+    "sequelize-cli": "^6.2.0"
+  },
+  "description": "1. Create Project",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./node_modules/.bin/babel-node ./src/index.js",
+    "dev": "./node_modules/.bin/nodemon ./src/index.js --exec babel-node",
+    "migrate": "./node_modules/.bin/sequelize --config ./src/config/sequelize.js --migrations-path ./src/migrations db:migrate"
+  },
+  "author": "",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0"
+  }
+}

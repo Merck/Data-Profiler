@@ -1,0 +1,8 @@
+#! /usr/bin/env python3
+import sys
+import time
+
+if __name__ == '__main__':
+    print("processing job: " + sys.argv[2])
+    time.sleep(10)
+    print("done processing job: " + sys.argv[2])

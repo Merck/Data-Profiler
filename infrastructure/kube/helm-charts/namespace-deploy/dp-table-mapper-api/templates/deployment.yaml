@@ -1,0 +1,107 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ .Values.podName }}
+    namespace: {{ .Release.Namespace | quote }}
+    labels:
+        app: {{ .Values.podName }}
+spec:
+    strategy:
+      type: Recreate # required if we use pvc attachments. breaks 0 downtime.
+    replicas: {{ .Values.replicas }}
+    selector:
+      matchLabels:
+        app: {{ .Values.podName }}
+    template:
+        metadata:
+          namespace: {{ .Release.Namespace | quote }}
+          labels:
+            app: {{ .Values.podName }}
+        spec:
+          initContainers:
+            # - name: init-mydb
+            #   image: busybox:1.28
+            #   command: ['sh', '-c', "while ! nc -z -v -w30 {{ .Values.api.env.TABLES_DB }} 5432; do echo Waiting for database connection...; sleep 3; done"]
+            # - name: yarn-migrate
+            #   image: dp-table-mapper-api
+            #   command: ['yarn', 'run', 'migrate']
+          containers:
+          - name: api
+            image: {{ .Values.image.name | quote }}
+            ports:
+              - containerPort: {{ .Values.api.container.port }}
+            resources:
+              requests:
+                memory: {{ .Values.api.resources.requests.memory }}
+                cpu: {{ .Values.api.resources.requests.cpu }}
+              limits:
+                memory: {{ .Values.api.resources.limits.memory }}
+                cpu: {{ .Values.api.resources.limits.cpu }}
+            env:
+            - name: LISTEN_PORT
+              value: {{ .Values.api.container.port | quote }}
+            - name: DATABASE_NUM_POOL_CONNS
+              value: {{ .Values.api.env.DATABASE_NUM_POOL_CONNS | quote }}
+            - name: DATABASE_POOL_IDLE_MILLI
+              value: {{ .Values.api.env.DATABASE_POOL_IDLE_MILLI | quote }}
+            - name: DATABASE_POOL_EVICT_MILLI
+              value: {{ .Values.api.env.DATABASE_POOL_EVICT_MILLI | quote }}
+            - name: TIMEOUT_MINUTES
+              value: {{ .Values.api.env.TIMEOUT_MINUTES | quote }}
+            - name: INACTIVE_TIMEOUT_MINUTES
+              value: {{ .Values.api.env.INACTIVE_TIMEOUT_MINUTES | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.api.env.NODE_ENV | quote }}
+            - name: TABLES_DB
+              value: {{ .Values.api.env.TABLES_DB | quote }}
+            command: ["/opt/app/docker-entrypoint.sh"]
+            args: ["yarn", "run", "start"]
+          - name: db
+            image: {{ .Values.db.image.name | quote }}
+            resources:
+              requests:
+                memory: {{ .Values.db.resources.requests.memory }}
+                cpu: {{ .Values.db.resources.requests.cpu }}
+              limits:
+                memory: {{ .Values.db.resources.limits.memory }}
+                cpu: {{ .Values.db.resources.limits.cpu }}
+            env:
+            - name: POSTGRES_USER
+              value: {{ .Values.db.env.POSTGRES_USER | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.db.env.POSTGRES_PASSWORD | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.db.env.POSTGRES_DB | quote }}
+            - name: PGDATA
+              value: {{ .Values.db.env.PGDATA | quote }}
+            volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: table-mapper-db-vol
+          imagePullSecrets:
+          - name: {{ .Values.imagePullSecrets | quote }}
+          restartPolicy: "Always"
+          volumes:
+          - name: table-mapper-db-vol
+            persistentVolumeClaim:
+              claimName: {{ .Release.Namespace }}-table-mapper-api-db-pvc

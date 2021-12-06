@@ -1,0 +1,118 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: "Create installation directory for Accumulo"
+  file:
+    path: "{{ accumulo_base_path }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  become: true
+
+- name: Download Accumulo tarball from S3
+  aws_s3:
+    bucket: "{{ s3_bucket }}"
+    object: "/{{ s3_sources_folder }}/accumulo/{{ accumulo_version }}/{{ accumulo_tarball }}"
+    dest: "/tmp/{{ accumulo_tarball }}"
+    mode: get
+
+- name: Install Accumulo from tarball
+  unarchive: 
+    src: "/tmp/{{ accumulo_tarball }}"
+    dest: "{{ accumulo_base_path }}"
+    creates: "{{ accumulo_base_path }}/{{ accumulo_version_name }}"
+    remote_src: yes
+
+- name: Create symlink to the latest version of Accumulo
+  file:
+    src: "{{ accumulo_base_path }}/{{ accumulo_version_name }}"
+    dest: "{{ accumulo_home }}"
+    state: link
+    owner: root
+    group: root
+  become: yes
+
+- name: "copy default accumulo configuration"
+  command: cp {{ accumulo_home }}/conf/templates/{{ item }} {{ accumulo_home }}/conf/ creates={{ accumulo_home }}/conf/{{ item }}
+  with_items:
+    - auditLog.xml
+    - generic_logger.xml
+    - monitor_logger.xml
+    - log4j.properties
+  when: accumulo_major_version == '1'
+
+- name: "configure accumulo 2.0 configuration"
+  template: src={{ item }} dest={{ accumulo_home }}/conf/{{ item }}
+  with_items:
+    - accumulo-env.sh
+    - accumulo.properties
+    - accumulo-client.properties
+    - gc
+    - tracers
+    - masters
+    - monitor
+    - log4j-service.properties
+  when: accumulo_major_version == '2'
+
+- name: "configure accumulo 1.0 configuration"
+  template: src={{ item }} dest={{ accumulo_home }}/conf/{{ item }}
+  with_items:
+    - accumulo-env.sh
+    - accumulo-site.xml
+    - client.conf
+    - gc
+    - tracers
+    - masters
+    - monitor
+  when: accumulo_major_version == '1'
+
+- name: "configure tservers using managed templates"
+  template: src=tservers dest={{ accumulo_home }}/conf/{{ accumulo_tservers_fn[accumulo_major_version] }}
+
+- name: "build accumulo native libraries"
+  shell: "{{ accumulo_build_native_cmd[accumulo_major_version] }}"
+  args:
+    creates: "{{ accumulo_home }}/lib/native/libaccumulo.so"
+
+- name: "Create accumulo log dir"
+  file: path={{ worker_data_dirs[0] }}/logs/accumulo state=directory owner=accumulo group=accumulo
+
+- name: "Copy the modified accumulo-cluster script that supports systemd to bin"
+  become: yes
+  copy: src=roles/accumulo/files/accumulo-cluster-systemd dest={{ accumulo_home }}/bin/accumulo-cluster-systemd mode=0755
+  when: use_systemd == True
+
+- name: "Remove the exisiting accumulo-service and accumulo-cluster scripts"
+  file: path={{ accumulo_home }}/bin/{{ item }} state=absent
+  become: yes
+  with_items:
+    - accumulo-service
+    - accumulo-cluster
+  when: use_systemd == True
+
+- name: "Create a symlink for accumulo-cluster-systemd"
+  become: yes
+  file: src={{ accumulo_home }}/bin/accumulo-cluster-systemd dest={{ accumulo_home }}/bin/accumulo-cluster mode=0755 state=link
+  when: use_systemd == True
+
+- name: "Change ownership of {{ accumulo_home }} to accumulo:accumulo"
+  raw: sudo chown -R accumulo:accumulo {{ accumulo_home }}

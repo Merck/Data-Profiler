@@ -1,0 +1,109 @@
+#api-tutorial .pln {
+  color: #000;
+}
+@media screen {
+  #api-tutorial .str {
+    color: #080;
+ }
+  #api-tutorial .kwd {
+    color: #008;
+ }
+  #api-tutorial .com {
+    color: #800;
+ }
+  #api-tutorial .typ {
+    color: #606;
+ }
+  #api-tutorial .lit {
+    color: #066;
+ }
+  #api-tutorial .clo, #api-tutorial .opn, #api-tutorial .pun {
+    color: #660;
+ }
+  #api-tutorial .tag {
+    color: #008;
+ }
+  #api-tutorial .atn {
+    color: #606;
+ }
+  #api-tutorial .atv {
+    color: #080;
+ }
+  #api-tutorial .dec, #api-tutorial .var {
+    color: #606;
+ }
+  #api-tutorial .fun {
+    color: red;
+ }
+}
+@media print, projection {
+  #api-tutorial .kwd, #api-tutorial .tag, #api-tutorial .typ {
+    font-weight: 700;
+ }
+  #api-tutorial .str {
+    color: #060;
+ }
+  #api-tutorial .kwd {
+    color: #006;
+ }
+  #api-tutorial .com {
+    color: #600;
+    font-style: italic;
+ }
+  #api-tutorial .typ {
+    color: #404;
+ }
+  #api-tutorial .lit {
+    color: #044;
+ }
+  #api-tutorial .clo, #api-tutorial .opn, #api-tutorial .pun {
+    color: #440;
+ }
+  #api-tutorial .tag {
+    color: #006;
+ }
+  #api-tutorial .atn {
+    color: #404;
+ }
+  #api-tutorial .atv {
+    color: #060;
+ }
+}
+#api-tutorial pre.prettyprint {
+  padding: 2px;
+  border: 1px solid #888;
+}
+#api-tutorial ol.linenums {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+#api-tutorial li.L0, #api-tutorial li.L1, #api-tutorial li.L2, #api-tutorial li.L3, #api-tutorial li.L5, #api-tutorial li.L6, #api-tutorial li.L7, #api-tutorial li.L8 {
+  list-style-type: none;
+}
+#api-tutorial li.L1, #api-tutorial li.L3, #api-tutorial li.L5, #api-tutorial li.L7, #api-tutorial li.L9 {
+  background: #eee;
+}
+#api-tutorial pre {
+  display: block;
+  font-size: 1rem;
+  color: #212529;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  background: #f5f5f5;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  overflow: auto;
+}
+#api-tutorial pre, #api-tutorial code, #api-tutorial kbd, #api-tutorial samp {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+#api-tutorial pre code {
+  word-break: normal;
+}
+#api-tutorial code span {
+  font-family: monospace !important;
+}
+#api-tutorial table {
+  border-collapse: collapse;
+}

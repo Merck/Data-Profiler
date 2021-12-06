@@ -1,0 +1,80 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: Create installation directory for ZooKeeper
+  file:
+    path: "{{ zookeeper_base_path }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  become: true
+
+- name: Download ZooKeeper tarball from S3
+  aws_s3:
+    bucket: "{{ s3_bucket }}"
+    object: "/{{ s3_sources_folder }}/zookeeper/{{ zookeeper_version }}/{{ zookeeper_tarball }}"
+    dest: "/tmp/{{ zookeeper_tarball }}"
+    mode: get
+
+- name: Install ZooKeeper from tarball
+  unarchive: 
+    src: "/tmp/{{ zookeeper_tarball }}"
+    dest: "{{ zookeeper_base_path }}"
+    creates: "{{ zookeeper_base_path }}/{{ zookeeper_basename }}"
+    remote_src: yes
+  become: true
+
+- name: Symlink to latest version of ZooKeeper
+  file:
+    src: "{{ zookeeper_base_path }}/{{ zookeeper_basename }}"
+    dest: "{{ zookeeper_home }}"
+    state: link
+    owner: zookeeper
+    group: zookeeper
+  become: true
+
+- name: configure zookeeper
+  template: src={{ item }} dest={{ zookeeper_home }}/conf/{{ item }}
+  with_items:
+    - zoo.cfg
+    - zookeeper-env.sh
+
+- name: Create zookeeper log dir
+  become: yes
+  file: path={{ zookeeper_log_path }} state=directory owner=zookeeper group=zookeeper
+
+- name: Create zookeeper data dir
+  become: yes
+  file: path={{ zookeeper_data_path }} state=directory owner=zookeeper group=zookeeper
+
+- name: Fix permissions
+  become: yes
+  file:
+    path: "{{ zookeeper_base_path }}/{{ zookeeper_basename }}"
+    owner: zookeeper
+    group: zookeeper
+    recurse: yes
+
+- name: Configure zookeeper systemd service
+  become: yes
+  template: src=zookeeper.service.j2 dest=/etc/systemd/system/zookeeper.service
+  when: "'zookeepers' in group_names"

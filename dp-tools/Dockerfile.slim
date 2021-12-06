@@ -1,0 +1,24 @@
+FROM python:3.8-slim
+# install py 3.8 because compiling gevent under 3.9 failed
+#   with error: ‘PyTypeObject’ has no member named ‘tp_print’
+
+RUN apt update
+
+RUN apt install gcc python3-dev linux-headers-4.19.0-14-all libffi-dev make libevent-dev build-essential -y
+
+# prep to install java
+RUN apt install apt-transport-https ca-certificates wget dirmngr gnupg software-properties-common -y \
+  && wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - \
+  && add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ \
+  && apt update
+
+# deal with not having man page directories (which causes install jre to fail)
+# install java 11 because java 8 does not seem to exist
+RUN if [ ! -d /usr/share/man/man1 ]; then \
+		mkdir -p /usr/share/man/man1; \
+	fi; \
+  apt install openjdk-11-jre -y
+
+RUN pip3 install --no-cache-dir --upgrade pip
+
+#CMD ["/bin/bash"]

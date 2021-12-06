@@ -1,0 +1,93 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: Create hadoop job history server log directory
+  become: yes
+  file: path={{ worker_data_dirs[0] }}/hadoop/mapreduce state=directory owner=mapred group=mapred
+
+- name: Create hadoop job history server data directory
+  become: yes
+  file: path={{ worker_data_dirs[0] }}/logs/hadoop/mapred state=directory owner=mapred group=mapred
+
+- name: Check for hdfs mr-history directory
+  become: yes
+  become_user: hdfs
+  command: "/opt/hadoop/current/bin/hdfs dfs -ls /mr-history"
+  register: mr_history_dir_exists
+
+- name: Create hadoop hdfs mr-history directory
+  become: yes
+  become_user: hdfs
+  command: "{{ hadoop_home }}/bin/hdfs dfs -mkdir /mr-history"
+  when: mr_history_dir_exists.rc == 1
+
+- name: Set ownership for hadoop hdfs mr-history directory
+  become: yes
+  become_user: hdfs
+  command: "{{ hadoop_home }}/bin/hdfs dfs -chown -R mapred:supergroup /mr-history"
+
+- name: Set permissions for hadoop hdfs mr-history directory
+  become: yes
+  become_user: hdfs
+  command: "{{ hadoop_home }}/bin/hdfs dfs -chmod -R 775 /mr-history"
+
+- name: Configure HistoryServer systemd service
+  become: yes
+  template: src=historyserver.service.j2 dest=/etc/systemd/system/historyserver.service
+
+- name: Check if JobHistoryServer is running
+  shell: jps | grep "JobHistoryServer"
+  ignore_errors: yes
+  changed_when: false
+  register: jhs_status
+
+- name: Check JobHistoryServer systemd service status
+  shell: systemctl status historyserver
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  register: jhs_service_status
+
+- debug:
+    msg:
+      - "warn: JobHistoryServer instance is running outside of systemd control"
+      - "stopping JobHistoryServer...."
+  when: jhs_status.rc == 0
+
+- name: Stop JobHistoryServer
+  become_user: hdfs
+  shell: "{{ hadoop_home }}/sbin/mr-jobhistory-daemon.sh --config {{ hadoop_home }}/etc/hadoop stop historyserver"
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  when: jhs_status.rc == 0 and jhs_service_status.rc == 3
+
+- name: Enable historyserver systemd service
+  become: yes
+  shell: systemctl enable historyserver
+
+- name: Reload historyserver systemd service config
+  become: yes
+  shell: systemctl daemon-reload
+
+- name: Start historyserver systemd service
+  become: yes
+  shell: systemctl restart historyserver

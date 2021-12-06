@@ -1,0 +1,24 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    {{ ansible_facts['default_ipv4']['interface'] }}:
+      dhcp4: true
+      dhcp4-overrides:
+        use-dns: no
+      nameservers:
+        addresses:
+{% for host in groups['dns_primary'] %}
+          - {{ hostvars[host]['ansible_facts']['default_ipv4']['address'] }}
+{% endfor %}
+{% for host in groups['dns_secondary'] %}
+          - {{ hostvars[host]['ansible_facts']['default_ipv4']['address'] }}
+{% endfor %}
+{% if 'kubernetes' not in group_names %}
+          - {{ bind_forwarders[0] }}
+{% else %}
+          # Kubernetes requires one of these, leaving only two remaining slots
+          #- {{ bind_forwarders[0] }}
+{% endif %}
+        search:
+          - {{ bind_forward_zone }}

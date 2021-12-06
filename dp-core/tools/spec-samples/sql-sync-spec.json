@@ -1,0 +1,15 @@
+{
+  "jdbcConnection": {
+    "url": "jdbc:postgresql://localhost:5432/dmk",
+    "user": "postgres",
+    "passwd": ""
+  },
+  "downloads": [
+    {
+      "dataset": "src/test/resources/basic_test_data.csv",
+      "table": "basic_test_data",
+      "timestamp_format": "dd MMM yyyy hh:mm:ss a",
+      "date_format": "dd MMM yyyy"
+    }
+  ]
+}

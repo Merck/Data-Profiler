@@ -1,0 +1,48 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+# Current version: 40
+# To build
+# docker build -f Dockerfile -t container-registry.com/jenkins-deploy:<curent-version> .
+# 
+# To deploy
+# docker push container-registry.com/jenkins-deploy:<current-version>
+#
+# Update deploy.groovy to reflect the current version
+FROM odavid/jenkins-jnlp-slave:debian
+
+RUN apt-get update && apt-get install -y default-jre default-jdk maven jq libssl-dev python3 python3-pip dnsutils && rm -rf /var/lib/apt/lists/*
+RUN pip3 install wheel && pip3 install ansible awscli boto3 hvac pytest
+RUN curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose 
+RUN curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3  && chmod 700 /tmp/get_helm.sh && /tmp/get_helm.sh
+RUN curl -L https://storage.googleapis.com/kubernetes-release/release/v1.16.7/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl 
+
+ADD get-kube-conf.sh /usr/local/bin/get-kube-conf
+ADD get-kube-secret.sh /usr/local/bin/get-kube-secret
+ADD deploy-from-jenkins.sh /usr/local/bin/deploy-from-jenkins
+ADD deploy_from_jenkins.py /usr/local/bin/deploy_from_jenkins.py
+ADD create-configmap-from-vault.sh /usr/local/bin/create-configmap-from-vault
+ADD read-env-var.sh /usr/local/bin/read-env-var
+ADD run-backend-ansible.sh /usr/local/bin/run-backend-ansible
+ADD run_integration_tests.py /usr/local/bin/run_integration_tests.py
+
+RUN chmod -R +x /usr/local/bin/ 
+

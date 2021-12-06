@@ -1,0 +1,87 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: Create Accumulo tables
+  vars:
+    namespaces: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=kv/data/configs/production/accumulo/config auth_method=approle role_id={{ vault_role_id }} secret_id={{ vault_secret_id }} url={{ vault_url }}') | json_query('namespaces') }}"
+    accumulo_tables: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=kv/data/configs/production/accumulo/tables auth_method=approle role_id={{ vault_role_id }} secret_id={{ vault_secret_id }} url={{ vault_url }}') | dict2items }}"
+
+  block:
+    - name: Get Accumulo namespaces
+      shell: "{{ accumulo_home }}/bin/accumulo shell -u root -p {{ accumulo_password }} -e namespaces"
+      register: existing_namespaces
+
+    - name: Print found namespaces
+      debug:
+        msg: "Namespace: {{ item }}"
+        verbosity: 2
+      with_items: "{{ namespaces.split(',') }}"
+
+    - name: Print existing namespaces
+      debug:
+        msg: "Namespace: {{ item }}"
+        verbosity: 2
+      with_items: "{{ existing_namespaces.stdout.split('\n')[2:] }}"
+
+    - name: Create Accumulo namespace
+      shell: '{{ accumulo_home }}/bin/accumulo shell -u root -p {{ accumulo_password }} -e "createnamespace {{ item }}"'
+      with_items: "{{ namespaces.split(',') }}"
+      when: item not in existing_namespaces.stdout.split('\n')[2:]
+
+    - name: Get existing Accumulo tables
+      shell: '{{ accumulo_home }}/bin/accumulo shell -u root -p {{ accumulo_password }} -e "tables -np"'
+      register: existing_tables
+
+    - name: Print existing tables
+      debug:
+        msg: "Table: {{ item }}"
+        verbosity: 2
+      with_items: "{{ existing_tables.stdout.split('\n')[1:] }}"
+
+    - name: Create Accumulo table
+      shell: '{{ accumulo_home }}/bin/accumulo shell -u root -p {{ accumulo_password }} -e "createtable {{ item[0] }}.{{ item[1].value }}"'
+      with_nested:
+        - "{{ namespaces.split(',') }}"
+        - "{{ accumulo_tables }} "
+      when: item[0] + '.' + item[1].value not in existing_tables.stdout.split('\n')[1:]
+
+    - name: Remove constraints from tables
+      shell: '{{ accumulo_home }}/bin/accumulo shell -u root -p {{ accumulo_password }} -e "constraint -d 1 -t {{ item[0] }}.{{ item[1].value }}"'
+      with_nested:
+        - "{{ namespaces.split(',') }}"
+        - "{{ accumulo_tables }} "
+      when: item[0] + '.' + item[1].value not in existing_tables.stdout.split('\n')[1:]
+
+    - name: Set locality groups for the element aliases table
+      shell: '{{ accumulo_home }}/bin/accumulo shell -u root -p {{ accumulo_password }} -e "setgroups COLUMN=COLUMN, TABLE=TABLE, DATASET=DATASET -t {{ item[0] }}.{{ item[1].value }}"'
+      with_nested:
+        - "{{ namespaces.split(',') }}"
+        - "{{ accumulo_tables  }}"
+      when: item[1].key == "ACCUMULO_ELEMENT_ALIASES_TABLE"
+
+    - name: Set locality groups for the datawaveRows table
+      shell: '{{ accumulo_home }}/bin/accumulo shell -u root -p {{ accumulo_password }} -e "setgroups SHARD=SHARD -t {{ item[0] }}.{{ item[1].value }}"'
+      with_nested:
+        - "{{ namespaces.split(',') }}"
+        - "{{ accumulo_tables }}"
+      when: item[1].key == "ACCUMULO_DATAWAVE_ROW_TABLE"
+
+  become: true

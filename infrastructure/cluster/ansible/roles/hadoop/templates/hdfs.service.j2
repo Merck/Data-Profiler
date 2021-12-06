@@ -1,0 +1,19 @@
+[Unit]
+Description=Hadoop DFS %i Service
+After=network.target
+
+[Service]
+#Type=forking
+User=hdfs
+Group=hdfs
+ExecStart={{ hadoop_home }}/sbin/hadoop-daemon.sh --config {{ hadoop_home }}/etc/hadoop start %i
+ExecStop={{ hadoop_home }}/sbin/hadoop-daemon.sh --config {{ hadoop_home }}/etc/hadoop stop %i
+Environment=JAVA_HOME={{ java_home }}
+Restart=always
+RestartSec=60
+StartLimitBurst=5
+TimeoutStartSec=5min
+PIDFile=/var/run/hadoop/hadoop-hdfs-%i.pid
+
+[Install]
+WantedBy=multi-user.target

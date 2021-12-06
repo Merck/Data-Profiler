@@ -1,0 +1,61 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: Check if DFSZKFailoverController is running
+  become_user: hdfs
+  shell: jps | grep 'DFSZKFailoverController'
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  register: zkfc_status
+
+- name: Check DFSZKFailoverController systemd service status
+  shell: systemctl status hdfs@zkfc.service
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  register: zkfc_service_status
+
+- debug:
+    msg:
+      - "warn: DFSZKFailoverController instance is running outside of systemd control"
+      - "stopping DFSZKFailoverController...."
+  when: zkfc_status.rc == 0
+
+- name: Stop DFSZKFailoverController
+  become_user: hdfs
+  shell: "{{ hadoop_home }}/sbin/hadoop-daemon.sh --config {{ hadoop_home }}/etc/hadoop stop zkfc"
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  when: zkfc_status.rc == 0 and zkfc_service_status.rc == 3
+
+- name: Enable zkfc systemd service
+  become: yes
+  shell: systemctl enable hdfs@zkfc.service
+
+- name: Reload zkfc systemd service config
+  become: yes
+  shell: systemctl daemon-reload
+
+- name: Start zkfc systemd service
+  become: yes
+  shell: systemctl restart hdfs@zkfc.service

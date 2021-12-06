@@ -1,0 +1,18 @@
+// named.conf
+
+{{ ansible_managed | comment('c') }}
+
+{% if bind_acl|length > 0 %}
+{% include "named.conf.acls.j2" %}
+{% endif %}
+
+{% include "named.conf.options.j2" %}
+
+{% if 'dns_primary' in group_names %}
+{% include "named.conf.primary.local.j2" %}
+include "/etc/bind/keys.conf";
+{% endif %}
+
+{% if 'dns_secondary' in group_names %}
+{% include "named.conf.secondary.local.j2" %}
+{% endif %}

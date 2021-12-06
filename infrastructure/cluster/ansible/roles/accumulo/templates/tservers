@@ -1,0 +1,3 @@
+{% for host in groups['accumulo_workers'] %}
+{{ hostvars[host]['dataprofiler_fqdn'] }}
+{% endfor %}

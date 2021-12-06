@@ -1,0 +1,28 @@
+$TTL    604800
+@       IN      SOA     {{ dataprofiler_hostname }}.{{ bind_forward_zone }}. {{ bind_zone_admin_username }}.{{ bind_forward_zone }}. (
+         {{ timestamp.stdout }}         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+; name servers
+{% if 'dns_primary' in group_names %}
+                        NS      {{ dataprofiler_hostname }}.{{ bind_forward_zone }}.
+{% endif %}
+{% if 'dns_secondary' in group_names %}
+                        NS      {{ dataprofiler_hostname | replace("1", "2") }}.{{ bind_forward_zone }}.
+{% endif %}
+; PTR Records
+{% if 'dns_primary' in group_names %}
+239  IN      PTR     {{ dataprofiler_hostname }}.{{ bind_forward_zone }}.       ;
+{% endif %}
+{% if 'dns_secondary' %}
+20   IN      PTR     {{ dataprofiler_hostname | replace("1", "2") }}.{{ bind_forward_zone }}.       ;
+{% endif %}
+
+{% for host in groups['dns_primary'] %}
+{{ dataprofiler_hostname }}                   A       {{ hostvars[host]["private_ip_address"] }}
+{% endfor %}
+{% for host in groups['dns_secondary'] %}
+{{ dataprofiler_hostname | replace("1", "2") }}                       A       {{ hostvars[host]["private_ip_address"] }}
+{% endfor %}

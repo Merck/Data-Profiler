@@ -1,0 +1,84 @@
+#! /usr/bin/env python3
+
+# Only standard lib imports are allowed
+import sys
+import urllib.request
+import json
+import os
+import argparse
+
+def post_to_slack():
+    parser = argparse.ArgumentParser(description='Slack Notify')
+    parser.add_argument('--success', default=False, action='store_true')
+    parser.add_argument('--number', required=True, type=int, default=0)
+    parser.add_argument('--revision', required=True, type=str)
+    parser.add_argument('--author', required=True, type=str)
+    parser.add_argument('--branch', required=True, type=str)
+    try:
+        args = parser.parse_args()
+    except SystemExit:
+        print("Incorrect Args passed")
+        sys.exit(0)
+
+    overall_build_success = args.success
+    build_number = args.number
+    branch = args.branch
+    author = args.author
+    revision = args.revision[0:7]
+    # Add Build URL
+    build_url = "{}/".format(build_number)
+    
+    # Add webhook
+    req = urllib.request.Request(
+        '')
+    req.add_header('Content-Type', 'application/json; charset=utf-8')
+    fields = [
+        {
+            "title": "Build",
+            "value": build_number,
+            "short": True
+        },
+        {
+            "title": "Author",
+            "value": author,
+            "short": True
+        },
+        {
+            "title": "Branch",
+            "value": branch,
+            "short": True
+        },
+        {
+            "title": "Commit",
+            "value": revision,
+            "short": True
+        },
+        {
+            "title": "Build Link",
+            "value": build_url,
+            "short": False
+        }
+    ]
+
+    payload = json.dumps({
+        # Set the slack channel
+        'channel': '#dataprofiler-build',
+        'icon_emoji': ':jenkins:',
+        'username': 'Jenkins',
+        "attachments": [
+            {
+                "color": "#00ff00" if overall_build_success else "#ff0000",
+                "title": "Build {}".format("Successful" if overall_build_success else "Failed"),
+                "title_link": build_url,
+                "fields": fields,
+                "footer_icon": "https://upload.wikimedia.org/wikipedia/commons/1/11/Pan_Green_Circle.png" if overall_build_success else "https://upload.wikimedia.org/wikipedia/commons/8/8b/Red_Circle_full.png",
+            }
+        ]
+    }).encode('utf-8')
+    req.add_header('Content-Length', len(payload))
+    urllib.request.urlopen(req, payload)
+    return True
+
+
+if __name__ == '__main__':
+    post_to_slack()

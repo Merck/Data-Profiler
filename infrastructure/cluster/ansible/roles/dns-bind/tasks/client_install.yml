@@ -1,0 +1,171 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+---
+- name: Create bind9 group
+  group:
+    name: "{{ bind_group }}"
+    state: present
+
+- name: install {{ bind_service }}
+  package:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - bind9-host
+    - dnsutils
+    - netplan.io
+    - resolvconf
+    - rsyslog
+  tags: [bind-client-install]
+
+- name: resolvconf configuration
+  template:
+    src: resolv.conf.d/head.j2
+    dest: /etc/resolvconf/resolv.conf.d/head
+    owner: root
+    group: root
+    mode: 0644
+
+- name: redirect /etc/resolv.conf symlink
+  file:
+    src: /run/resolvconf/resolv.conf
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    state: link
+  notify:
+    - restart resolvconf service
+
+- name: force resolvconf update
+  command: resolvconf -u
+
+- name: remove dhclient domain configuration
+  lineinfile:
+    path: /etc/dhcp/dhclient.conf
+    regexp: "^supersede domain-name"
+    state: absent
+
+- name: set supercede domain-name-servers directive
+  lineinfile:
+    path: /etc/dhcp/dhclient.conf
+    line: >
+      supersede domain-name-servers
+      {{ hostvars[ groups['dns_primary'][0] ]['ansible_facts']['default_ipv4']['address'] }},
+      {{ hostvars[ groups['dns_secondary'][0] ]['ansible_facts']['default_ipv4']['address'] }};
+    state: present
+
+- name: set supercede domain-name directive
+  lineinfile:
+    path: /etc/dhcp/dhclient.conf
+    line: 'supersede domain-name "{{ bind_forward_zone }}";'
+    state: present
+
+- name: configure netplan
+  template:
+    src: 99-private-nameservers.yaml.j2
+    dest: /etc/netplan/99-private-nameservers.yaml
+    owner: "{{ bind_owner }}"
+    group: "{{ bind_group }}"
+    mode: 0660
+  notify:
+    - apply netplan configuration
+
+- name: install dnsupdate script (exit-hook)
+  template:
+    src: dnsupdate.j2
+    dest: /etc/dhcp/dhclient-exit-hooks.d/dnsupdate
+    owner: "{{ bind_owner }}"
+    group: "{{ bind_group }}"
+    mode: "0750"
+  notify: dynamic DNS update
+
+- name: set /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} {{ hostvars[inventory_hostname]['dataprofiler_fqdn'] }} {{ hostvars[inventory_hostname]['dataprofiler_hostname'] }}"
+    state: present
+
+- name: force dhclient configuration
+  shell: "dhclient && hostname -f"
+  register: dhclient_result
+  retries: 3
+  delay: 10
+  until: dhclient_result is not failed
+
+- name: dhclient result
+  debug:
+    msg: "dhclient_output: {{ dhclient_result }}"
+
+- name: unset /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} {{ hostvars[inventory_hostname]['dataprofiler_fqdn'] }} {{ hostvars[inventory_hostname]['dataprofiler_hostname'] }}"
+    state: absent
+
+- name: install startup script referenced by cron
+  template:
+    src: run-dns-update.sh.j2
+    dest: "{{ script_directory }}/run-dns-update.sh"
+    owner: "{{ bind_owner }}"
+    group: "{{ bind_group }}"
+    mode: "0755"
+
+- name: schedule dynamic DNS update @ 1 hour intervals
+  cron:
+    name: "dynamic DNS notify @ 1_HOUR intervals"
+    special_time: hourly
+    user: root
+    job: "{{ script_directory }}/run-dns-update.sh"
+
+- name: copy dns-update-cname-records.sh
+  copy:
+    src: dns-update-cname-records.sh
+    dest: "{{ script_directory }}/dns-update-cname-records.sh"
+    owner: "{{ bind_owner }}"
+    group: "{{ bind_group }}"
+    mode: "0755"
+  notify: update CNAME records
+
+- name: schedule CNAME DNS update for secrets, container-registry @ 1 hour intervals
+  cron:
+    name: "dynamic DNS notify @ 1_HOUR intervals"
+    special_time: hourly
+    user: root
+    job: "{{ script_directory }}/dns-update-cname-records.sh"
+
+- name: create rc.local
+  copy:
+    src: rc.local
+    dest: /etc/rc.local
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: configure /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.0\.1'
+    line: 127.0.0.1 localhost
+    owner: root
+    group: root
+    mode: "0644"
+    state: present

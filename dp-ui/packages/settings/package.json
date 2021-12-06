@@ -1,0 +1,53 @@
+{
+  "name": "@dp-ui/settings",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "dataprofiler",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "rimraf dist/ && tsc && cp -r src/assets dist/assets",
+    "develop": "nodemon -x \"yarn run build\"",
+    "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix && prettier --write '*/**/*.{js,jsx,ts,tsx}'"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "dist/*"
+    ],
+    "watch": [
+      "./src/**/*"
+    ],
+    "ext": "js jsx ts tsx css scss"
+  },
+  "dependencies": {
+    "@dp-ui/lib": "1.0.0",
+    "@material-ui/core": "4.11.3",
+    "@material-ui/icons": "4.11.2",
+    "@reduxjs/toolkit": "1.5.1",
+    "lodash": "4.17.21",
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.2.0",
+    "swagger-ui-react": "^3.38.0",
+    "use-query-params": "^1.1.9"
+  },
+  "peerDependencies": {
+    "query-string": "^6.13.7",
+    "react": "16.x",
+    "react-dom": "16.x"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.5",
+    "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "@typescript-eslint/parser": "^2.10.0",
+    "eslint": "^7.1.0",
+    "nodemon": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "typescript": "^3.9.3"
+  }
+}

@@ -1,0 +1,15 @@
+GET http://localhost:9000/datasets
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+
+###
+
+GET http://localhost:9000/apiKeys
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+
+###

@@ -1,0 +1,94 @@
+#!/usr/bin/env node
+
+/*
+  Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+ 
+ 	Licensed to the Apache Software Foundation (ASF) under one
+ 	or more contributor license agreements. See the NOTICE file
+ 	distributed with this work for additional information
+ 	regarding copyright ownership. The ASF licenses this file
+ 	to you under the Apache License, Version 2.0 (the
+ 	"License"); you may not use this file except in compliance
+ 	with the License. You may obtain a copy of the License at
+ 
+ 	http://www.apache.org/licenses/LICENSE-2.0
+ 
+ 
+ 	Unless required by applicable law or agreed to in writing,
+ 	software distributed under the License is distributed on an
+ 	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ 	KIND, either express or implied. See the License for the
+ 	specific language governing permissions and limitations
+ 	under the License.
+*/
+
+const fs = require('fs')
+const path = require('path')
+const readline = require('readline');
+const { spawn } = require("child_process");
+
+function askQuestion(query) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    return new Promise(resolve => rl.question(query, ans => {
+        rl.close();
+        resolve(ans.trim().toLowerCase().replace("@dp-ui/",""));
+    }))
+}
+
+const getDirectories = source =>
+  fs
+    .readdirSync(source, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name)
+
+const sleep = time => new Promise(r => setTimeout(r, time))
+
+const run = (cmd) => new Promise((resolve,reject) => {
+  const pid = spawn('yarn',['run', ...cmd.split(' ')],{ cwd: process.cwd(), env: { PATH: process.env.PATH }, stdio: 'inherit'})
+  pid.on('exit', code => Number(code.toString()) === 0 ? resolve() : reject())
+})
+
+async function start() {
+  let livePackage = process.argv[2] && process.argv[2].replace("@dp-ui/","")
+  const thisDirectory = path
+    .basename(path.join(__dirname, '../'))
+    .split(path.sep)
+    .pop()
+  const packagesPath = path.join(__dirname, '../packages')
+  const allPackages = getDirectories(packagesPath).map(el => el.replace("@dp-ui/",""))
+
+  if (!livePackage || (livePackage !== 'all' && allPackages.indexOf(livePackage) === -1 )) {
+    console.log(`To keep resource usage down, we can only hot-reload one ui package`)
+    console.log(`Skip this step by calling "yarn run start your-package" in the future`)
+    console.log(`\n`)
+    console.log([...allPackages,'all (using "all" may adversely affect your system resources)'].map(e => `- ${e}`).join('\n'))
+    console.log(`\n`)
+  }
+  livePackage = livePackage || await askQuestion("What package are you looking to \"live\" develop? ")
+
+  if (livePackage !== 'all' && allPackages.indexOf(livePackage) === -1) {
+    console.error(`Package ${livePackage} doesn't exist`)
+    process.exit(1)
+  }
+
+  if (livePackage === 'all') {
+    const buildCmd = "lerna run build --scope '@dp-ui/lib'"
+    await run(buildCmd)
+    const startCmd = "lerna run --parallel develop"
+    await run(startCmd)
+  } else {
+    const buildCmd = "lerna run --parallel build --scope " + `'{${allPackages.filter(e => e !== livePackage && e !== 'parent').map(e => '@dp-ui/' + e).join(',')}}'`
+    await run(buildCmd)
+
+    const startCmd = "lerna run --parallel develop --scope " + `'{@dp-ui/parent,@dp-ui/${livePackage}}'`
+    await run(startCmd)
+  }
+
+  process.exit(0)
+}
+
+start()

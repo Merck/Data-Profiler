@@ -1,0 +1,87 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+---
+- name: install bind9
+  include: dns_install.yml
+
+- name: allow ipv4
+  lineinfile:
+    path: /etc/default/bind9
+    regexp: '^OPTIONS="-4 -u bind"'
+    line: OPTIONS="-u bind"
+    state: present
+  tags: [ bind-configure, bind-configure-primary ]
+
+- name: configure bind apparmor
+  lineinfile:
+    path: /etc/apparmor.d/usr.sbin.named
+    insertafter: '/etc/bind/\*\* r,'
+    line: '/etc/bind/zones/** rw,'
+    state: present
+  notify: restart apparmor service
+
+- name: configuring secondary nameserver (named.conf)
+  template:
+    src: named.conf.j2
+    dest: /etc/bind/named.conf
+    owner: "{{ bind_owner }}"
+    group: "{{ bind_group }}"
+    mode: 0660
+    setype: named_conf_t
+    force: true
+    #validate: 'named-checkconf %s'
+  notify: reload {{ bind_service }}
+  tags: [ bind, primary ]
+
+- name: install secondary acls (named.conf)
+  template:
+    src: named.conf.acls.j2
+    dest: /etc/bind/named.conf.acls
+    owner: "{{ bind_owner }}"
+    group: "{{ bind_group }}"
+    mode: 0660
+  when: bind_acl|length > 0
+  notify: reload {{ bind_service  }}
+  tags: [ bind, primary ]
+
+- name: install secondary nameserver options (named.conf.options)
+  template:
+    src: named.conf.options.j2
+    dest: "{{ bind_config_directory }}/named.conf.options"
+    owner: "{{ bind_owner }}"
+    group: "{{ bind_group }}"
+    mode: 0660
+  notify: reload {{ bind_service }}
+  tags: bind
+
+- name: start rsyslog service
+  service:
+    name: rsyslog
+    state: started
+    enabled: true
+
+- name: start {{ bind_service }} service
+  service:
+    name: "{{ bind_service }}"
+    state: reloaded
+    enabled: true
+  tags: bind

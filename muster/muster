@@ -1,0 +1,1433 @@
+#! /usr/bin/env python3
+
+import argparse
+import boto3
+import binascii
+import configparser
+import csv
+import datetime
+import getpass
+import io
+import json
+import re
+import requests
+import shutil
+import socket
+import sys
+import time
+import traceback
+import warnings
+
+
+from bs4 import BeautifulSoup
+from contextlib import closing
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from pprint import pprint
+from dpmuster import *
+from dpmuster import config_writer
+
+COMMANDS_NOT_REQUIRING_CREDS = ['run-ansible', 'proxy', 'ui']
+DATAPROFILER_UI = {'production': 'dataprofiler.com/',
+                   'preview': 'preview-internal.dataprofiler.com/',
+                   'development': 'development-internal.dataprofiler.com/'}
+
+# Slack webhook 
+SLACK_WEBHOOK = ''
+
+def generate_token(nbytes=64):
+    return binascii.hexlify(os.urandom(nbytes)).decode('ascii')
+
+
+def all_iam_ids(session):
+    iam = session.client("iam")
+
+    def paginate(f):
+        args = {'MaxItems': 1000}
+        while True:
+            print(args)
+            objs = f(**args)
+            yield objs
+            if objs['IsTruncated']:
+                args['Marker'] = objs['Marker']
+            else:
+                break
+
+    for result in paginate(iam.list_roles):
+        for role in result["Roles"]:
+            print("{},{}".format(role["RoleName"], role["RoleId"]))
+    for result in paginate(iam.list_users):
+        for user in result["Users"]:
+            print("{},{}".format(user["UserName"], user["UserId"]))
+
+
+def stream_output(fd):
+    for line in iter(fd.readline, b''):
+        print(line.decode("utf-8").strip())
+
+
+def text_color_red(text):
+    return "\033[91m–{}\033[00m" .format(text)
+
+
+def text_color_green(text):
+    return "\033[92m{}\033[00m" .format(text)
+
+#
+# CLUSTER MANAGEMENT
+#
+
+
+def tags_to_dict(tags):
+    out = {}
+    for d in tags:
+        out[d["Key"]] = d["Value"]
+
+    return out
+
+
+class ProxyPACHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/x-ns-proxy-autoconfig')
+        self.end_headers()
+        print("sending PAC")
+        self.wfile.write(self.server.PAC.encode('utf8'))
+
+
+class ProxyServer(HTTPServer):
+    def __init__(self, env_names_whitelist=None):
+        self.port_map, self.PAC = self.generate_pac(env_names_whitelist)
+        self.pids = self.start_proxies(self.port_map)
+        HTTPServer.__init__(self, ('0.0.0.0', 9001), ProxyPACHandler)
+
+    def start_proxies(self, port_map):
+        pids = []
+        for env_name, args in port_map.items():
+            port = args[0]
+            host = args[1]
+            print('Starting proxy for {env_name} on port {port}'.format(
+                env_name=env_name, port=port))
+            cmd = [shutil.which('ssh'), '-oStrictHostKeyChecking=no',
+                   '-D', str(port), '-C', '-N', host]
+            print(' '.join(cmd))
+            pid = subprocess.Popen(cmd).pid
+            pids.append(pid)
+
+    def generate_pac(self, env_names_whitelist):
+        p = 'configs'
+        env_files = [os.path.join(p, f) for f in os.listdir(p) if
+                     os.path.isfile(os.path.join(p, f)) and f.endswith('-env')]
+        env_names = ['-'.join(x.split('/')[-1].split('-')[0:-1]) for x in
+                     env_files]
+
+        port_map = {}
+        start_port = 1100
+        matches = []
+        for env_name in env_names:
+            if env_names_whitelist is not None and (not env_name in env_names_whitelist):
+                continue
+            port = start_port
+            port_map[env_name] = (
+                port, 'jump.{env_name}.dataprofiler.com'.format(env_name=env_name))
+            start_port += 1
+            match = 'if (shExpMatch(host, "*{env_name}*")) {{ return "SOCKS localhost:{port}"; }}'.format(
+                env_name=env_name, port=port)
+            matches.append(match)
+
+        existing_pac = requests.get(
+            'http://webconfig.com/autoproxy.pac').content.decode('utf8')
+
+        insert_point = existing_pac.find('{') + 1
+        pre = existing_pac[:insert_point]
+        post = existing_pac[insert_point:]
+
+        PAC = pre + '\n'.join(matches) + post
+
+        return port_map, PAC
+
+
+class Cluster:
+
+    GROUPED_MULTI_ROLES = ["accumulo", "kube", "spark"]
+
+    UNGROUPED_MULTI_ROLES = ["dns", "spark_master", "spark_worker", "accumulo_master",
+                             "accumulo_worker", "zookeeper", "kube_master", "kube_worker"]
+
+    MULTI_ROLES = GROUPED_MULTI_ROLES + UNGROUPED_MULTI_ROLES
+
+    SINGLE_ROLES = ["bastion", "data_processing"]
+
+    ROLES = SINGLE_ROLES + MULTI_ROLES
+
+    SUB_ROLES = ["master", "worker"]
+
+    def __init__(self, name, session=None, env_data=None):
+        if not re.match("^[A-Za-z0-9-]+$", name):
+            raise Exception(
+                "cluster names must include only letters, numbers, and -")
+        self.name = name
+
+        self.bastion = None
+        self.data_processing = None
+        self.dns = []
+        self.spark_master = []
+        self.spark_worker = []
+        self.spark = []
+        self.accumulo = []
+        self.accumulo_master = []
+        self.accumulo_worker = []
+        self.zookeeper = []
+        self.kube = []
+        self.kube_master = []
+        self.kube_worker = []
+        self.k8s_master = []
+        self.k8s_worker = []
+        self.keypair = KeyPair("dataprofiler-converged-cluster")
+
+        if session:
+            self.session = session
+        else:
+            self.session = Credentials().get_session()
+
+        self.ec2 = self.session.resource("ec2")
+        self.ec2_client = self.session.client("ec2")
+        self.env_data = env_data
+
+    def __role_to_prop(self, role_name):
+        rn = role_name.replace("-", "_")
+        prop = getattr(self, rn)
+        return (rn, prop)
+
+    def __name_to_role(self, name):
+        n = name.replace("-", "_")
+        components = n.split("_")
+        # print(components)
+        if len(components) > 1 and components[1] in self.SUB_ROLES:
+            return "_".join(components[0:2])
+
+        return components[0]
+
+    def __name_to_role_number(self, name):
+        name_components = name.split("-")
+        return int(name_components[-1])
+
+    def instance_by_name(self, name):
+        if self.__name_to_role(name) in self.MULTI_ROLES:
+            number = self.__name_to_role_number(name) - 1
+            return getattr(self, self.__name_to_role(name))[number]
+        else:
+            return self.__role_to_prop(name)[1]
+
+    def assign_instance_by_role_name(self, role_name, instance):
+        try:
+            name, prop = self.__role_to_prop(role_name)
+        except AttributeError as e:
+            print("Found unknown node type: " + str(e))
+            return
+        if (isinstance(prop, list)):
+            prop.append(instance)
+        else:
+            if prop is not None:
+                raise Exception(
+                    "Member has already been assigned: " + name)
+            setattr(self, name, instance)
+
+    @classmethod
+    def get_all_converged(cls, session=None):
+        if session is None:
+            session = Credentials().get_session()
+        ec2 = session.resource("ec2")
+        ec2_client = session.client("ec2")
+
+        clusters = {}
+
+        # The high-level ec2.instances.all() doesn't appear to allow filtering and
+        # for the number of instances in the AWS clouds a lot of operations are
+        # slow. So we drop down here to the low-level interface to first find the
+        # instance ids. From that we dig out the high-level resources for later use.
+        instances = ec2_client.describe_instances(Filters=[
+            {
+                "Name": "tag:dataprofiler_converged_cluster",
+                "Values": ["true"]
+            }
+        ])
+
+        for res in instances["Reservations"]:
+            for instance in res["Instances"]:
+                if instance["State"]["Name"] == "terminated":
+                    continue
+
+                if instance["Tags"] is None:
+                    continue
+
+                tags = tags_to_dict(instance["Tags"])
+
+                # Build cluster names and assign roles to each instance
+                if "dataprofiler_converged_cluster" in tags:
+                    cluster_tag_name = "dataprofiler_env"
+                    cluster_name = tags[cluster_tag_name]
+
+                    # Add clusters that don't exist
+                    if cluster_name not in clusters:
+                        clusters[cluster_name] = Cluster(
+                            cluster_name, session=session)
+
+                    # Add each instance to it's particular role. Some instances may have two roles
+                    # e.g. 'accumulo-worker' will have the roles 'accumulo' and 'accumulo-worker'
+                    role_tag_name = "dataprofiler_role"
+                    cluster = clusters[cluster_name]
+                    roles = set()
+                    roles.add(tags[role_tag_name].replace("-", "_"))
+                    roles.add(re.sub('(-' + cluster_name + ')?(-\d+)?',
+                                     '', tags["Name"]).replace("-", "_"))
+
+                    for role in roles:
+                        cluster.assign_instance_by_role_name(role, instance)
+
+        # Sort so entries are in lexicographical order
+        for cluster in clusters.values():
+            cluster.dns.sort(key=lambda x: int(
+                cluster.instance_name(x).split('-')[-1]))
+            cluster.spark.sort(key=lambda x: cluster.instance_name(x))
+            cluster.spark_worker.sort(key=lambda x: int(
+                cluster.instance_name(x).split('-')[-1]))
+            cluster.accumulo.sort(key=lambda x: int(
+                cluster.instance_name(x).split('-')[-1]))
+            cluster.accumulo_master.sort(key=lambda x: int(
+                cluster.instance_name(x).split('-')[-1]))
+            cluster.accumulo_worker.sort(key=lambda x: int(
+                cluster.instance_name(x).split('-')[-1]))
+            cluster.zookeeper.sort(key=lambda x: int(
+                cluster.instance_name(x).split('-')[-1]))
+            cluster.kube.sort(key=lambda x: int(
+                cluster.instance_name(x).split('-')[-1]))
+            cluster.kube_master.sort(key=lambda x: int(
+                cluster.instance_name(x).split('-')[-1]))
+            cluster.kube_worker.sort(key=lambda x: int(
+                cluster.instance_name(x).split('-')[-1]))
+
+        # for cluster in clusters.values():
+        #     pprint("----- found cluster {}".format(cluster.name))
+        #     pprint(cluster.__dict__)
+        return clusters
+
+    @classmethod
+    def __parse_env_data(cls, env_data):
+        config = configparser.ConfigParser()
+        config.read_string('[DEFAULT]\n' + env_data)
+
+        return config
+
+    @classmethod
+    def __get_envdata(cls, env_filename):
+        # Always get the latest env vars
+        VaultOps().decrypt_and_write(env_filename)
+        try:
+            fd = open(env_filename)
+            env_data = fd.read()
+            fd.close()
+        except FileNotFoundError:
+            print("Could not find env file " + env_filename)
+            sys.exit(1)
+
+        config = cls.__parse_env_data(env_data)
+
+        # global credentials_kind
+        creds = config['DEFAULT']['AWS_CREDENTIALS']
+        if creds == 'default':
+            constants.credentials_kind = constants.DEFAULT
+            session = Credentials(kind=constants.DEFAULT).get_session()
+        else:
+            constants.credentials_kind = constants.NAMED
+            session = Credentials(profile_name=creds).get_session()
+
+        name = config['DEFAULT']['CLUSTER_NAME']
+
+        return env_data, session, name
+
+    @classmethod
+    def find_by_name(cls, name):
+        clusters = cls.get_all_converged()
+
+        if name not in clusters:
+            return None
+
+        return clusters[name]
+
+    @property
+    def instances(self):
+
+        instances = []
+        # Bastion and Data Processing may not exist in some clusters so only add them if they exist
+        if self.bastion:
+            instances.append(self.bastion)
+
+        if self.data_processing:
+            instances.append(self.data_processing)
+
+        return instances + self.dns + self.spark + self.accumulo + self.zookeeper + self.kube
+
+    @property
+    def running_instances(self):
+        return [x for x in self.instances if not self.instance_is_stopped(x)]
+
+# TODO Might want to keep
+    def stop_sparks(self):
+        for spark in self.sparks:
+            print("stopping " + self.basic_instance_info(spark))
+            spark.stop()
+
+# TODO Might want to keep
+    def start_sparks(self):
+        for spark in self.sparks:
+            print("starting " + self.basic_instance_info(spark))
+            spark.start()
+
+        self.wait_instances_available(ignore_stopped_optional_instances=False)
+        self.run_ansible(playbook_id=self.PLAYBOOK_UPDATE_HOSTNAMES)
+        self.exec("sparks", "systemctl restart ambari-agent")
+
+
+# TODO Might want to keep
+
+    def instance_is_stopped(self, instance):
+        if instance.state['Name'] == 'stopped':
+            return True
+        else:
+            return False
+
+# TODO Might want to keep
+    def stop(self):
+        for instance in self.instances:
+            print("stopping " + self.basic_instance_info(instance))
+            instance.stop()
+
+# TODO Might want to keep
+    def start(self):
+        for instance in self.instances:
+            print("starting " + self.basic_instance_info(instance))
+            instance.start()
+
+# TODO Might want to keep
+    def reboot(self):
+        for instance in self.running_instances:
+            print("rebooting " + self.basic_instance_info(instance))
+            instance.reboot()
+
+    def instance_name(self, instance):
+        return tags_to_dict(instance["Tags"])["Name"]
+
+    def basic_instance_info(self, instance):
+        if instance is None:
+            return "No instance found"
+        else:
+            return "%s (%s / %s / %s)" % (self.instance_name(instance),
+                                          instance["InstanceId"],
+                                          instance["PrivateIpAddress"],
+                                          instance["State"]["Name"])
+
+    def instance_status(self, instance):
+        if instance is None:
+            return "No instance found"
+        else:
+            state = instance["State"]["Name"]
+            if state == "running":
+                status = text_color_green(state)
+            else:
+                status = text_color_red(state)
+
+            return "%s\t(%s / %s / %s)" % (status,
+                                           self.instance_name(instance),
+                                           instance["InstanceId"],
+                                           instance["PrivateIpAddress"])
+
+    def __volume_to_device_name(self, volume):
+        return volume.attachments[0]["Device"]
+
+    def print_volume_info(self, instance):
+        for volume in instance.volumes.all():
+            print("\t\t\tvolume %s [%s] (%s / %sG)" % (
+                volume.id, self.__volume_to_device_name(volume),
+                volume.volume_type, volume.size))
+
+    def pprint(self, exclude_volumes=False, role=None, session=None):
+
+        # We get an ec2 session here only get the volume information for instances
+        # We do this here as getting the volume information is slow and is only done once
+        if not exclude_volumes and session is None:
+            session = Credentials().get_session()
+            ec2 = session.resource("ec2")
+
+        # Enumerate all rolls
+        if not role:
+            roles = self.SINGLE_ROLES + self.UNGROUPED_MULTI_ROLES
+        else:
+            roles = [role]
+
+        print(self.name)
+        print("\tKeys: %s (%s) %s %s" % (
+            self.keypair.name, self.keypair.aws_key_fingerprint(),
+            self.keypair.private_key_path, self.keypair.public_key_path))
+
+        for role_name in roles:
+            prop = getattr(self, role_name)
+
+            if (isinstance(prop, list)):
+                if prop:
+                    print("\t%s" % role_name.replace("_", " "))
+                    for p in prop:
+                        print("\t\t" + self.basic_instance_info(p))
+                        if not exclude_volumes:
+                            self.print_volume_info(
+                                ec2.Instance(p["InstanceId"]))
+                    print()
+
+            elif prop is not None:
+                print("\t%s:" % role_name.replace("_", " "))
+                print("\t\t" + self.basic_instance_info(prop))
+                if not exclude_volumes:
+                    self.print_volume_info(ec2.Instance(prop["InstanceId"]))
+
+    def print_csv(self, fd=None, csvwriter=None):
+        if csvwriter is None:
+            f = io.StringIO()
+            w = csv.writer(f, quoting=csv.QUOTE_ALL)
+
+            w.writerow(["cluster", "instance name", "instance id", "instance role", "instance type", "ip", "state",
+                        "no volumes", "total ebs space", "volume 1", "volume 2", "volume 3", "volume 4", "volume 5"])
+        else:
+            w = csvwriter
+            f = fd
+
+        for instance in self.instances:
+            volumes = []
+            total_volumes_size = 0
+            for volume in instance.volumes.all():
+                volumes.append(("%s [%s] (%s / %sG)" % (
+                    volume.id, self.__volume_to_device_name(volume),
+                    volume.volume_type, volume.size)))
+                total_volumes_size += volume.size
+            tags = tags_to_dict(instance.tags)
+            w.writerow(
+                [self.name, self.instance_name(instance), instance.id, tags["dataprofiler_role"], instance.instance_type,
+                 instance["PrivateIpAddress"], instance.state["Name"], len(volumes), total_volumes_size] + volumes)
+
+        return w, f
+
+    def print_status(self, role=None):
+
+        # Enumerate all rolls
+        if not role:
+            roles = self.SINGLE_ROLES + self.UNGROUPED_MULTI_ROLES
+        else:
+            roles = [role]
+
+        cluster = "Environment: {}".format(self.name)
+        print('+' + '-' * (len(cluster) + 2) + "+")
+        print('| ' + cluster + ' |')
+        print('+' + '-' * (len(cluster) + 2) + "+\n")
+
+        for role_name in roles:
+            prop = getattr(self, role_name)
+
+            if (isinstance(prop, list)):
+                if prop:
+                    print(role_name.replace("_", " "))
+                    print("-" * len(role_name))
+                    for p in prop:
+                        print(self.instance_status(p))
+                    print()
+
+            elif prop is not None:
+                print(role_name.replace("_", " "))
+                print("-" * len(role_name))
+                print(self.instance_status(prop))
+                print()
+
+    def __hdfs_directories(self, dirname='hdfs/data'):
+        # This all seems so brittle, but I don't really have another way that I know of to identify what type
+        # of drive this is. Amazon docs indicate this should be ok.
+        #
+        # Also - this line is only really used on initial cluster creation, so it's fine
+        # to just look at the first slave.
+        dev_letters = []
+
+        include_ephemeral = tags_to_dict(self.slaves[0].tags)[
+            "dataprofiler-hdp-use-ephemeral"]
+        if include_ephemeral == "1":
+            # Because volumes.all() only return EBS volumes, we are goig to have to grab
+            # the available ephemeral devices from the first slave.
+            r = self.ssh_instance(self.slaves[0], host_cmd="lsblk -dn",
+                                  return_output=True)
+            if r.returncode != 0:
+                raise Exception("Failed to get block devices for slave")
+
+            for line in r.stdout.decode("utf-8").strip().split("\n"):
+                device = line.split(" ")[0]
+                if device == "xvda":  # ignore root
+                    continue
+                else:
+                    dev_letters.append(device[3])
+        else:
+            first_drive_letter = "f"
+
+            for volume in self.slaves[0].volumes.all():
+                dev_letter = self.__volume_to_device_name(volume)[7]
+                if dev_letter >= first_drive_letter:
+                    dev_letters.append(dev_letter)
+
+        return ",".join(
+            ["/data-xvd%s/hadoop/" % x + dirname for x in dev_letters])
+
+    # def k8s_services_nodeport_mapping(self, cluster='kube-development'):
+    #     # TODO: revisit this once we test out and verify a central ingress solution
+    #     #   if central ingress works, we can delete these node port mappings
+    #     base_port = 30900
+    #     if cluster == "kube-production":
+    #         base_port = 30600
+    #     elif cluster == "kube-preview":
+    #         base_port = 30700
+    #     elif cluster == "kube-development":
+    #         base_port = 30800
+
+    #     return {
+    #         "dp_ui_nodeport": str(base_port + 20),
+    #         "dp_api_api_nodeport": str(base_port + 30),
+    #         "dp_api_docpreview_nodeport": str(base_port + 31),
+    #         "dp_monitoring_grafana_nodeport": str(base_port + 40),
+    #         "dp_monitoring_graphite_nodeport": str(base_port + 41)
+    #     }
+
+    def etc_hosts(self):
+        out = []
+        out.append('\n## %s\n' % self.name)
+        for instance in self.instances:
+            instance_name = self.instance_name(instance)
+            hostname = "%s.dataprofiler.com" % (instance_name)
+            alias = "%s" % (instance_name)
+            out.append(
+                '%s %s %s' % (instance["PrivateIpAddress"], hostname, alias))
+        return '\n'.join(out) + '\n'
+
+    def fix_hosts(self):
+        hosts = self.etc_hosts()
+        cmd = ['sudo', 'tee', '-a', '/etc/hosts']
+
+        p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+        p.stdin.write(hosts.encode('utf-8'))
+        p.stdin.close()
+        p.wait()
+        print()
+
+# TODO update with new port forwards
+    def __get_port_forwards(self, offset):
+        forwards = {
+            "ambari": {
+                "port": 8080 + offset,
+                "dest_port": 8080,
+                "host": self.primary
+            },
+            "accumulo": {
+                "port": 50095 + offset,
+                "dest_port": 50095,
+                "host": self.primary
+            },
+            "yarn": {
+                "port": 8088 + offset,
+                "dest_port": 8088,
+                "host": self.primary
+            },
+            "spark": {
+                "port": 18081 + offset,
+                "dest_port": 18081,
+                "host": self.secondary
+            },
+        }
+
+        i = 1
+        for host in self.slaves:
+            forwards["node-manager-%03d" % i] = {
+                "port": 8042 + offset + i * 40,
+                "dest_port": 8042,
+                "host": host
+            }
+            i += 1
+
+        return forwards
+
+    def __get_port_offset(self, starting_port=8080):
+        offset = 0
+        while True:
+            with closing(
+                    socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+                if sock.connect_ex(('127.0.0.1', starting_port + offset)) == 0:
+                    offset += 1
+                else:
+                    return offset
+
+                assert (offset < 100)
+
+    def ssh_config(self, offset=0):
+        s = "Host " + "jump-" + self.name + "\n"
+        s = s + "\tHostname " + self.jump.private_ip_address + "\n"
+        s = s + "\tForwardAgent yes\n"
+        for v in self.__get_port_forwards(offset).values():
+            s = s + "\tLocalForward {port} {host}:{dest_port}\n".format(
+                port=v["port"], host=v["host"].private_ip_address,
+                dest_port=v["dest_port"])
+
+        return s
+
+    def ssh_and_forward_ports(self):
+        offset = self.__get_port_offset()
+        options = []
+        for name, v in self.__get_port_forwards(offset).items():
+            port = v["port"]
+            dest_port = v["dest_port"]
+            host = v["host"].private_ip_address
+            print("{name} ({host}:{dest_port}) http://127.0.0.1:{port}".format(
+                name=name, port=port, dest_port=dest_port, host=host))
+            options.append("-L")
+            options.append("{port}:{host}:{dest_port}".format(port=port,
+                                                              dest_port=dest_port,
+                                                              host=host))
+
+        self.ssh_instance(self.jump, options=options)
+
+    def ssh_instance(self, instance, bastion=None, options=None, host_cmd=None,
+                     return_output=False, wait=True):
+        if options is None:
+            options = []
+        options = ["-A"] + options
+
+        if not bastion:
+            command = ["ssh"] + options + ["%s" % instance["PrivateIpAddress"]]
+        else:
+            command = ["ssh"] + options + ["-J", "%s" %
+                                           bastion["PrivateIpAddress"], "%s" % instance["PrivateIpAddress"]]
+
+        if host_cmd:
+            print(' '.join(command) + ' ' + "'%s'" % host_cmd)
+            command.append(host_cmd)
+        else:
+            print(" ".join(command))
+
+        if return_output:
+            p = subprocess.Popen(command, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, bufsize=1)
+        else:
+            p = subprocess.Popen(command)
+
+        if wait:
+            p.wait()
+
+        return p
+
+    def scp_instance(self, instance, files, dest, options=None):
+        if options is None:
+            options = []
+        options += options
+        command = ["scp"] + options + [files, "%s:%s" %
+                                       (instance["PrivateIpAddress"], dest)]
+        subprocess.run(command)
+
+    def ssh_exec_as_hdfs(self, cmd, instance=None, wait=True):
+        cmd = 'sudo -u hdfs bash -c "%s"' % cmd
+        if not instance:
+            instance = self.slaves[0]
+        return self.ssh_instance(instance, host_cmd=cmd, return_output=True,
+                                 wait=wait)
+
+
+# TODO still useful
+
+
+    def hdfs(self, cmd):
+        return self.ssh_exec_as_hdfs('hdfs dfs %s' % cmd, wait=False)
+
+# TODO still useful ?
+    def hdfs_ls(self, dirname):
+        out = []
+        res = self.hdfs('-ls ' + dirname)
+        for line in iter(res.stdout.readline, b''):
+            line = line.decode('utf-8')
+            fields = line.split()
+            if len(fields) < 8:
+                continue
+            out.append(fields[7])
+
+        out.sort()
+        return out
+
+
+# TODO still useful ?
+
+
+    def open_hadoop(self):
+        subprocess.run(
+            ["open", "http://%s:50070" % self.primary.private_ip_address])
+
+# TODO still useful ?
+    def open_accumulo(self):
+        subprocess.run(
+            ["open", "http://%s:50095" % self.primary.private_ip_address])
+
+# TODO still useful ?
+    def open_ui(self):
+        subprocess.run(
+            ["open", "http://%s" % self.frontend_docker.private_ip_address])
+
+
+def find_cluster(cluster_name):
+    clusters = Cluster.get_all_converged()
+
+    if cluster_name not in clusters:
+        print("No cluster named '%s' in [%s]" % (
+            cluster_name, ', '.join(map(str, clusters.keys()))))
+        sys.exit(1)
+
+    return clusters[cluster_name]
+
+
+def verify(message):
+    answer = input("%s [y/n]? " % message)
+    if not (answer == "y" or answer == "Y"):
+        sys.exit(0)
+
+
+def list_clusters(args):
+    clusters = Cluster.get_all_converged()
+
+    if args.cluster is not None:
+        if args.cluster not in clusters:
+            print("No cluster named '%s' in [%s]" % (
+                args.cluster, ', '.join(map(str, clusters.keys()))))
+            sys.exit(1)
+        clusters = {args.cluster: clusters[args.cluster]}
+
+    if not args.csv:
+        for cluster in clusters.values():
+            cluster.pprint(args.exclude_volumes, args.role)
+    else:
+        fd = None
+        csvwriter = None
+
+        for cluster in clusters.values():
+            csvwriter, fd = cluster.print_csv(fd, csvwriter)
+
+        print(fd.getvalue())
+
+
+def delete_cluster_keys(args):
+    cluster = find_cluster(args)
+
+    keypair = KeyPair(cluster.name)
+
+    verify(
+        "Delete AWS key %s and key files %s and %s" % (
+            keypair.name, keypair.private_key_path,
+            keypair.public_key_path))
+
+    keypair.delete()
+
+
+def hdfs(args):
+    cluster = find_cluster(args)
+    cluster.hdfs(args.cmd)
+
+
+def ssh_instance(args):
+    cluster = find_cluster(args)
+    role = args.role
+
+    instance = cluster.instance_by_name(role)
+    cluster.ssh_instance(instance, host_cmd=args.cmd)
+
+
+def scp_instance(args):
+    clusters = Cluster.get_all_converged()
+
+    if args.cluster is None:
+        print("A cluster must be specified")
+        sys.exit(1)
+
+    if args.cluster not in clusters:
+        print("No cluster named '%s' in [%s]" % (
+            args.cluster, ', '.join(map(str, clusters.keys()))))
+        sys.exit(1)
+
+    cluster = clusters[args.cluster]
+    instance_name = args.host
+
+    instance = cluster.instance_by_name(instance_name)
+
+    if instance is None:
+        print("Instance '%s' not found in cluster '%s'" %
+              (args.host, args.cluster))
+        sys.exit(1)
+
+    # Sign our keys
+    sign_ssh_key(args)
+
+    options = ["-o", "StrictHostKeyChecking=no",
+               "-i", "%s" % os.path.expanduser("~/.ssh/id_rsa-cert.pub"),
+               "-i", "%s" % os.path.expanduser("~/.ssh/id_rsa.pub")]
+
+    cluster.scp_instance(instance, args.files, args.dest)
+
+
+def open_hadoop(args):
+    cluster = find_cluster(args)
+    cluster.open_hadoop()
+
+
+def open_yarn(args):
+    cluster = find_cluster(args)
+    cluster.open_yarn()
+
+
+def open_ui(args):
+    if args.cluster in DATAPROFILER_UI:
+        subprocess.run(
+            ["open", "http://%s" % DATAPROFILER_UI[args.cluster]])
+    else:
+        print("No cluster named '%s' in [%s]" % (
+            args.cluster, ', '.join(map(str, DATAPROFILER_UI.keys()))))
+        sys.exit(1)
+
+
+def deployment_slack_notification(cluster, tags=None):
+    proj_deployments_url = SLACK_WEBHOOK
+
+    deploy_scope = 'cluster'
+    if tags is not None:
+        deploy_scope = ','.join([scope.split('-')[0] for scope in tags])
+
+    fallback_text = 'User {} is deploying {} {} using {} from host {}'.format(
+        getpass.getuser(), deploy_scope, cluster.name,
+        extract_git_info(), socket.gethostname())
+
+    payload = json.dumps({
+        'text': " ",
+        'username': 'Destroyer of Worlds',
+        'icon_emoji': ":bomb:",
+        'channel': '#proj-deployment',
+        'attachments': [{
+            'fallback': fallback_text,
+            'color': "#36a64f",
+            'footer': "Muster",
+            'fields': [
+                {'title': "Scope", 'value': deploy_scope, 'short': True},
+                {'title': "Cluster", 'value': cluster.name, 'short': True},
+                {'title': "Deployer", 'value': getpass.getuser(),
+                 'short': True},
+                {'title': "Deployed From", 'value': socket.gethostname(),
+                 'short': True},
+                {'title': "Revision", 'value': extract_git_info(),
+                 'short': True}
+            ]
+        }]
+    })
+
+    response = requests.post(proj_deployments_url, data=payload,
+                             headers={'Content-Type': 'application/json'})
+
+    if response.status_code != 200:
+        print('Error sending slack notification')
+
+
+def deploy_k8s(args):
+    scope = ",".join(args.component) if args.component else 'cluster'
+    current_revision = extract_git_commit()
+    check_commmit_on_origin(current_revision)
+    j = Jenkins(pipeline_name="deploy-{}".format(args.environment),
+                debug=args.debug)
+    j.reconcile_pipeline()
+    j.deploy(args.environment, current_revision, scope, no_cache=args.no_cache)
+
+
+def print_etc_hosts(args):
+    clusters = Cluster.get_all_converged()
+
+    if args.cluster is None:
+        for cluster in clusters.keys():
+            print(clusters[cluster].etc_hosts())
+        return
+
+    if args.cluster not in clusters:
+        print("No cluster named '%s' in [%s]" % (
+            args.cluster, ', '.join(map(str, clusters.keys()))))
+        sys.exit(1)
+
+    print(clusters[args.cluster].etc_hosts())
+
+
+def fix_etc_hosts(args):
+    clusters = Cluster.get_all_converged()
+
+    if args.cluster is None:
+        for cluster in clusters.keys():
+            print(clusters[cluster].fix_hosts())
+        return
+
+    if args.cluster not in clusters:
+        print("No cluster named '%s' in [%s]" % (
+            args.cluster, ', '.join(map(str, clusters.keys()))))
+        sys.exit(1)
+
+    print(clusters[args.cluster].fix_hosts())
+
+
+def print_ssh_config(args):
+    clusters = Cluster.get_all_converged()
+
+    ssh_config = clusters['production'].ssh_config(args.offset)
+    print(ssh_config)
+
+
+def set_dev_env(args):
+    config_writer.set_dev_env(args.envname)
+
+
+def host_status(args):
+    clusters = Cluster.get_all_converged()
+
+    if args.cluster is None:
+        for cluster in clusters.values():
+            cluster.print_status(role=args.role)
+        return
+
+    if args.cluster not in clusters:
+        print("No cluster named '%s' in [%s]" % (
+            args.cluster, ', '.join(map(str, clusters.keys()))))
+        sys.exit(1)
+
+    clusters[args.cluster].print_status(role=args.role)
+
+
+def key_fingerprint(args):
+    cluster = find_cluster(args)
+    keypair = KeyPair(cluster.name)
+    fingerprint = keypair.aws_key_fingerprint()
+    if fingerprint:
+        print(fingerprint)
+    else:
+        print("No key named %s found for cluster %s" % (
+            keypair.name, args.name))
+
+
+def raw_create_instance(args):
+    session = Credentials().get_session()
+    ec2 = session.resource("ec2")
+    ec2_client = session.client("ec2")
+
+    if args.ami_name == "rhel":
+        ami_id = constants.RHEL_AMI_ID
+    else:
+        ami_id = constants.UBUNTU_AMI_ID
+
+    instance = create_instance(ec2, args.keypair_name, args.instance_name,
+                               args.instance_type, args.root_volume_size,
+                               ami_id=ami_id)
+    instance.wait_until_running()
+
+    add_volumes_to_instances(ec2, ec2_client, [instance], args.num_volumes,
+                             args.volume_size)
+
+    print("done - new instance ip: " + instance.private_ip_address)
+
+
+def raw_add_volumes(args):
+    session = Credentials().get_session()
+    ec2 = session.resource("ec2")
+    ec2_client = session.client("ec2")
+
+    instances = [ec2.Instance(x) for x in args.instance_ids]
+
+    add_volumes_to_instances(ec2, ec2_client, instances, args.num_volumes,
+                             args.volume_size)
+
+    print("done")
+
+
+def setup_s3_cors(args):
+    session = Credentials().get_session()
+    s3_client = session.client("s3")
+    response = s3_client.put_bucket_cors(
+        Bucket=args.bucket,
+        CORSConfiguration={
+            'CORSRules': [
+                {
+                    'AllowedHeaders': [
+                        '*',
+                    ],
+                    'AllowedMethods': [
+                        'GET', 'HEAD', 'PUT', 'POST', 'DELETE'
+                    ],
+                    'AllowedOrigins': [
+                        '*',
+                    ],
+                    'ExposeHeaders': [
+                        'ETag'
+                    ],
+                    'MaxAgeSeconds': 3000
+                },
+            ]
+        },
+    )
+    if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+        print("CORS now open for S3 Bucket " + args.bucket)
+    else:
+        print("Error adding cors settings to bucket " + args.bucket)
+        print(response)
+
+
+def proxy(args):
+    env_name_whitelist = args.env_names.split(',')
+    p = ProxyServer(env_name_whitelist)
+    try:
+        p.serve_forever()
+    except KeyboardInterrupt:
+        p.server_close()
+        return 0
+
+# TODO not used
+
+
+def ssh_add(args):
+    keypair = KeyPair(args.name)
+    fingerprint = keypair.aws_key_fingerprint()
+    if fingerprint:
+        subprocess.run(['ssh-add', keypair.private_key_path])
+    else:
+        print("No key named %s found for cluster %s" % (
+            keypair.name, args.name))
+
+
+def encrypt_vault(args):
+    v = VaultOps()
+    for inputFilename in args.filenames:
+        path = os.path.splitext(inputFilename)[0] if os.path.splitext(
+            inputFilename)[1] == '.enc' else inputFilename
+        contents = v.encrypt(path, args.namespace if args.namespace else path)
+
+
+def decrypt_vault(args):
+    v = VaultOps()
+    for inputFilename in args.filenames:
+        path = os.path.splitext(inputFilename)[0] if os.path.splitext(
+            inputFilename)[1] == '.enc' else inputFilename
+        contents = v.decrypt_and_write(path)
+
+
+def sign_ssh_key(args):
+    v = VaultOps()
+    contents = v.sign_ssh_key(args.public_key, args.signer_role)
+    fd = open(args.signed_public_key, "w")
+    fd.write(contents)
+    fd.close()
+
+
+def signed_key_login(args):
+    clusters = Cluster.get_all_converged()
+
+    if args.cluster is None:
+        print("A cluster must be specified")
+        sys.exit(1)
+
+    if args.cluster not in clusters:
+        print("No cluster named '%s' in [%s]" % (
+            args.cluster, ', '.join(map(str, clusters.keys()))))
+        sys.exit(1)
+
+    if "production" not in clusters:
+        print("Production cluster or bastion host not found.")
+        sys.exit(1)
+
+    bastion = clusters['production'].instance_by_name('bastion')
+
+    # Get the cluster and instance to SSH to
+    cluster = clusters[args.cluster]
+    instance_name = args.host
+    print(instance_name)
+    instance = cluster.instance_by_name(instance_name)
+
+    if instance is None:
+        print("Instance '%s' not found in cluster '%s'" %
+              (args.host, args.cluster))
+        sys.exit(1)
+
+    if instance['PrivateIpAddress'] == bastion['PrivateIpAddress']:
+        bastion = None
+
+    # Sign our keys
+    sign_ssh_key(args)
+
+    options = ["-o", "StrictHostKeyChecking=no",
+               "-i", "%s" % os.path.expanduser("~/.ssh/id_rsa-cert.pub"),
+               "-i", "%s" % os.path.expanduser("~/.ssh/id_rsa")]
+
+    cluster.ssh_instance(instance, bastion=bastion,
+                         options=options, host_cmd=args.cmd)
+
+
+def set_security_groups(args):
+    cluster = find_cluster(args)
+    cluster.set_security_groups(args.instance_group,
+                                args.security_group_ids.split(','))
+
+
+def do_generate_token(args):
+    print(generate_token(int(args.num_bytes)))
+
+
+def update_aws_credentials(args):
+    creds = Credentials()
+    creds.download()
+
+
+def ecs_execute(cmd, profile):
+    my_env = os.environ.copy()
+    my_env["ECS_PROFILE"] = profile
+    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             universal_newlines=True, env=my_env)
+    for stdout_line in iter(popen.stdout.readline, ""):
+        yield stdout_line
+    popen.stdout.close()
+    return_code = popen.wait()
+    if return_code:
+        raise subprocess.CalledProcessError(return_code, cmd)
+
+
+def call_ecs_cli(args):
+    creds = Credentials()
+    creds.get_session()
+    command = [ecs_cli_path()] + args.passthrough
+    for line in ecs_execute(command, creds.profile_name):
+        print(line, end="")
+
+
+def iam_ids(args):
+    creds = Credentials()
+    session = creds.get_session()
+    all_iam_ids(session)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Provisioning Tool")
+    parser.add_argument("--debug", default=False, action="store_true")
+    subparsers = parser.add_subparsers(help="commands", dest="command")
+
+    # list
+    list = subparsers.add_parser("list",
+                                 help="list clusters and associated instances")
+    list.add_argument("--cluster", default=None,
+                      help="Name of cluster ('development', 'preview', 'production'). Not specifying a cluster will display all the clusters.")
+    list.add_argument("--role", default=None,
+                      help="Name of the role, e.g. 'bastion', 'spark', 'accumulo', etc. Not specifying a role will display all of the roles.")
+    list.add_argument("--exclude-volumes", action="store_true",
+                      help="Do not print volume information")
+    list.add_argument("--csv", default=False, action="store_true")
+    list.set_defaults(func=list_clusters)
+
+    # scp
+    d = subparsers.add_parser("scp",
+                              help="scp files to an instance by role and number (e.g., primary or slave-1")
+    d.add_argument("--cluster", default='production',
+                   help="Name of cluster ('development', 'preview', 'production'). Not specifying a cluster defaults to 'production'.")
+    d.add_argument("--signer-role", default="dataprofiler-admin-role")
+    d.add_argument(
+        "--public_key", default=os.path.expanduser("~/.ssh/id_rsa.pub"))
+    d.add_argument("--signed_public_key",
+                   default=os.path.expanduser("~/.ssh/id_rsa-cert.pub"))
+    d.add_argument("host")
+    d.add_argument("files")
+    d.add_argument("dest")
+    d.set_defaults(func=scp_instance)
+
+
+# TODO requires the set up of proxy
+    # hadoop
+    d = subparsers.add_parser("hadoop",
+                              help="Open the hadoop admin page for the cluster")
+    d.add_argument("envfile")
+    d.set_defaults(func=open_hadoop)
+
+    # ui
+    d = subparsers.add_parser("ui", help="Open the ui for the cluster")
+    d.add_argument("--cluster", default='production',
+                   help="Name of cluster ('development', 'preview', 'production'). Not specifying a cluster defaults to 'production'.")
+    # d.add_argument("envfile")
+    d.set_defaults(func=open_ui)
+
+    d = subparsers.add_parser(
+        "deploy-k8s", help="Deploy code onto the k8s cluster")
+    d.add_argument("environment", choices=[
+                   "development", "beta", "preview", "production"])
+    d.add_argument("--component", action="append", default=None,
+                   choices=["ui",
+                            "api",
+                            "backend",
+                            "rules-of-use",
+                            "jobs",
+                            "data-loading",
+                            "tables", "ui-alt",
+                            "table-checker",
+                            "tekton-download",
+                            "tekton-sqlsync",
+                            "tekton-ds-performance",
+                            "tekton-ds-delta",
+                            "tekton-canceller",
+                            "tekton-ds-quality",
+                            "tekton-con-engine",
+                            "lastmile-monitor"])
+    d.add_argument("--no-cache", action="store_true",
+                   help="Build all docker images without cache")
+    d.set_defaults(func=deploy_k8s)
+
+    # etc-hosts
+    d = subparsers.add_parser("etc-hosts",
+                              help="Print lines for /etc/hosts file for cluster")
+    d.add_argument("--cluster", default=None,
+                   help="Name of cluster ('development', 'preview', 'production'). Not specifying a cluster will display all the clusters.")
+    d.set_defaults(func=print_etc_hosts)
+
+    # fix-hosts
+    d = subparsers.add_parser("fix-hosts",
+                              help="Add entries for this cluster to /etc/hosts")
+    d.add_argument("--cluster", default=None,
+                   help="Name of cluster ('development', 'preview', 'production'). Not specifying a cluster will display all the clusters.")
+    d.set_defaults(func=fix_etc_hosts)
+
+# TODO Probably adapt
+    d = subparsers.add_parser("ssh-config",
+                              help="Print ssh config for this cluster")
+    d.add_argument("--offset", default=0, type=int,
+                   help="Integer offset for all of the port numbers")
+    d.set_defaults(func=print_ssh_config)
+
+# TODO Not sure if this is still used
+    d = subparsers.add_parser("set-dev-env",
+                              help="Set the web/api/.env and ~/.dataprofiler/config based on the vault config")
+    d.add_argument("envname")
+    d.set_defaults(func=set_dev_env)
+
+    # status
+    d = subparsers.add_parser("status",
+                              help="Verify that all hosts in a cluster are up")
+    d.add_argument("--cluster", default=None,
+                   help="Name of cluster ('development', 'preview', 'production'). Not specifying a cluster will display all the clusters.")
+    d.add_argument(
+        "--role", help="Name of the role, e.g. 'bastion', 'spark', 'accumulo', etc. Not specifying a role will display all of the roles.")
+    d.set_defaults(func=host_status)
+
+# TODO See if this is still needed
+    d = subparsers.add_parser("key-fingerprint",
+                              help="Print fingerprint of public key for cluster")
+    d.add_argument("envfile")
+    d.set_defaults(func=key_fingerprint)
+
+    # decrypt-vault
+    d = subparsers.add_parser("decrypt-vault",
+                              help="Decrypt a vault namespace")
+    d.add_argument("filenames", nargs='+')
+    d.set_defaults(func=decrypt_vault)
+
+    # encrypt-vault
+    d = subparsers.add_parser("encrypt-vault",
+                              help="Encrypt a vault namespace")
+    d.add_argument("filenames", nargs='+')
+    d.add_argument("--namespace", type=str, default=None)
+    d.set_defaults(func=encrypt_vault)
+
+    # sign-ssh-key
+    d = subparsers.add_parser("sign-ssh-key",
+                              help="Sign SSH public key and obtain RSA certificate from Vault")
+    d.add_argument("--signer-role", default="dataprofiler-admin-role")
+    d.add_argument(
+        "--public_key", default=os.path.expanduser("~/.ssh/id_rsa.pub"))
+    d.add_argument("--signed_public_key",
+                   default=os.path.expanduser("~/.ssh/id_rsa-cert.pub"))
+    d.set_defaults(func=sign_ssh_key)
+
+    # ssh
+    d = subparsers.add_parser("ssh",
+                              help="SSH login using signed public key")
+    d.add_argument("--signer-role", default="dataprofiler-admin-role")
+    d.add_argument(
+        "--public_key", default=os.path.expanduser("~/.ssh/id_rsa.pub"))
+    d.add_argument("--signed_public_key",
+                   default=os.path.expanduser("~/.ssh/id_rsa-cert.pub"))
+    d.add_argument("--cluster", type=str, default="production",
+                   help="Name of cluster ['development', 'preview', 'production']")
+    d.add_argument("--cmd", default=None)
+    d.add_argument("host", default="bastion", nargs='?',
+                   help="Name of host to ssh to")
+    d.set_defaults(func=signed_key_login)
+
+    # generate-token
+    d = subparsers.add_parser('generate-token')
+    d.add_argument("--num-bytes", default=64)
+    d.set_defaults(func=do_generate_token)
+
+    # update-aws-credentials
+    d = subparsers.add_parser('update-aws-credentials',
+                              help="Update the cloud credentials stored in ~/.aws/credentials and ~/.ecs/credentials")
+    d.set_defaults(func=update_aws_credentials)
+
+    # setup-s3-cors
+    d = subparsers.add_parser("setup-s3-cors",
+                              help="Add Open CORS settings to S3 Bucket")
+    d.add_argument("bucket")
+    d.set_defaults(func=setup_s3_cors)
+
+    # ecs-cli
+    d = subparsers.add_parser("ecs-cli",
+                              help="Calls the ecs-cli with the correct credentials and profile")
+    d.add_argument('passthrough', nargs=argparse.REMAINDER)
+    d.set_defaults(func=call_ecs_cli)
+
+    # iam-ids
+    d = subparsers.add_parser(
+        'iam-ids', help='list all IAM users / roles and ids')
+    d.set_defaults(func=iam_ids)
+
+    args = parser.parse_args()
+    if args.command is None:
+        parser.print_help()
+        sys.exit(1)
+
+    # global credentials_kind
+    constants.credentials_kind = constants.DEFAULT
+
+    # global AUTH
+    if args.command not in COMMANDS_NOT_REQUIRING_CREDS:
+        constants.AUTH = Auth()
+
+    while True:
+        try:
+            args.func(args)
+        except Exception as e:
+            # We see this on credential errors - so go ahead and delete credentials in this
+            # case and retry (it will prompt for credentials).
+            if isinstance(e, CredentialDownloadException) \
+                    or '(AuthFailure)' in str(e) \
+                    or '(RequestExpired)' in str(e) \
+                    or 'ExpiredTokenException' in str(e):
+                print(e)
+                c = Credentials()
+                c.download()
+
+                continue
+            else:
+                print("internal error")
+                if args.debug:
+                    traceback.print_exc()
+                else:
+                    print(e)
+                sys.exit(1)
+        break
+
+
+if __name__ == '__main__':
+    main()

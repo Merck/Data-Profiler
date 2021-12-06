@@ -1,0 +1,60 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: Ensure Zookeeper data dir exists
+  file: path={{ zookeeper_data_path }} state=directory
+
+- name: Ensure myid file is set
+  template: src=roles/zookeeper/templates/myid dest={{ zookeeper_data_path }}/myid
+
+- name: Check if Zookeeper is running
+  shell: jps | grep "QuorumPeerMain"
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  register: zookeeper_status
+
+- name: Check Zookeeper systemd service status
+  shell: systemctl status zookeeper
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  register: zookeeper_service_status
+
+- debug:
+    msg:
+      - "warn: zookeeper instance outside of systemd control is running"
+      - "stopping zookeeper...."
+  when: zookeeper_status.rc == 0 and zookeeper_service_status.rc == 3
+
+- name:
+  shell: "{{ zookeeper_home }}/bin/zkServer.sh stop"
+  ignore_errors: yes
+  changed_when: false
+  register: zookeeper_stop_cmd
+  when: zookeeper_status.rc == 0 and zookeeper_service_status.rc == 3
+
+- name: Start Zookeeper systemd service
+  become: yes
+  systemd:
+    name: zookeeper
+    enabled: yes
+    state: started

@@ -1,0 +1,457 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+---
+  openapi: 3.0.0
+  info:
+    title: Data Profiler API
+    description: Data Profiler API is a mostly REST-ful JSON API that serves data to many applications. There are many different environments that are logically separated from each other (Each cluster holds different data)
+    version: 0.0.1
+  security:
+    - PermanentApiKey: []
+    - OAuthToken: []
+  tags:
+    - name: public_api
+      description: Publicly accesible API endpoints. OK to use in external applications.
+    - name: experimental_api
+      description: Publicly accessible API endpoints that are "in beta". Please consult with the Data Profiler Team before use in your application.
+    - name: private_api
+      description: Private API endpoints. Mostly used for the Data Profiler UI and Data Loading Daemon. Do not use in your application unless you can handle breaking changes.
+    - name: deprecated
+      description: Publicly accesible API endpoints which are no longer valid
+  components:
+    responses:
+      Undocumented:
+        description: This endpoint has not been documented yet.
+      BadRequest:
+        description: You provided the incorrect body payload to the endpoint. Check the documentation and adjust your payload.
+      Unauthorized:
+        description: Unauthorized. Your credentials are either invalid or expired.
+      Forbidden:
+        description: You don't have permission to access the resource you're trying to. If you believe this is in error, please contact the Data Profiler Team.
+      InternalServerError:
+        description: The request had an error due to programming errors or cluster component downtime. Please try again, and contact the Data Profiler Team if the problem persists.
+    securitySchemes:
+      PermanentApiKey:
+        description: Obtain by requesting from the Data Profiler Team
+        type: apiKey
+        name: X-API-Key
+        in: header
+      OAuthToken:
+        description: Obtain from an external oauth server
+        type: apiKey
+        name: X-Authorization-Token
+        in: header
+    schemas:
+      Makes:
+        MakeObjectArgument:
+          type: object
+          properties:
+            objectType:
+              type: string
+              description:
+              example:
+            dataset:
+              type: string
+              description:
+              example:
+            table:
+              type: string
+              description:
+              example:
+            column:
+              type: string
+              description:
+              example:
+        MakePostSpec:
+          type: object
+          properties:
+            makeId:
+              type: string
+              description: The name of the make to submit; must be installed on the cluster and showing in /make/plugins
+              example: make_name_installed
+            inputs:
+            outputs:
+            options:
+            outputVisibility:
+        MakeSubmitted:
+          type: object
+          properties:
+            job_id:
+              type: string
+              example: a805008b-ed73-415c-915a-ffb9ed2534a4
+              description: The job ID inside the data profiler data loading daemon
+              pattern: '^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$'
+      Metadata:
+        MetadataItem:
+          type: object
+          properties:
+            visibility:
+              type: string
+              description: The visibility string for the element.
+              example: "LIST.Public_Data&LIST.other_viz"
+            timestamp:
+              type: integer
+              example: 1570556733031
+              description: Number of seconds since the unix epoch
+            metadata_level:
+              type: integer
+              example: 0
+              description: 0 is dataset, 1 is table, 2 is column
+            dataset_name:
+              type: string
+              example: My Public Dataset
+            table_name:
+              type: string
+              example: My Public Table
+            column_name:
+              type: string
+              example: My Public column
+            load_time:
+              type: integer
+              example: 1570556733031
+              description: Number of seconds since the unix epoch
+            update_time:
+              type: integer
+              example: 1570556733031
+              description: Number of seconds since the unix epoch
+            num_tables:
+              type: integer
+              example: 10
+            num_columns:
+              type: integer
+              example: 10
+            num_values:
+              type: integer
+              example: 10
+            num_unique_values:
+              type: integer
+              example: 10
+            pat_id:
+              type: boolean
+              example: false
+              description: Deprecated; tracks whether or not a column is a "primary key"
+            properties:
+              type: object
+              description: This is a <String,String> object that can mark metadata for an element. This is currently "free form" and not all elements will have all keys.
+              additionalProperties:
+                type: string
+              example:
+                Foo: Foo
+                Bar: Baz
+        MetadataCollection:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Metadata/MetadataItem'
+      Search:
+        SearchScanSpec:
+          type: object
+          properties:
+            term:
+              type: array
+              items:
+                type: string
+              description: Case insensitive search term inside a single item list
+              example: ["MK1234"]
+            begins_with:
+              type: boolean
+              description: If true, the value must start with the search term. If false, the value must contain the search term.
+              default: false
+              example: true
+            limit:
+              type: integer
+              description: Number of records to return
+              default: 1000
+              example: 1000
+            dataset:
+              type: string
+              optional: true
+              description: Dataset name to filter/drill results to
+              example: My Awesome Dataset
+            table:
+              type: string
+              optional: true
+              description: Table name to filter/drill results to. Requires a dataset to be sent as well.
+              example: My Awesome Table
+          required:
+            - term
+        SearchResult:
+          type: object
+          properties:
+            column:
+              type: string
+              description: Column the search term is found in
+              example: My Column
+            count:
+              type: integer
+              description: Number of times the search term is found in the column
+              example: 100
+            dataset:
+              type: string
+              description: Dataset the search term is found in
+              example: My Dataset
+            table:
+              type: string
+              description: Table the search term is found in
+              example: My Table
+            value:
+              type: string
+              description: The value stored in the column
+              example: MK1234
+            visibility:
+              type: string
+              description: The visibility of the value
+              example: LIST.FOO
+            index:
+              type: string
+              description: Do not use - indicator for which system index found in
+              example: global
+            tableID:
+              type: string
+              description: Do not use - System Table ID
+              example: MyTable-b6b679c5-b877-4c12-9c7c-268e798ea5c9
+        SearchResultCollection:
+          type: array
+          items:
+            $ref: '#/components/schemas/Search/SearchResult'
+      Rows:
+        RowScanSpec:
+          type: object
+          properties:
+            dataset:
+              type: string
+              example: My Dataset Name
+            table:
+              type: string
+              example: My Table Name
+            limit:
+              description: An optional limit of results to bring back. Do not pass parameter, or set to a value less than 0 to return all rows.
+              type: integer
+              example: 10000
+          required:
+            - dataset
+            - table
+        PagedRowScanSpec:
+          type: object
+          properties:
+            dataset:
+              type: string
+              example: My Dataset Name
+            table:
+              type: string
+              example: My Table Name
+            limit:
+              description: Must match pageSize. A limit of the unpaged results to bring back.
+              type: integer
+              example: 10000
+              minimum: 1
+              maximum: 10000
+            pageSize:
+              description: Must match limit. A limit of the paged results to bring back.
+              type: integer
+              example: 10000
+              minimum: 1
+              maximum: 10000
+            filters:
+              description: A map of columns to array of values to filter on
+              type: object
+              example:
+                colA:
+                  - value1
+                  - value2
+                colB:
+                  - valueB
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+            startLocation:
+              type: string
+              example: abc_1000
+              description: A string token from `endLocation` field on a previous call to this endpoint. You cannot create a value for this field yourself.
+          required:
+            - dataset
+            - table
+        PagedRowResult:
+          type: object
+          properties:
+            columns:
+              type: object
+              deprecated: true
+              description: DO NOT USE - WILL BE DEPRECATED. A map of columns and their values within the page.
+              example:
+                colA:
+                  valueA: 100
+                  valueB: 200
+                colB:
+                  value1: 50
+                  value2: 250
+            count:
+              type: integer
+              description: number of results returned in the rows field
+              example: 500
+            endLocation:
+              type: string
+              description: A machine generated token that you would pass to startLocation if to retrieve the next page
+              example: abc_499
+            sortedColumns:
+              type: array
+              description: The order of columns during ingest
+              example:
+                - ID
+                - ColumnA
+                - ColumnB
+                - LastColumn
+              items:
+                type: string
+            statistics:
+              type: object
+              deprecated: true
+              description: DO NOT USE - WILL BE DEPRECATED. A map of columns and their values within the page.
+              example:
+                colA:
+                  valueA:
+                    card: 100
+                  valueB:
+                    card: 200
+                colB:
+                  value1:
+                    card: 50
+                  value2:
+                    card: 250
+            rows:
+              type: array
+              items:
+                $ref: '#/components/schemas/Rows/PagedRowCollectionOfRows'
+        PagedRowSingleRow:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            ColumnA: Val1
+            ColumnB: Val2
+        PagedRowCollectionOfRows:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rows/PagedRowSingleRow'
+        RowStreamResult:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            ColumnA: Val1
+            ColumnB: Val2
+        RowStreamCollection:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rows/RowStreamResult'
+      HealthCheck:
+        HealthCheckResult:
+          type: object
+          properties:
+            CheckId:
+              type: string
+              example: 9c1
+              description: This will echo the checkID you requested back to you
+            TimeStamp:
+              type: string
+              example: "1570567088782"
+              description: Unix Epoch at the start of the healthcheck
+      ColumnCounts:
+        ColumnCountSpec:
+          type: object
+          required:
+            - dataset
+            - table
+            - column
+            - start
+            - end
+            - sort
+          properties:
+            dataset:
+              type: string
+              example: My Dataset Name
+            table:
+              type: string
+              example: My Table Name
+            column:
+              type: string
+              example: My Column Name
+            sort:
+              type: string
+              example: CNT_DESC
+              pattern: '^(CNT_ASC|CNT_DESC|VAL_ASC|VAL_DESC)$'
+              description: One of four ways to sort
+            start:
+              type: integer
+              example: 0
+              description: Starting location of the results
+            end:
+              type: integer
+              example: 5000
+              description: End location of the results. Cannot be greater than 10,000 more than the start marker.
+        ColumnCountResult:
+          type: object
+          properties:
+            n:
+              type: string
+              example: "ABC123"
+              description: The value as stored in the column
+            c:
+              type: integer
+              example: 120
+              description: The number of times the value appears in the column
+        ColumnCountResultCollection:
+          type: array
+          items:
+            $ref: '#/components/schemas/ColumnCounts/ColumnCountResult'
+      Join:
+        JoinScanSpec:
+          type: object
+          properties:
+            dataset_a:
+              type: string
+              example: Dataset A
+              required: true
+            table_a:
+              type: string
+              example: Table A
+              required: true
+            column_a:
+              type: string
+              example: Column A
+              required: true
+            dataset_b:
+              type: string
+              example: Dataset B
+              required: true
+            table_b:
+              type: string
+              example: Table B
+              required: true
+            column_b:
+              type: string
+              example: Column B
+              required: true
+            limit:
+              type: integer
+              example: 50
+              description: The max number of samples to return

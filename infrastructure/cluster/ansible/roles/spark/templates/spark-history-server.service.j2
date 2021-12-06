@@ -1,0 +1,18 @@
+[Unit]
+Description=Spark History Server Service
+After=network.target
+
+[Service]
+User=spark
+Group=spark
+ExecStart={{ spark_home }}/sbin/start-history-server.sh
+ExecStop={{ spark_home }}/sbin/stop-history-server.sh
+Environment=JAVA_HOME={{ java_home }}
+Restart=always
+RestartSec=60
+StartLimitBurst=5
+TimeoutStartSec=5min
+PIDFile={{ spark_pid_directory }}/spark-spark-org.apache.spark.deploy.history.HistoryServer-1.pid
+
+[Install]
+WantedBy=multi-user.target

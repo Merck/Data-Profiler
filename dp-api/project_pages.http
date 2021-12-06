@@ -1,0 +1,39 @@
+GET http://localhost:9000/dynamic_project_pages
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+
+###
+
+GET http://localhost:9000/dynamic_project_pages/Project%20Page%20Foo/Sub%20Project
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+
+###
+
+DELETE http://localhost:9000/dynamic_project_pages/Project%20Page%20Foo/Sub%20Project
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+
+###
+
+POST http://localhost:9000/dynamic_project_pages
+X-Authorization-Token: local-developer
+Content-Type: application/json
+
+< project_page.json
+
+###
+
+POST http://localhost:9000/dynamic_project_pages/Project%20Page%20Foo/Sub%20Project
+X-Authorization-Token: local-developer
+Content-Type: application/json
+
+< project_page.json
+
+###

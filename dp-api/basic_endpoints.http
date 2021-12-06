@@ -1,0 +1,728 @@
+GET {{url}}/v1/datasets
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/treemap
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/v1/tables/t1
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/v1/tables/t1
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/v1/columns/
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/v1/columns/
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+
+###
+GET {{url}}/concepts/datasets/100
+
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/concepts/tables/maketest/100
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/concepts/columns/d1/t1/100
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/samples/d1/t1
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/treemap
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/transforms
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+POST {{url}}/colcounts
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "maketest",
+  "table": "output",
+  "column": "States"
+}
+
+###
+POST {{url}}/colvalues
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "maketest",
+  "table": "output",
+  "column": "States",
+  "value": "I"
+}
+
+###
+GET {{url}}/info
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+POST {{url}}/data/datawaverows
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "d1",
+  "table": "t1",
+  "filters": {
+    "c1": [
+      "17",
+      "23"
+    ]
+  },
+  "api_filter": true,
+  "limit": 100
+}
+
+###
+POST {{url}}/data/datawaverows
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+# X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "maketest",
+  "table": "output",
+  "limit": 500
+}
+
+###
+POST {{url}}/pickerColumnSearch
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "maketest",
+  "table": "output",
+  "search": "St",
+  "limit": 300
+}
+
+###
+POST {{url}}/v1/search
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "maketest",
+  "table": "output",
+  "term": ["St"],
+  "limit": 300
+}
+
+###
+POST {{url}}/v1/search
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{"term":["a"],"begins_with":true,"limit":1000,"level":"dataset","dataset":"d1"}
+
+###
+GET {{url}}/v1/columns/maketest/output
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/health/check/101
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+POST {{url}}/experimental/rows
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "maketest",
+  "table": "output",
+  "filters": {
+    "States": [
+      "NY"
+    ]
+  },
+  "limit": 500
+}
+
+###
+
+POST {{url}}/columns/search
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "columnNamePrefix": "d",
+  "limit": 20
+}
+
+
+###
+
+GET {{url}}/concepts/datasets/100
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+
+GET {{url}}/columns
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+
+GET {{url}}/d1/properties
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+
+POST {{url}}/d1/properties
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "test":"bar"
+}
+
+###
+
+GET {{url}}/d1/t1/properties
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+
+###
+
+POST {{url}}/d1/t1/properties
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "test": "bar"
+}
+
+###
+
+GET {{url}}/d1/t1/c1/properties
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+
+POST {{url}}/d1/t1/c1//properties
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "test": "bar"
+}
+
+###
+POST {{url}}/search
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "type": "search",
+  "level": "global",
+  "term": ["a"],
+  "limit": 500
+}
+
+
+### Dataset level search
+POST {{url}}/search
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+# X-API-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "test",
+  "term":["foo"],
+  "limit": 500,
+  "api_filter": false
+}
+
+
+### Table level search
+POST {{url}}/search
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+# X-API-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "test",
+  "table": "search_test",
+  "term":["foo"],
+  "limit": 500,
+  "api_filter": false
+}
+
+### Column level search
+POST {{url}}/search
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+# X-API-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "test",
+  "table": "search_test",
+  "column":"col_a",
+  "term":["foo"],
+  "limit": 500,
+  "api_filter": false
+}
+
+###
+
+GET {{url}}/concept_object/Project%20Page%20Like/all_time
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+
+GET {{url}}/datasets
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/rules_of_use/xxx/authorizations
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+
+POST https://{{host}}:{{port}}/api/jobs/tableload
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+    "datasetName": "someName",
+    "tableName": "someTable",
+    "metadataVersion": "1712C81A-A65A-4818-ABEA-A967235EC594",
+    "tableVisibilityExpression": "LIST.Public_Data",
+    "dataFormat": "csv",
+    "sourceS3Bucket": "bucketName",
+    "sourceS3Key": "some/key/in/bucket",
+    "estimatedRows": 12312312,
+    "options": {
+        "delimiter": ",",
+        "escape": "\\",
+        "quote": "\"",
+        "charset": "utf-8"
+    },
+    "tableProperties": {
+        "key": "value"
+    },
+    "columnProperties": {
+        "key": "values"
+    }
+}
+
+###
+
+POST {{url}}/jobs/commit
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+      "metadataVersion": "1712C81A-A65A-4818-ABEA-A967235EC594",
+      "datasetVisibilityExpression": "LIST.Public_Data",
+      "fullDatasetLoad": false
+}
+
+###
+GET {{url}}/jobs/1
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/jobs?jobtype=commit
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/jobs/user/username
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+
+POST https://development-internal/jobs/graphql
+Content-Type: application/json
+
+{"query": "{allJobs {id}}"}
+
+###
+
+POST {{url}}/jobs/sql
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "queryType": "simple",
+  "query": "SELECT Status,`Completion Date`,`Street Address` FROM `dataset/someValidView` WHERE `Completion Date` < cast('2012-01-01' as TIMESTAMP)",
+  "queryVisibilities": [
+    "LIST.Public_Data"
+  ],
+  "outputVisibility": "LIST.Public_Data",
+  "tables": [
+    {
+      "dataset": "d1",
+      "datasetViewName": "dataset",
+      "table": "t1",
+      "tableViewName": "someValidView",
+      "columnTypeOverrides": [
+        {
+          "columnName": "Completiion Date",
+          "type": "timestamp"
+        }
+      ],
+      "timestampFormat": "yyyy-mm-dd'T'hh:mm:ss"
+    }
+  ],
+  "outputDataset": "project_page_test",
+  "outputTable": "simple_query_3"
+}
+
+###
+
+GET {{url}}/u1/users/properties
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+
+POST {{url}}/u1/users/properties
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "foo": "bar"
+}
+
+###
+
+GET {{url}}/metadata/versions
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+###
+GET {{url}}/metadata/version/acd66382-948e-4348-ad97-7acdb71f9bf0
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+
+###
+POST {{url}}/experimental/rows
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+# X-Api-Key: {{api-key}}
+X-Authorization-Token: local-developer
+X-Username: {{username}}
+
+{
+  "dataset": "test",
+  "table": "search_test"
+}
+
+###
+
+POST {{url}}/experimental/joinStats
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Api-Key: {{api-key}}
+# X-Authorization-Token: local-developer
+X-Username: {{username}}
+
+{
+  "dataset_a": "test",
+  "table_a": "search_test",
+  "col_a": "col_a",
+  "dataset_b": "zach_search_test_0",
+  "table_b": "search_test_copy",
+  "col_b": "col_a",
+  "limit": 50
+}
+
+###
+
+POST {{url}}/data/rows
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+# X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "d1",
+  "table": "t1",
+  "v2Query": {
+    "$eq": {
+      "column": "Token",
+      "value": "0645669291"
+    }
+  },
+  "limit": 100,
+  "api_filter": false,
+  "returnVisibilities": false
+}
+
+###
+
+POST {{url}}/data/rows
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+# X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "d1",
+  "table": "t1",
+  "v2Query": {
+    "$and": [
+      {
+        "$eq": {
+          "column": "Token",
+          "value": "0645669291"
+        }
+      }
+    ]
+  },
+  "limit": 100,
+  "api_filter": false,
+  "returnVisibilities": false
+}
+
+###
+
+POST {{url}}/data/rows
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+# X-Api-Key: {{api-key}}
+X-Username: {{username}}
+
+{
+  "dataset": "d1",
+  "table": "t1",
+  "v2Query": {
+    "$or": [
+      {
+        "$eq": {
+          "column": "Token",
+          "value": "0645669291"
+        }
+      }
+    ]
+  },
+  "limit": 100,
+  "api_filter": false,
+  "returnVisibilities": false
+}
+
+###
+
+POST {{url}}/data/rows
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json
+X-Authorization-Token: local-developer
+# X-Api-Key: {{api-key}}
+X-Username: {{username}}
+{
+  "dataset": "d1",
+  "table": "t1",
+  "pageSize": 1000,
+  "startLocation": "1_900019",
+    "v2Query": {
+    "$eq" : {
+      "type": "string",
+      "column": "SITENAME",
+      "value": "site1"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+[Unit]
+Description=ZooKeeper Service
+Requires=network.target
+After=network.target
+
+[Service]
+Type=forking
+User=zookeeper
+Group=zookeeper
+ExecStart={{ zookeeper_home }}/bin/zkServer.sh start {{ zookeeper_home }}/conf/zoo.cfg
+ExecStop={{ zookeeper_home }}/bin/zkServer.sh stop {{ zookeeper_home }}/conf/zoo.cfg
+ExecReload={{ zookeeper_home }}/bin/zkServer.sh restart {{ zookeeper_home }}/conf/zoo.cfg
+Restart=always
+RestartSec=10
+StartLimitBurst=30
+PIDFile={{ worker_data_dirs[0] }}/zookeeper/zookeeper_server.pid
+
+[Install]
+WantedBy=multi-user.target

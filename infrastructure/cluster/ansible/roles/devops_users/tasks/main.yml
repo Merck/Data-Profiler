@@ -1,0 +1,91 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+---
+- name: checking vault user
+  debug:
+    msg: "user: {{ vault_user }}"
+
+- name: get user token from vault
+  uri:
+    url: "{{ vault_addr }}/auth/ldap/login/{{ vault_user }}"
+    method: POST
+    body_format: json
+    body:
+      password: "{{ vault_password }}"
+  register: result
+
+- name: get CA public key from vault
+  get_url:
+    url: http://secrets.dataprofiler.com/v1/ssh-client-signer/public_key
+    dest: /etc/ssh/trusted-user-ca-keys.pem
+    headers:
+      x-vault-token: "{{ result.json['auth'].client_token }}"
+
+- name: configure trusted CA keys
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: "TrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem"
+  notify:
+    - restart sshd
+
+- name: allow agent forwarding
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: "AllowAgentForwarding yes"
+  notify:
+    - restart sshd
+
+- name: create users
+  user:
+    name: "{{ item.ssh_user }}"
+    state: present
+    groups: sudo
+    append: yes
+    shell: "/bin/bash"
+  with_items: "{{ devops_users }}"
+
+- name: add users to sudo group
+  lineinfile:
+    path: /etc/sudoers.d/{{ item.ssh_user }}
+    line: '{{ item.ssh_user }} ALL=(ALL) NOPASSWD:ALL'
+    state: present
+    mode: 0440
+    create: yes
+    validate: 'visudo -cf %s'
+  with_items: "{{ devops_users }}"
+
+- name: add users to docker,git groups on bastion
+  user:
+    name: "{{ item.ssh_user }}"
+    groups: docker,git
+    append: yes
+  with_items: "{{ devops_users }}"
+  when: "'bastion' in group_names"
+
+- name: set includedir in sudoers
+  lineinfile:
+    dest: /etc/sudoers
+    line: "#includedir /etc/sudoers.d"
+    state: present
+    validate: "/usr/sbin/visudo -cf %s"
+
+...

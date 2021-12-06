@@ -1,0 +1,4 @@
+To run tests (can run via cluster-shell):
+1) pip install pytest
+2) export INTTESTPASS=<test-dev api key>
+3) pytest

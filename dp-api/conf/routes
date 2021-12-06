@@ -1,0 +1,2048 @@
+# _____        _          _____            __ _ _
+# |  __ \      | |        |  __ \          / _(_) |
+# | |  | | __ _| |_ __ _  | |__) | __ ___ | |_ _| | ___ _ __
+# | |  | |/ _` | __/ _` | |  ___/ '__/ _ \|  _| | |/ _ \ '__|
+# | |__| | (_| | || (_| | | |   | | | (_) | | | | |  __/ |
+# |_____/ \__,_|\__\__,_| |_|   |_|  \___/|_| |_|_|\___|_|
+
+###
+# summary: List all metadata for the dataset its table and their columns
+# tags:
+#   - public_api
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/Metadata/MetadataCollection'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /metadata/:dataset controllers.accumulo.AccumuloControllerMetadata.metadata(request: Request, dataset: String)
+
+###
+# summary: List all datasets and their metadata
+# tags:
+#   - public_api
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/Metadata/MetadataCollection'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /v1/datasets controllers.accumulo.AccumuloControllerV1.datasets(request: Request)
+
+###
+# summary: Access datasets via graphql
+# tags:
+#   - public_api
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/Metadata/MetadataCollection'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /v2/datasets/graphql controllers.accumulo.AccumuloControllerV2.graphql(request: Request)
+
+###
+# summary: List all tables (for a single dataset) and their metadata
+# tags:
+#   - public_api
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/Metadata/MetadataCollection'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /v1/tables/:dataset controllers.accumulo.AccumuloControllerV1.tables(request: Request, dataset: String)
+
+###
+# summary: List all columns (for a single dataset and table) and their metadata
+# tags:
+#   - public_api
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/Metadata/MetadataCollection'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /v1/columns/:dataset/:table  controllers.accumulo.AccumuloControllerV1.columns(request: Request, dataset: String, table: String)
+
+###
+# summary: Gives a status of the API
+# description: Gives a status of the API
+# security: []
+# parameters:
+#   - name: checkId
+#     required: true
+#     description: Random string that will be echoed back to you in the result.
+#     schema:
+#       type : String
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/HealthCheck/HealthCheckResult'
+###
+GET /health/check/:checkId  controllers.HealthCheckController.healthCheck(request: Request, checkId: String)
+
+###
+# summary: Retrieve paginated rows for a dataset/table
+# description: This will retrieve a page of rows for the given dataset and table. You can pass a continuation token which will pick up where you left off.
+# tags:
+#   - public_api
+# requestBody:
+#   required: true
+#   content:
+#     application/json:
+#       schema:
+#         $ref: '#/components/schemas/Rows/PagedRowScanSpec'
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/Rows/PagedRowResult'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /v2/rows controllers.accumulo.AccumuloControllerV2.datawaverows(request: Request)
+
+
+###
+# summary: DEPRECATED - This endpoint will be removed in a future release of data profiler.
+# description: DEPRECATED - This endpoint will be removed in a future release of data profiler. This will retrieve all rows for the given dataset and table. The results can take a long time to return.
+# tags:
+#   - deprecated
+# requestBody:
+#   required: true
+#   content:
+#     application/json:
+#       schema:
+#         $ref: '#/components/schemas/Rows/RowScanSpec'
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/Rows/RowStreamCollection'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /v1/rows controllers.AccumuloControllerStreaming.rowsStream(request: Request)
+
+### NoDocs ###
+POST /experimental/rows controllers.RedirectController.redirect(request: Request, uri: String="/v1/rows")
+
+###
+# summary: Simulate a join between tables
+# description: This will perform a join on two tables and return a sample of the join and some statistics.
+# tags:
+#   - experimental_api
+# requestBody:
+#   required: true
+#   content:
+#     application/json:
+#       schema:
+#         $ref: '#/components/schemas/Join/JoinScanSpec'
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /experimental/joinStats controllers.accumulo.AccumuloControllerExperimental.joinStats(request: Request)
+
+###
+# summary: Search for a value across all datasets
+# description: Use this to search values across all datasets. This will return all the results that are available with your visibilities; there's no limit. The results can take a long time to return.
+# tags:
+#   - public_api
+# requestBody:
+#   required: true
+#   content:
+#     application/json:
+#       schema:
+#         $ref: '#/components/schemas/Search/SearchScanSpec'
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/Search/SearchResultCollection'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /v1/search controllers.accumulo.AccumuloControllerV1.search(request: Request)
+
+### NoDocs ###
+POST /experimental/search controllers.RedirectController.redirect(request: Request, uri: String="/v1/search")
+
+###
+# summary: Get value counts for a dataset, table, column pair
+# description: Get value counts for a dataset, table, column pair
+# tags:
+#   - public_api
+# requestBody:
+#   required: true
+#   content:
+#     application/json:
+#       schema:
+#         $ref: '#/components/schemas/ColumnCounts/ColumnCountSpec'
+# responses:
+#   '200':
+#     description: Successful Response
+#     content:
+#       application/json:
+#         schema:
+#           $ref: '#/components/schemas/ColumnCounts/ColumnCountResultCollection'
+#   '400':
+#     $ref: '#/components/responses/BadRequest'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /v1/colCounts controllers.accumulo.AccumuloControllerV1.colCounts(request: Request)
+
+### NoDocs ###
+POST /experimental/colCounts controllers.RedirectController.redirect(request: Request, uri: String="/v1/colCounts")
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /concepts/datasets/:confidence controllers.accumulo.AccumuloControllerConcepts.conceptsDatasets(request: Request, confidence: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /concepts/tables/:dataset/:confidence controllers.accumulo.AccumuloControllerConcepts.conceptsTables(request: Request, dataset: String, confidence: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /concepts/columns/:dataset/:table/:confidence controllers.accumulo.AccumuloControllerConcepts.conceptsColumns(request: Request, dataset: String, table: String, confidence: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /samples/:dataset/:table controllers.accumulo.AccumuloControllerTableSamples.tableSamples(request: Request, dataset: String, table: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /treemap controllers.accumulo.AccumuloControllerTreemap.treemap(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /transforms controllers.TransformsController.get(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST  /colcounts  controllers.accumulo.AccumuloControllerV1.colCounts(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST  /colvalues  controllers.accumulo.AccumuloControllerColValues.colValueSearch(request: Request)
+
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /info controllers.InfoController.info(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST  /auth controllers.OAuthController.auth(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET   /user/me        controllers.UserController.info(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST  /jobs/tableload controllers.JobController.createTableLoad(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST  /jobs/commit controllers.JobController.createCommit(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET   /jobs controllers.JobController.getAll(request: Request, jobtype: String ?= "all", jobstatus: String ?= "all", creatinguser: String ?= "all", limit: Integer ?= 10000)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET   /jobs/user/:creatingUser controllers.JobController.jobsForUser(request: Request, creatingUser: String, limit: Integer ?= 25)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET   /jobs/:jobId controllers.JobController.getDetails(request: Request, jobId: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET   /jobs/:jobId/logs controllers.SparkLogsController.fetchLogsFromCluster(req: Request, jobId: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST  /jobs/download controllers.JobController.createDownload(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+#POST  /jobs/command controllers.JobController.createCommandJob(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+#POST /jobs/sql controllers.JobController.createSqlQueryJob(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /jobs/canceller controllers.JobController.createCancelJob(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /jobs/connection_engine controllers.JobController.createConnectionEngineJob(request: Request)
+
+###
+# Broken/Unused: Proxies to an invalid endpoint (job_api/graphql/make/plugins)
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+#GET /make/plugins controllers.MakeController.makePlugins(request: Request)
+
+###
+# Broken/Unused: Proxies to an invalid endpoint (job_api/graphql/make/plugin/:pluginID/json_form)
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+#GET /make/plugin/:pluginID/json_form controllers.MakeController.getJsonForm(request: Request, pluginID: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST   /data/rows        controllers.accumulo.AccumuloControllerV2.datawaverows(request: Request)
+
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST   /data/datawaverows        controllers.accumulo.AccumuloControllerV2.datawaverows(request: Request)
+
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET   /apiKeys controllers.AdminAccumuloController.apiKeys(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST  /apiKeys/:username controllers.AdminAccumuloController.newApiKey(request: Request, username: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+DELETE /apiKeys/:token controllers.AdminAccumuloController.deleteApiKey(request: Request, token: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST  /pickerColumnSearch  controllers.accumulo.AccumuloControllerPickerColSearch.pickerColumnSearch(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /search     controllers.accumulo.AccumuloControllerV1.search(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /multi-search     controllers.accumulo.AccumuloControllerMultiSearch.multiSearch(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /columns/search controllers.accumulo.AccumuloControllerColumnNames.searchColumnNames(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /tables/search controllers.accumulo.AccumuloControllerTables.searchTableNames(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /datasets/search controllers.accumulo.AccumuloControllerDatasets.searchDatasetNames(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /rules_of_use  controllers.RulesOfUseController.proxy(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /rules_of_use/:user/authorizations controllers.RulesOfUseController.userAuthorizations(request: Request, user: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /rules_of_use/user/:user controllers.RulesOfUseController.user(request: Request, user: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /rules_of_use/current_user controllers.LandingPageController.currentUser(request: Request)
+
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /rules_of_use/complete_first_login  controllers.LandingPageController.applyFirstLoginBadge(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+DELETE /rules_of_use/complete_first_login  controllers.LandingPageController.resetFirstLoginBadge(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /accumulo_syntax/attribute/escape controllers.AccumuloExpressionController.escapeSingleString(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /accumulo_syntax/expression/validate controllers.AccumuloExpressionController.validateExpression(request: Request)
+
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /custom_column_names controllers.ElementAliasController.list(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /custom_column_names controllers.ElementAliasController.create(request: Request)
+
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /:dataset/properties controllers.accumulo.AccumuloControllerDatasetProp.getDatasetProperties(request: Request, dataset: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /:dataset/properties controllers.accumulo.AccumuloControllerDatasetProp.setDatasetProperties(request: Request, dataset: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /:dataset/:table/properties controllers.accumulo.AccumuloControllerDatasetProp.getTableProperties(request: Request, dataset: String, table: String)
+
+###
+# tags:
+
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /:dataset/:table/properties controllers.accumulo.AccumuloControllerDatasetProp.setTableProperties(request: Request, dataset: String, table: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /:dataset/:table/:column/properties controllers.accumulo.AccumuloControllerDatasetProp.getColumnProperties(request: Request, dataset: String, table: String, column: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /:dataset/:table/:column/properties controllers.accumulo.AccumuloControllerDatasetProp.setColumnProperties(request: Request, dataset: String, table: String, column: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /sortedColumns/:dataset/:table controllers.accumulo.AccumuloControllerSortedColumns.sortedColumns(request: Request, dataset: String, table: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /supertables controllers.accumulo.AccumuloControllerSuperTables.supertables(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /supertables/:dataset controllers.accumulo.AccumuloControllerSuperTables.supertablesTreemap(request: Request, dataset: String)
+
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /jira/mail controllers.JIRAMailController.send(request: Request)
+
+### NoDocs ###
+GET /assets/*file controllers.Assets.versioned(path="/public", file: Asset)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /metadata/versions controllers.accumulo.AccumuloControllerMetadata.metadataVersions(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /metadata/version/:version controllers.accumulo.AccumuloControllerMetadata.metadataVersion(request: Request, version: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /metadata/version/history/max/:max controllers.MetadataVersionHistoryController.metadataVersionHistory(request: Request, max: Integer)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /metadata/version/history/dataset/:dataset/max/:max controllers.MetadataVersionHistoryController.metadataVersionHistoryByDataset(request: Request, dataset: String, max: Integer)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/datasets controllers.CustomAnnotationController.listAllDatasetAnnotations(request: Request, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tables controllers.CustomAnnotationController.listAllTableAnnotations(request: Request, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/columns controllers.CustomAnnotationController.listAllColumnAnnotations(request: Request, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/hierarchy/dataset/:dataset controllers.CustomAnnotationController.listDatasetHierarchyAnnotations(request: Request, dataset: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/hierarchy/dataset/:dataset/table/:table controllers.CustomAnnotationController.listTableHierarchyAnnotations(request: Request, dataset: String, table: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/dataset/:dataset controllers.CustomAnnotationController.listDatasetAnnotations(request: Request, dataset: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/dataset/:dataset/table/:table controllers.CustomAnnotationController.listTableAnnotations(request: Request, dataset: String, table: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/dataset/:dataset/table/:table/column/:column controllers.CustomAnnotationController.listColumnAnnotations(request: Request, dataset: String, table: String, column: String, max: java.util.Optional[Integer])
+
+## system annotation endpoints
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/datasets controllers.CustomAnnotationController.listAllDatasetSystemAnnotations(request: Request, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/tables controllers.CustomAnnotationController.listAllTableSystemAnnotations(request: Request, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/columns controllers.CustomAnnotationController.listAllColumnSystemAnnotations(request: Request, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/hierarchy/dataset/:dataset controllers.CustomAnnotationController.listDatasetHierarchySystemAnnotations(request: Request, dataset: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/hierarchy/dataset/:dataset/table/:table controllers.CustomAnnotationController.listTableHierarchySystemAnnotations(request: Request, dataset: String, table: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/dataset/:dataset controllers.CustomAnnotationController.listDatasetSystemAnnotations(request: Request, dataset: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/dataset/:dataset/table/:table controllers.CustomAnnotationController.listTableSystemAnnotations(request: Request, dataset: String, table: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/dataset/:dataset/table/:table/column/:column controllers.CustomAnnotationController.listColumnSystemAnnotations(request: Request, dataset: String, table: String, column: String, max: java.util.Optional[Integer])
+
+## tour comment endpoints
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/datasets controllers.CustomAnnotationController.listAllDatasetTourAnnotations(request: Request, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/tables controllers.CustomAnnotationController.listAllTableTourAnnotations(request: Request, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/columns controllers.CustomAnnotationController.listAllColumnTourAnnotations(request: Request, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/hierarchy/dataset/:dataset controllers.CustomAnnotationController.listDatasetHierarchyTourAnnotations(request: Request, dataset: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/hierarchy/dataset/:dataset/table/:table controllers.CustomAnnotationController.listTableHierarchyTourAnnotations(request: Request, dataset: String, table: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/dataset/:dataset controllers.CustomAnnotationController.listDatasetTourAnnotations(request: Request, dataset: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/dataset/:dataset/table/:table controllers.CustomAnnotationController.listTableTourAnnotations(request: Request, dataset: String, table: String, max: java.util.Optional[Integer])
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/dataset/:dataset/table/:table/column/:column controllers.CustomAnnotationController.listColumnTourAnnotations(request: Request, dataset: String, table: String, column: String, max: java.util.Optional[Integer])
+
+## count annotation endpoints
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/datasets/counts controllers.CustomAnnotationController.countAllDatasetAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tables/counts controllers.CustomAnnotationController.countAllTableAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/columns/counts controllers.CustomAnnotationController.countAllColumnAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/counts controllers.CustomAnnotationController.countAllAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/hierarchy/dataset/:dataset/counts controllers.CustomAnnotationController.countAnnotationsForDatasetHierarchy(request: Request, dataset: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/hierarchy/table/:dataset/:table/counts controllers.CustomAnnotationController.countAnnotationsForTableHierarchy(request: Request, dataset: String, table: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/dataset/:dataset/counts controllers.CustomAnnotationController.countAnnotationsForDataset(request: Request, dataset: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/table/:dataset/:table/counts controllers.CustomAnnotationController.countAnnotationsForTable(request: Request, dataset: String, table: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/column/:dataset/:table/:column/counts controllers.CustomAnnotationController.countAnnotationsForColumn(request: Request, dataset: String, table: String, column: String)
+
+## system count endpoints
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/datasets/counts controllers.CustomAnnotationController.countAllDatasetSystemAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/tables/counts controllers.CustomAnnotationController.countAllTableSystemAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/columns/counts controllers.CustomAnnotationController.countAllColumnSystemAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/counts controllers.CustomAnnotationController.countAllSystemAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/hierarchy/dataset/:dataset/counts controllers.CustomAnnotationController.countSystemAnnotationsForDatasetHierarchy(request: Request, dataset: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/hierarchy/table/:dataset/:table/counts controllers.CustomAnnotationController.countSystemAnnotationsForTableHierarchy(request: Request, dataset: String, table: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/dataset/:dataset/counts controllers.CustomAnnotationController.countSystemAnnotationsForDataset(request: Request, dataset: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/table/:dataset/:table/counts controllers.CustomAnnotationController.countSystemAnnotationsForTable(request: Request, dataset: String, table: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/system/column/:dataset/:table/:column/counts controllers.CustomAnnotationController.countSystemAnnotationsForColumn(request: Request, dataset: String, table: String, column: String)
+
+## tour count endpoints
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/datasets/counts controllers.CustomAnnotationController.countAllDatasetTourAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/tables/counts controllers.CustomAnnotationController.countAllTableTourAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/columns/counts controllers.CustomAnnotationController.countAllColumnTourAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/counts controllers.CustomAnnotationController.countAllTourAnnotations(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/hierarchy/dataset/:dataset/counts controllers.CustomAnnotationController.countTourAnnotationsForDatasetHierarchy(request: Request, dataset: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/hierarchy/table/:dataset/:table/counts controllers.CustomAnnotationController.countTourAnnotationsForTableHierarchy(request: Request, dataset: String, table: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/dataset/:dataset/counts controllers.CustomAnnotationController.countTourAnnotationsForDataset(request: Request, dataset: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/table/:dataset/:table/counts controllers.CustomAnnotationController.countTourAnnotationsForTable(request: Request, dataset: String, table: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /annotations/tour/column/:dataset/:table/:column/counts controllers.CustomAnnotationController.countTourAnnotationsForColumn(request: Request, dataset: String, table: String, column: String)
+
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+DELETE /annotations/:dataset/:id controllers.CustomAnnotationController.deleteDatasetAnnotation(request: Request, dataset: String, id: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+DELETE /annotations/:dataset/:table/:id controllers.CustomAnnotationController.deleteTableAnnotation(request: Request, dataset: String, table: String, id: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+DELETE /annotations/:dataset/:table/:column/:id controllers.CustomAnnotationController.deleteColumnAnnotation(request: Request, dataset: String, table: String, column: String, id: String)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+POST /annotations controllers.CustomAnnotationController.create(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /random controllers.InfoController.random(request: Request)
+
+###
+# tags:
+#   - private_api
+# responses:
+#   '200':
+#     $ref: '#/components/responses/Undocumented'
+#   '401':
+#     $ref: '#/components/responses/Unauthorized'
+#   '403':
+#     $ref: '#/components/responses/Forbidden'
+#   '500':
+#     $ref: '#/components/responses/InternalServerError'
+###
+GET /_s3/*anything controllers.InfoController.notFound(request: Request, anything: String)

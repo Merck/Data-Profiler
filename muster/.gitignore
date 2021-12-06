@@ -1,0 +1,6 @@
+*.retry
+env-template
+*-hosts
+
+# Allow
+!ansible/roles/backend_deploy/files/guava-20.0.jar

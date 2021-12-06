@@ -1,0 +1,33 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB: jobs
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - rou-db:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      args:
+        NODE_ENV: 'development'
+    depends_on:
+      - db
+    ports:
+      - "8081:8081"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_NUM_POOL_CONNS=50
+      - TIMEOUT_MINUTES=5
+      - INACTIVE_TIMEOUT_MINUTES=1
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - <local_volume>:/opt/app
+
+
+volumes:
+  rou-db:

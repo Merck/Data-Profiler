@@ -1,0 +1,74 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+# Our instances use the Nitro System to mount EBS volumes as NVME block devices. This is very
+# confusing since the EBS volume aren't actual NVME devices, they are SSDs which are not to be
+# confused with the NMVE instance store devices, which are actual NVME devices ಠ_ಠ. This is
+# problematic since the divices that use the Nitro System aren't always mounted in the same order
+# you cannot rely on the device name, e.g. /dev/nvme0n1, to correlate to the same volume after
+# restart or a fully shutdown. To solve this issue, there are a few scripts that we found and
+# modified that will give us block device names that are always mounted in the same order, e.g.
+# /dev/sdf, /dev/sdg, etc. (https://github.com/transferwise/ansible-ebs-automatic-nvme-mapping).
+# Using this information we can grab the UUID of the block device and create an entry in /etc/fstab
+# to ensure the block devices are mounted correctly after startup.
+
+- name: Find non-root EBS volumes
+  shell:
+    cmd: ls /dev/sd?
+  become: true
+  register: drives
+
+- name: Create list of device names
+  set_fact:
+    devices: "{{ drives | json_query('stdout_lines[]') | list }}"
+
+- name: Display volumes found on each system
+  debug:
+    msg: "position: {{ item.0 }} value {{ item.1 }}"
+  with_indexed_items: "{{ devices }}"
+
+- name: Format all EBS drives (if needed)
+  filesystem:
+    fstype: ext4
+    dev: "{{ item }}"
+  with_items: "{{ devices }}"
+  become: true
+
+- name: Get the block device attributes for each EBS volume
+  shell:
+    cmd: lsblk {{ item }} -o UUID | tail -n -1
+  with_items: "{{ devices }}"
+  become: true
+  register: blkids
+
+- name: Display block UUIDs for EBS volumes
+  debug:
+    msg: "{{ item.stdout }}"
+  with_items: "{{ blkids.results }}"
+
+- name: Mount all EBS volume and create entries in /etc/fstab
+  mount:
+    path: /data_{{ item.0 }}
+    src: "UUID={{ item.1.stdout }}"
+    state: mounted
+    fstype: ext4
+  with_indexed_items: "{{ blkids.results }}"
+  become: true

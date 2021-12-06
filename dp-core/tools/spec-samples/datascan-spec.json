@@ -1,0 +1,4 @@
+{
+  "dataset": "src/test/resources/basic_test_data.csv",
+  "table": "basic_test_data"
+}

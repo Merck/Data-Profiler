@@ -1,0 +1,145 @@
+.error-box {
+    width: 100%;
+    border-left: 4px solid #ff9100;
+    margin-bottom: 12px;
+}
+
+.error-box .error-title {
+    border-bottom-color: rgba(255,145,0,.2);
+    background-color: rgba(255,145,0,.2);
+    border-bottom: .05rem solid rgba(68,138,255,.2);
+    height: 32px;
+}
+
+.error-box .error-title .warning-icon {
+    height: 32px;
+    color: #ff9100;
+    margin-right: 8px;
+}
+
+.error-box .error-title .title {
+    vertical-align: middle;
+    padding-left: 8px;
+    font-size: .8em;
+    font-weight: 500;
+}
+
+.error-box .error-content {
+    padding: 4px 8px;
+}
+
+.content-warning {
+    font-weight: 500;
+    font-size: .8em;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.content-origin {
+    font-weight: 500;
+    font-size: .8em;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.comments {
+    display: block;
+}
+
+.comment-row {
+    font-size: .9em;
+    min-height: 64px;
+    margin-top: 8px;
+}
+
+.fade-delete {
+    /** fade comment before delete **/
+    animation: fade 1s steps(90) forwards;
+    -webkit-animation: fade 1s steps(90) forwards;
+    -moz-animation: fade 1s steps(90) forwards;
+}
+
+@keyframes fade {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.0;
+    }
+}
+
+.comment-createdby {
+    font-weight: 700;
+    padding-right: 4px;
+}
+
+.comment-note {
+    font-size: 1em;
+}
+
+.comment-createdon {
+    color: rgba(0, 0, 0, 0.50);
+    font-size: .8em;
+}
+
+.comment-counter {
+    color: rgba(0, 0, 0, 0.50);
+    font-size: .8em;
+}
+
+.comment-textarea {
+    width: 100%;
+}
+
+.comment-processing {
+    width: 100%;
+    display: flex;
+    z-index: 2;
+    opacity: .5;
+    background-color: #ccc;
+}
+
+.comment-processing .progress-indicator {
+    margin: auto;
+}
+
+.comment-actions-panel {
+    width: 64px;
+    height: 64px;
+    opacity: .9;
+    text-align: center;
+    display: flex;
+}
+
+.comments-actions-panel-enabled {
+    background: #F44336;
+}
+
+.comments-actions-panel-disabled {
+    background: #9E9E9E;
+}
+
+.slide {
+    position: absolute;
+    right: -32px;
+    -webkit-animation: slide 0.4s forwards;
+    -webkit-animation-delay: .1s;
+    animation: slide 0.4s forwards;
+    animation-delay: .1s;
+}
+
+@-webkit-keyframes slide {
+    100% {
+        right: 24px;
+    }
+}
+
+@keyframes slide {
+    100% {
+        right: 24px;
+    }
+}
+
+.comment-action {
+    flex: 1 1 auto !important;
+    font-size: 32px !important;
+    color: rgba(255, 255, 255, .9) !important;
+}

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+  <property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+  </property>
+  <property>
+    <name>mapreduce.cluster.temp.dir</name>
+    <value>{% for dir in worker_data_dirs -%}
+              {{ dir }}/hadoop/mapred/temp
+              {%- if not loop.last -%} , {%- endif -%}
+           {%- endfor %}</value>
+  </property>
+  <property>
+    <name>mapreduce.cluster.local.dir</name>
+    <value>{% for dir in worker_data_dirs -%}
+              {{ dir }}/hadoop/mapred/local
+              {%- if not loop.last -%} , {%- endif -%}
+           {%- endfor %}</value>
+  </property>
+{% if hadoop_major_version == '3' %}
+  <property>
+    <name>yarn.app.mapreduce.am.env</name>
+    <value>HADOOP_MAPRED_HOME={{ hadoop_home }}</value>
+  </property>
+  <property>
+    <name>mapreduce.map.env</name>
+    <value>HADOOP_MAPRED_HOME={{ hadoop_home }}</value>
+  </property>
+  <property>
+    <name>mapreduce.reduce.env</name>
+    <value>HADOOP_MAPRED_HOME={{ hadoop_home }}</value>
+  </property>
+{% endif %}
+  <property>
+    <name>mapreduce.jobhistory.address</name>
+    <value>{{ groups['history_server'][0] }}:10020</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.webapp.address</name>
+    <value>{{ groups['history_server'][0] }}:19888</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.done-dir</name>
+    <value>/mr-history/done</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.http.policy</name>
+    <value>HTTP_ONLY</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.intermediate-done-dir</name>
+    <value>/mr-history/tmp</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.recovery.enable</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.recovery.store.class</name>
+    <value>org.apache.hadoop.mapreduce.v2.hs.HistoryServerLeveldbStateStoreService</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.recovery.store.leveldb.path</name>
+    <value>{{ worker_data_dirs[0] }}/hadoop/mapreduce/jhs</value>
+  </property>  
+</configuration>

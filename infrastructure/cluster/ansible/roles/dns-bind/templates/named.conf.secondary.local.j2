@@ -1,0 +1,23 @@
+// Slave Local Configuration
+
+{{ ansible_managed | comment('c') }}
+
+zone "{{ bind_forward_zone }}" {
+    type slave;
+    file "{{ bind_config_directory }}/zones/db.{{ bind_forward_zone }}";
+    masters {
+    {% for host in groups['dns_primary'] %}
+        {{ hostvars[host]['ansible_facts']['default_ipv4']['address'] }};
+    {% endfor %}
+    };
+};
+
+zone "{{ bind_reverse_zone_addr }}.in-addr.arpa" {
+    type slave;
+    file "{{ bind_config_directory }}/zones/db.{{ bind_reverse_zone }}";
+    masters {
+    {% for host in groups['dns_primary'] %}
+        {{ hostvars[host]['ansible_facts']['default_ipv4']['address'] }};
+    {% endfor %}
+    };
+};

@@ -1,0 +1,28 @@
+$TTL    604800
+@       IN      SOA     {{ dataprofiler_hostname }}.{{ bind_forward_zone }}. {{ bind_zone_admin_username }}.{{ bind_forward_zone }}. (
+                        {{ timestamp.stdout }}         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+
+; name servers - NS records
+@       IN      NS      {{ dataprofiler_hostname }}.{{ bind_forward_zone }}.
+@       IN      NS      {{ dataprofiler_hostname | replace("1", "2")  }}.{{ bind_forward_zone }}.
+
+; name servers - A records
+{% if 'dns_primary' in group_names %}
+{{ dataprofiler_hostname  }}       IN      A       {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
+{% endif %}
+{% for host in groups['dns_secondary'] %}
+{{ dataprofiler_hostname | replace("1", "2") }}       IN      A       {{ hostvars[host]["private_ip_address"] }}
+{% endfor %}
+
+; hosts - A records
+{% for host in groups.all %}
+;{{ hostvars[host]["dataprofiler_hostname"] }}        IN      CNAME {{ hostvars[host]["dataprofiler_hostname"] }}
+{% if host not in groups['dns'] %}
+{{ hostvars[host]["dataprofiler_hostname"] }}     IN      A   {{ hostvars[host]["private_ip_address"] }}
+{% endif %}
+{% endfor %}

@@ -1,0 +1,983 @@
+CBSA Code,Metro Division Code,CSA Code,CBSA Title,Metropolitan/Micropolitan Statistical Area,Metropolitan Division Title,CSA Title,County/County Equivalent,State Name,FIPS State Code,FIPS County Code
+10100,,,"Aberdeen, SD",Micropolitan Statistical Area,,,Brown County,South Dakota,46,13
+10100,,,"Aberdeen, SD",Micropolitan Statistical Area,,,Edmunds County,South Dakota,46,45
+10140,,,"Aberdeen, WA",Micropolitan Statistical Area,,,Grays Harbor County,Washington,53,27
+10180,,,"Abilene, TX",Metropolitan Statistical Area,,,Callahan County,Texas,48,59
+10180,,,"Abilene, TX",Metropolitan Statistical Area,,,Jones County,Texas,48,253
+10180,,,"Abilene, TX",Metropolitan Statistical Area,,,Taylor County,Texas,48,441
+10220,,,"Ada, OK",Micropolitan Statistical Area,,,Pontotoc County,Oklahoma,40,123
+10260,,434,"Adjuntas, PR",Micropolitan Statistical Area,,"Ponce-Coamo-Santa Isabel, PR",Adjuntas Municipio,Puerto Rico,72,1
+10300,,220,"Adrian, MI",Micropolitan Statistical Area,,"Detroit-Warren-Ann Arbor, MI",Lenawee County,Michigan,26,91
+10380,,,"Aguadilla-Isabela, PR",Metropolitan Statistical Area,,,Aguada Municipio,Puerto Rico,72,3
+10380,,,"Aguadilla-Isabela, PR",Metropolitan Statistical Area,,,Aguadilla Municipio,Puerto Rico,72,5
+10380,,,"Aguadilla-Isabela, PR",Metropolitan Statistical Area,,,Añasco Municipio,Puerto Rico,72,11
+10380,,,"Aguadilla-Isabela, PR",Metropolitan Statistical Area,,,Isabela Municipio,Puerto Rico,72,71
+10380,,,"Aguadilla-Isabela, PR",Metropolitan Statistical Area,,,Lares Municipio,Puerto Rico,72,81
+10380,,,"Aguadilla-Isabela, PR",Metropolitan Statistical Area,,,Moca Municipio,Puerto Rico,72,99
+10380,,,"Aguadilla-Isabela, PR",Metropolitan Statistical Area,,,Rincón Municipio,Puerto Rico,72,117
+10380,,,"Aguadilla-Isabela, PR",Metropolitan Statistical Area,,,San Sebastián Municipio,Puerto Rico,72,131
+10380,,,"Aguadilla-Isabela, PR",Metropolitan Statistical Area,,,Utuado Municipio,Puerto Rico,72,141
+10420,,184,"Akron, OH",Metropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Portage County,Ohio,39,133
+10420,,184,"Akron, OH",Metropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Summit County,Ohio,39,153
+10460,,,"Alamogordo, NM",Micropolitan Statistical Area,,,Otero County,New Mexico,35,35
+10500,,,"Albany, GA",Metropolitan Statistical Area,,,Baker County,Georgia,13,7
+10500,,,"Albany, GA",Metropolitan Statistical Area,,,Dougherty County,Georgia,13,95
+10500,,,"Albany, GA",Metropolitan Statistical Area,,,Lee County,Georgia,13,177
+10500,,,"Albany, GA",Metropolitan Statistical Area,,,Terrell County,Georgia,13,273
+10500,,,"Albany, GA",Metropolitan Statistical Area,,,Worth County,Georgia,13,321
+10540,,440,"Albany, OR",Metropolitan Statistical Area,,"Portland-Vancouver-Salem, OR-WA",Linn County,Oregon,41,43
+10580,,104,"Albany-Schenectady-Troy, NY",Metropolitan Statistical Area,,"Albany-Schenectady, NY",Albany County,New York,36,1
+10580,,104,"Albany-Schenectady-Troy, NY",Metropolitan Statistical Area,,"Albany-Schenectady, NY",Rensselaer County,New York,36,83
+10580,,104,"Albany-Schenectady-Troy, NY",Metropolitan Statistical Area,,"Albany-Schenectady, NY",Saratoga County,New York,36,91
+10580,,104,"Albany-Schenectady-Troy, NY",Metropolitan Statistical Area,,"Albany-Schenectady, NY",Schenectady County,New York,36,93
+10580,,104,"Albany-Schenectady-Troy, NY",Metropolitan Statistical Area,,"Albany-Schenectady, NY",Schoharie County,New York,36,95
+10620,,172,"Albemarle, NC",Micropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Stanly County,North Carolina,37,167
+10660,,,"Albert Lea, MN",Micropolitan Statistical Area,,,Freeborn County,Minnesota,27,47
+10700,,290,"Albertville, AL",Micropolitan Statistical Area,,"Huntsville-Decatur-Albertville, AL",Marshall County,Alabama,1,95
+10740,,106,"Albuquerque, NM",Metropolitan Statistical Area,,"Albuquerque-Santa Fe-Las Vegas, NM",Bernalillo County,New Mexico,35,1
+10740,,106,"Albuquerque, NM",Metropolitan Statistical Area,,"Albuquerque-Santa Fe-Las Vegas, NM",Sandoval County,New Mexico,35,43
+10740,,106,"Albuquerque, NM",Metropolitan Statistical Area,,"Albuquerque-Santa Fe-Las Vegas, NM",Torrance County,New Mexico,35,57
+10740,,106,"Albuquerque, NM",Metropolitan Statistical Area,,"Albuquerque-Santa Fe-Las Vegas, NM",Valencia County,New Mexico,35,61
+10780,,,"Alexandria, LA",Metropolitan Statistical Area,,,Grant Parish,Louisiana,22,43
+10780,,,"Alexandria, LA",Metropolitan Statistical Area,,,Rapides Parish,Louisiana,22,79
+10820,,,"Alexandria, MN",Micropolitan Statistical Area,,,Douglas County,Minnesota,27,41
+10860,,204,"Alice, TX",Micropolitan Statistical Area,,"Corpus Christi-Kingsville-Alice, TX",Jim Wells County,Texas,48,249
+10900,,408,"Allentown-Bethlehem-Easton, PA-NJ",Metropolitan Statistical Area,,"New York-Newark, NY-NJ-CT-PA",Warren County,New Jersey,34,41
+10900,,408,"Allentown-Bethlehem-Easton, PA-NJ",Metropolitan Statistical Area,,"New York-Newark, NY-NJ-CT-PA",Carbon County,Pennsylvania,42,25
+10900,,408,"Allentown-Bethlehem-Easton, PA-NJ",Metropolitan Statistical Area,,"New York-Newark, NY-NJ-CT-PA",Lehigh County,Pennsylvania,42,77
+10900,,408,"Allentown-Bethlehem-Easton, PA-NJ",Metropolitan Statistical Area,,"New York-Newark, NY-NJ-CT-PA",Northampton County,Pennsylvania,42,95
+10940,,394,"Alma, MI",Micropolitan Statistical Area,,"Mount Pleasant-Alma, MI",Gratiot County,Michigan,26,57
+10980,,,"Alpena, MI",Micropolitan Statistical Area,,,Alpena County,Michigan,26,7
+11020,,,"Altoona, PA",Metropolitan Statistical Area,,,Blair County,Pennsylvania,42,13
+11060,,,"Altus, OK",Micropolitan Statistical Area,,,Jackson County,Oklahoma,40,65
+11100,,108,"Amarillo, TX",Metropolitan Statistical Area,,"Amarillo-Borger, TX",Armstrong County,Texas,48,11
+11100,,108,"Amarillo, TX",Metropolitan Statistical Area,,"Amarillo-Borger, TX",Carson County,Texas,48,65
+11100,,108,"Amarillo, TX",Metropolitan Statistical Area,,"Amarillo-Borger, TX",Oldham County,Texas,48,359
+11100,,108,"Amarillo, TX",Metropolitan Statistical Area,,"Amarillo-Borger, TX",Potter County,Texas,48,375
+11100,,108,"Amarillo, TX",Metropolitan Statistical Area,,"Amarillo-Borger, TX",Randall County,Texas,48,381
+11140,,,"Americus, GA",Micropolitan Statistical Area,,,Schley County,Georgia,13,249
+11140,,,"Americus, GA",Micropolitan Statistical Area,,,Sumter County,Georgia,13,261
+11180,,218,"Ames, IA",Metropolitan Statistical Area,,"Des Moines-Ames-West Des Moines, IA",Story County,Iowa,19,169
+11220,,104,"Amsterdam, NY",Micropolitan Statistical Area,,"Albany-Schenectady, NY",Montgomery County,New York,36,57
+11260,,,"Anchorage, AK",Metropolitan Statistical Area,,,Anchorage Municipality,Alaska,2,20
+11260,,,"Anchorage, AK",Metropolitan Statistical Area,,,Matanuska-Susitna Borough,Alaska,2,170
+11380,,,"Andrews, TX",Micropolitan Statistical Area,,,Andrews County,Texas,48,3
+11420,,258,"Angola, IN",Micropolitan Statistical Area,,"Fort Wayne-Huntington-Auburn, IN",Steuben County,Indiana,18,151
+11460,,220,"Ann Arbor, MI",Metropolitan Statistical Area,,"Detroit-Warren-Ann Arbor, MI",Washtenaw County,Michigan,26,161
+11500,,,"Anniston-Oxford-Jacksonville, AL",Metropolitan Statistical Area,,,Calhoun County,Alabama,1,15
+11540,,118,"Appleton, WI",Metropolitan Statistical Area,,"Appleton-Oshkosh-Neenah, WI",Calumet County,Wisconsin,55,15
+11540,,118,"Appleton, WI",Metropolitan Statistical Area,,"Appleton-Oshkosh-Neenah, WI",Outagamie County,Wisconsin,55,87
+11580,,412,"Arcadia, FL",Micropolitan Statistical Area,,"North Port-Sarasota, FL",DeSoto County,Florida,12,27
+11620,,,"Ardmore, OK",Micropolitan Statistical Area,,,Carter County,Oklahoma,40,19
+11640,,490,"Arecibo, PR",Metropolitan Statistical Area,,"San Juan-Carolina, PR",Arecibo Municipio,Puerto Rico,72,13
+11640,,490,"Arecibo, PR",Metropolitan Statistical Area,,"San Juan-Carolina, PR",Camuy Municipio,Puerto Rico,72,27
+11640,,490,"Arecibo, PR",Metropolitan Statistical Area,,"San Juan-Carolina, PR",Hatillo Municipio,Puerto Rico,72,65
+11640,,490,"Arecibo, PR",Metropolitan Statistical Area,,"San Juan-Carolina, PR",Quebradillas Municipio,Puerto Rico,72,115
+11660,,,"Arkadelphia, AR",Micropolitan Statistical Area,,,Clark County,Arkansas,5,19
+11680,,556,"Arkansas City-Winfield, KS",Micropolitan Statistical Area,,"Wichita-Arkansas City-Winfield, KS",Cowley County,Kansas,20,35
+11700,,120,"Asheville, NC",Metropolitan Statistical Area,,"Asheville-Brevard, NC",Buncombe County,North Carolina,37,21
+11700,,120,"Asheville, NC",Metropolitan Statistical Area,,"Asheville-Brevard, NC",Haywood County,North Carolina,37,87
+11700,,120,"Asheville, NC",Metropolitan Statistical Area,,"Asheville-Brevard, NC",Henderson County,North Carolina,37,89
+11700,,120,"Asheville, NC",Metropolitan Statistical Area,,"Asheville-Brevard, NC",Madison County,North Carolina,37,115
+11740,,360,"Ashland, OH",Micropolitan Statistical Area,,"Mansfield-Ashland-Bucyrus, OH",Ashland County,Ohio,39,5
+11780,,184,"Ashtabula, OH",Micropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Ashtabula County,Ohio,39,7
+11820,,,"Astoria, OR",Micropolitan Statistical Area,,,Clatsop County,Oregon,41,7
+11860,,312,"Atchison, KS",Micropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Atchison County,Kansas,20,5
+11900,,,"Athens, OH",Micropolitan Statistical Area,,,Athens County,Ohio,39,9
+11940,,174,"Athens, TN",Micropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",McMinn County,Tennessee,47,107
+11980,,206,"Athens, TX",Micropolitan Statistical Area,,"Dallas-Fort Worth, TX-OK",Henderson County,Texas,48,213
+12020,,122,"Athens-Clarke County, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Clarke County,Georgia,13,59
+12020,,122,"Athens-Clarke County, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Madison County,Georgia,13,195
+12020,,122,"Athens-Clarke County, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Oconee County,Georgia,13,219
+12020,,122,"Athens-Clarke County, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Oglethorpe County,Georgia,13,221
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Barrow County,Georgia,13,13
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Bartow County,Georgia,13,15
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Butts County,Georgia,13,35
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Carroll County,Georgia,13,45
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Cherokee County,Georgia,13,57
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Clayton County,Georgia,13,63
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Cobb County,Georgia,13,67
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Coweta County,Georgia,13,77
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Dawson County,Georgia,13,85
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",DeKalb County,Georgia,13,89
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Douglas County,Georgia,13,97
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Fayette County,Georgia,13,113
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Forsyth County,Georgia,13,117
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Fulton County,Georgia,13,121
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Gwinnett County,Georgia,13,135
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Haralson County,Georgia,13,143
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Heard County,Georgia,13,149
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Henry County,Georgia,13,151
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Jasper County,Georgia,13,159
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Lamar County,Georgia,13,171
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Meriwether County,Georgia,13,199
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Morgan County,Georgia,13,211
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Newton County,Georgia,13,217
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Paulding County,Georgia,13,223
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Pickens County,Georgia,13,227
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Pike County,Georgia,13,231
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Rockdale County,Georgia,13,247
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Spalding County,Georgia,13,255
+12060,,122,"Atlanta-Sandy Springs-Roswell, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Walton County,Georgia,13,297
+12100,,428,"Atlantic City-Hammonton, NJ",Metropolitan Statistical Area,,"Philadelphia-Reading-Camden, PA-NJ-DE-MD",Atlantic County,New Jersey,34,1
+12140,,258,"Auburn, IN",Micropolitan Statistical Area,,"Fort Wayne-Huntington-Auburn, IN",DeKalb County,Indiana,18,33
+12180,,532,"Auburn, NY",Micropolitan Statistical Area,,"Syracuse-Auburn, NY",Cayuga County,New York,36,11
+12220,,194,"Auburn-Opelika, AL",Metropolitan Statistical Area,,"Columbus-Auburn-Opelika, GA-AL",Lee County,Alabama,1,81
+12260,,,"Augusta-Richmond County, GA-SC",Metropolitan Statistical Area,,,Burke County,Georgia,13,33
+12260,,,"Augusta-Richmond County, GA-SC",Metropolitan Statistical Area,,,Columbia County,Georgia,13,73
+12260,,,"Augusta-Richmond County, GA-SC",Metropolitan Statistical Area,,,Lincoln County,Georgia,13,181
+12260,,,"Augusta-Richmond County, GA-SC",Metropolitan Statistical Area,,,McDuffie County,Georgia,13,189
+12260,,,"Augusta-Richmond County, GA-SC",Metropolitan Statistical Area,,,Richmond County,Georgia,13,245
+12260,,,"Augusta-Richmond County, GA-SC",Metropolitan Statistical Area,,,Aiken County,South Carolina,45,3
+12260,,,"Augusta-Richmond County, GA-SC",Metropolitan Statistical Area,,,Edgefield County,South Carolina,45,37
+12300,,,"Augusta-Waterville, ME",Micropolitan Statistical Area,,,Kennebec County,Maine,23,11
+12380,,462,"Austin, MN",Micropolitan Statistical Area,,"Rochester-Austin, MN",Mower County,Minnesota,27,99
+12420,,,"Austin-Round Rock, TX",Metropolitan Statistical Area,,,Bastrop County,Texas,48,21
+12420,,,"Austin-Round Rock, TX",Metropolitan Statistical Area,,,Caldwell County,Texas,48,55
+12420,,,"Austin-Round Rock, TX",Metropolitan Statistical Area,,,Hays County,Texas,48,209
+12420,,,"Austin-Round Rock, TX",Metropolitan Statistical Area,,,Travis County,Texas,48,453
+12420,,,"Austin-Round Rock, TX",Metropolitan Statistical Area,,,Williamson County,Texas,48,491
+12460,,533,"Bainbridge, GA",Micropolitan Statistical Area,,"Tallahassee-Bainbridge, FL-GA",Decatur County,Georgia,13,87
+12540,,,"Bakersfield, CA",Metropolitan Statistical Area,,,Kern County,California,6,29
+12580,,548,"Baltimore-Columbia-Towson, MD",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Anne Arundel County,Maryland,24,3
+12580,,548,"Baltimore-Columbia-Towson, MD",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Baltimore County,Maryland,24,5
+12580,,548,"Baltimore-Columbia-Towson, MD",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Carroll County,Maryland,24,13
+12580,,548,"Baltimore-Columbia-Towson, MD",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Harford County,Maryland,24,25
+12580,,548,"Baltimore-Columbia-Towson, MD",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Howard County,Maryland,24,27
+12580,,548,"Baltimore-Columbia-Towson, MD",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Queen Anne's County,Maryland,24,35
+12580,,548,"Baltimore-Columbia-Towson, MD",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Baltimore city,Maryland,24,510
+12620,,,"Bangor, ME",Metropolitan Statistical Area,,,Penobscot County,Maine,23,19
+12660,,357,"Baraboo, WI",Micropolitan Statistical Area,,"Madison-Janesville-Beloit, WI",Sauk County,Wisconsin,55,111
+12680,,350,"Bardstown, KY",Micropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Nelson County,Kentucky,21,179
+12700,,148,"Barnstable Town, MA",Metropolitan Statistical Area,,"Boston-Worcester-Providence, MA-RI-NH-CT",Barnstable County,Massachusetts,25,1
+12740,,,"Barre, VT",Micropolitan Statistical Area,,,Washington County,Vermont,50,23
+12780,,538,"Bartlesville, OK",Micropolitan Statistical Area,,"Tulsa-Muskogee-Bartlesville, OK",Washington County,Oklahoma,40,147
+12820,,384,"Bastrop, LA",Micropolitan Statistical Area,,"Monroe-Ruston-Bastrop, LA",Morehouse Parish,Louisiana,22,67
+12860,,464,"Batavia, NY",Micropolitan Statistical Area,,"Rochester-Batavia-Seneca Falls, NY",Genesee County,New York,36,37
+12900,,,"Batesville, AR",Micropolitan Statistical Area,,,Independence County,Arkansas,5,63
+12940,,,"Baton Rouge, LA",Metropolitan Statistical Area,,,Ascension Parish,Louisiana,22,5
+12940,,,"Baton Rouge, LA",Metropolitan Statistical Area,,,East Baton Rouge Parish,Louisiana,22,33
+12940,,,"Baton Rouge, LA",Metropolitan Statistical Area,,,East Feliciana Parish,Louisiana,22,37
+12940,,,"Baton Rouge, LA",Metropolitan Statistical Area,,,Iberville Parish,Louisiana,22,47
+12940,,,"Baton Rouge, LA",Metropolitan Statistical Area,,,Livingston Parish,Louisiana,22,63
+12940,,,"Baton Rouge, LA",Metropolitan Statistical Area,,,Pointe Coupee Parish,Louisiana,22,77
+12940,,,"Baton Rouge, LA",Metropolitan Statistical Area,,,St. Helena Parish,Louisiana,22,91
+12940,,,"Baton Rouge, LA",Metropolitan Statistical Area,,,West Baton Rouge Parish,Louisiana,22,121
+12940,,,"Baton Rouge, LA",Metropolitan Statistical Area,,,West Feliciana Parish,Louisiana,22,125
+12980,,310,"Battle Creek, MI",Metropolitan Statistical Area,,"Kalamazoo-Battle Creek-Portage, MI",Calhoun County,Michigan,26,25
+13020,,474,"Bay City, MI",Metropolitan Statistical Area,,"Saginaw-Midland-Bay City, MI",Bay County,Michigan,26,17
+13060,,288,"Bay City, TX",Micropolitan Statistical Area,,"Houston-The Woodlands, TX",Matagorda County,Texas,48,321
+13100,,339,"Beatrice, NE",Micropolitan Statistical Area,,"Lincoln-Beatrice, NE",Gage County,Nebraska,31,67
+13140,,,"Beaumont-Port Arthur, TX",Metropolitan Statistical Area,,,Hardin County,Texas,48,199
+13140,,,"Beaumont-Port Arthur, TX",Metropolitan Statistical Area,,,Jefferson County,Texas,48,245
+13140,,,"Beaumont-Port Arthur, TX",Metropolitan Statistical Area,,,Newton County,Texas,48,351
+13140,,,"Beaumont-Port Arthur, TX",Metropolitan Statistical Area,,,Orange County,Texas,48,361
+13180,,376,"Beaver Dam, WI",Micropolitan Statistical Area,,"Milwaukee-Racine-Waukesha, WI",Dodge County,Wisconsin,55,27
+13220,,,"Beckley, WV",Metropolitan Statistical Area,,,Fayette County,West Virginia,54,19
+13220,,,"Beckley, WV",Metropolitan Statistical Area,,,Raleigh County,West Virginia,54,81
+13260,,144,"Bedford, IN",Micropolitan Statistical Area,,"Bloomington-Bedford, IN",Lawrence County,Indiana,18,93
+13300,,,"Beeville, TX",Micropolitan Statistical Area,,,Bee County,Texas,48,25
+13340,,198,"Bellefontaine, OH",Micropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Logan County,Ohio,39,91
+13380,,,"Bellingham, WA",Metropolitan Statistical Area,,,Whatcom County,Washington,53,73
+13420,,,"Bemidji, MN",Micropolitan Statistical Area,,,Beltrami County,Minnesota,27,7
+13460,,140,"Bend-Redmond, OR",Metropolitan Statistical Area,,"Bend-Redmond-Prineville, OR",Deschutes County,Oregon,41,17
+13500,,,"Bennettsville, SC",Micropolitan Statistical Area,,,Marlboro County,South Carolina,45,69
+13540,,,"Bennington, VT",Micropolitan Statistical Area,,,Bennington County,Vermont,50,3
+13620,,,"Berlin, NH-VT",Micropolitan Statistical Area,,,Coos County,New Hampshire,33,7
+13620,,,"Berlin, NH-VT",Micropolitan Statistical Area,,,Essex County,Vermont,50,9
+13660,,266,"Big Rapids, MI",Micropolitan Statistical Area,,"Grand Rapids-Wyoming-Muskegon, MI",Mecosta County,Michigan,26,107
+13700,,,"Big Spring, TX",Micropolitan Statistical Area,,,Glasscock County,Texas,48,173
+13700,,,"Big Spring, TX",Micropolitan Statistical Area,,,Howard County,Texas,48,227
+13720,,,"Big Stone Gap, VA",Micropolitan Statistical Area,,,Dickenson County,Virginia,51,51
+13720,,,"Big Stone Gap, VA",Micropolitan Statistical Area,,,Wise County,Virginia,51,195
+13720,,,"Big Stone Gap, VA",Micropolitan Statistical Area,,,Norton city,Virginia,51,720
+13740,,,"Billings, MT",Metropolitan Statistical Area,,,Carbon County,Montana,30,9
+13740,,,"Billings, MT",Metropolitan Statistical Area,,,Golden Valley County,Montana,30,37
+13740,,,"Billings, MT",Metropolitan Statistical Area,,,Yellowstone County,Montana,30,111
+13780,,,"Binghamton, NY",Metropolitan Statistical Area,,,Broome County,New York,36,7
+13780,,,"Binghamton, NY",Metropolitan Statistical Area,,,Tioga County,New York,36,107
+13820,,142,"Birmingham-Hoover, AL",Metropolitan Statistical Area,,"Birmingham-Hoover-Talladega, AL",Bibb County,Alabama,1,7
+13820,,142,"Birmingham-Hoover, AL",Metropolitan Statistical Area,,"Birmingham-Hoover-Talladega, AL",Blount County,Alabama,1,9
+13820,,142,"Birmingham-Hoover, AL",Metropolitan Statistical Area,,"Birmingham-Hoover-Talladega, AL",Chilton County,Alabama,1,21
+13820,,142,"Birmingham-Hoover, AL",Metropolitan Statistical Area,,"Birmingham-Hoover-Talladega, AL",Jefferson County,Alabama,1,73
+13820,,142,"Birmingham-Hoover, AL",Metropolitan Statistical Area,,"Birmingham-Hoover-Talladega, AL",St. Clair County,Alabama,1,115
+13820,,142,"Birmingham-Hoover, AL",Metropolitan Statistical Area,,"Birmingham-Hoover-Talladega, AL",Shelby County,Alabama,1,117
+13820,,142,"Birmingham-Hoover, AL",Metropolitan Statistical Area,,"Birmingham-Hoover-Talladega, AL",Walker County,Alabama,1,127
+13900,,,"Bismarck, ND",Metropolitan Statistical Area,,,Burleigh County,North Dakota,38,15
+13900,,,"Bismarck, ND",Metropolitan Statistical Area,,,Morton County,North Dakota,38,59
+13900,,,"Bismarck, ND",Metropolitan Statistical Area,,,Oliver County,North Dakota,38,65
+13900,,,"Bismarck, ND",Metropolitan Statistical Area,,,Sioux County,North Dakota,38,85
+13940,,292,"Blackfoot, ID",Micropolitan Statistical Area,,"Idaho Falls-Rexburg-Blackfoot, ID",Bingham County,Idaho,16,11
+13980,,,"Blacksburg-Christiansburg-Radford, VA",Metropolitan Statistical Area,,,Floyd County,Virginia,51,63
+13980,,,"Blacksburg-Christiansburg-Radford, VA",Metropolitan Statistical Area,,,Giles County,Virginia,51,71
+13980,,,"Blacksburg-Christiansburg-Radford, VA",Metropolitan Statistical Area,,,Montgomery County,Virginia,51,121
+13980,,,"Blacksburg-Christiansburg-Radford, VA",Metropolitan Statistical Area,,,Pulaski County,Virginia,51,155
+13980,,,"Blacksburg-Christiansburg-Radford, VA",Metropolitan Statistical Area,,,Radford city,Virginia,51,750
+14010,,145,"Bloomington, IL",Metropolitan Statistical Area,,"Bloomington-Pontiac, IL",De Witt County,Illinois,17,39
+14010,,145,"Bloomington, IL",Metropolitan Statistical Area,,"Bloomington-Pontiac, IL",McLean County,Illinois,17,113
+14020,,144,"Bloomington, IN",Metropolitan Statistical Area,,"Bloomington-Bedford, IN",Monroe County,Indiana,18,105
+14020,,144,"Bloomington, IN",Metropolitan Statistical Area,,"Bloomington-Bedford, IN",Owen County,Indiana,18,119
+14100,,146,"Bloomsburg-Berwick, PA",Metropolitan Statistical Area,,"Bloomsburg-Berwick-Sunbury, PA",Columbia County,Pennsylvania,42,37
+14100,,146,"Bloomsburg-Berwick, PA",Metropolitan Statistical Area,,"Bloomsburg-Berwick-Sunbury, PA",Montour County,Pennsylvania,42,93
+14140,,,"Bluefield, WV-VA",Micropolitan Statistical Area,,,Tazewell County,Virginia,51,185
+14140,,,"Bluefield, WV-VA",Micropolitan Statistical Area,,,Mercer County,West Virginia,54,55
+14180,,,"Blytheville, AR",Micropolitan Statistical Area,,,Mississippi County,Arkansas,5,93
+14220,,406,"Bogalusa, LA",Micropolitan Statistical Area,,"New Orleans-Metairie-Hammond, LA-MS",Washington Parish,Louisiana,22,117
+14260,,147,"Boise City, ID",Metropolitan Statistical Area,,"Boise City-Mountain Home-Ontario, ID-OR",Ada County,Idaho,16,1
+14260,,147,"Boise City, ID",Metropolitan Statistical Area,,"Boise City-Mountain Home-Ontario, ID-OR",Boise County,Idaho,16,15
+14260,,147,"Boise City, ID",Metropolitan Statistical Area,,"Boise City-Mountain Home-Ontario, ID-OR",Canyon County,Idaho,16,27
+14260,,147,"Boise City, ID",Metropolitan Statistical Area,,"Boise City-Mountain Home-Ontario, ID-OR",Gem County,Idaho,16,45
+14260,,147,"Boise City, ID",Metropolitan Statistical Area,,"Boise City-Mountain Home-Ontario, ID-OR",Owyhee County,Idaho,16,73
+14340,,218,"Boone, IA",Micropolitan Statistical Area,,"Des Moines-Ames-West Des Moines, IA",Boone County,Iowa,19,15
+14380,,,"Boone, NC",Micropolitan Statistical Area,,,Watauga County,North Carolina,37,189
+14420,,108,"Borger, TX",Micropolitan Statistical Area,,"Amarillo-Borger, TX",Hutchinson County,Texas,48,233
+14460,14454,148,"Boston-Cambridge-Newton, MA-NH",Metropolitan Statistical Area,"Boston, MA","Boston-Worcester-Providence, MA-RI-NH-CT",Norfolk County,Massachusetts,25,21
+14460,14454,148,"Boston-Cambridge-Newton, MA-NH",Metropolitan Statistical Area,"Boston, MA","Boston-Worcester-Providence, MA-RI-NH-CT",Plymouth County,Massachusetts,25,23
+14460,14454,148,"Boston-Cambridge-Newton, MA-NH",Metropolitan Statistical Area,"Boston, MA","Boston-Worcester-Providence, MA-RI-NH-CT",Suffolk County,Massachusetts,25,25
+14460,15764,148,"Boston-Cambridge-Newton, MA-NH",Metropolitan Statistical Area,"Cambridge-Newton-Framingham, MA","Boston-Worcester-Providence, MA-RI-NH-CT",Essex County,Massachusetts,25,9
+14460,15764,148,"Boston-Cambridge-Newton, MA-NH",Metropolitan Statistical Area,"Cambridge-Newton-Framingham, MA","Boston-Worcester-Providence, MA-RI-NH-CT",Middlesex County,Massachusetts,25,17
+14460,40484,148,"Boston-Cambridge-Newton, MA-NH",Metropolitan Statistical Area,"Rockingham County-Strafford County, NH","Boston-Worcester-Providence, MA-RI-NH-CT",Rockingham County,New Hampshire,33,15
+14460,40484,148,"Boston-Cambridge-Newton, MA-NH",Metropolitan Statistical Area,"Rockingham County-Strafford County, NH","Boston-Worcester-Providence, MA-RI-NH-CT",Strafford County,New Hampshire,33,17
+14500,,216,"Boulder, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Boulder County,Colorado,8,13
+14540,,150,"Bowling Green, KY",Metropolitan Statistical Area,,"Bowling Green-Glasgow, KY",Allen County,Kentucky,21,3
+14540,,150,"Bowling Green, KY",Metropolitan Statistical Area,,"Bowling Green-Glasgow, KY",Butler County,Kentucky,21,31
+14540,,150,"Bowling Green, KY",Metropolitan Statistical Area,,"Bowling Green-Glasgow, KY",Edmonson County,Kentucky,21,61
+14540,,150,"Bowling Green, KY",Metropolitan Statistical Area,,"Bowling Green-Glasgow, KY",Warren County,Kentucky,21,227
+14580,,,"Bozeman, MT",Micropolitan Statistical Area,,,Gallatin County,Montana,30,31
+14620,,,"Bradford, PA",Micropolitan Statistical Area,,,McKean County,Pennsylvania,42,83
+14660,,,"Brainerd, MN",Micropolitan Statistical Area,,,Cass County,Minnesota,27,21
+14660,,,"Brainerd, MN",Micropolitan Statistical Area,,,Crow Wing County,Minnesota,27,35
+14700,,520,"Branson, MO",Micropolitan Statistical Area,,"Springfield-Branson, MO",Stone County,Missouri,29,209
+14700,,520,"Branson, MO",Micropolitan Statistical Area,,"Springfield-Branson, MO",Taney County,Missouri,29,213
+14720,,,"Breckenridge, CO",Micropolitan Statistical Area,,,Summit County,Colorado,8,117
+14740,,500,"Bremerton-Silverdale, WA",Metropolitan Statistical Area,,"Seattle-Tacoma, WA",Kitsap County,Washington,53,35
+14780,,288,"Brenham, TX",Micropolitan Statistical Area,,"Houston-The Woodlands, TX",Washington County,Texas,48,477
+14820,,120,"Brevard, NC",Micropolitan Statistical Area,,"Asheville-Brevard, NC",Transylvania County,North Carolina,37,175
+14860,,408,"Bridgeport-Stamford-Norwalk, CT",Metropolitan Statistical Area,,"New York-Newark, NY-NJ-CT-PA",Fairfield County,Connecticut,9,1
+15020,,298,"Brookhaven, MS",Micropolitan Statistical Area,,"Jackson-Vicksburg-Brookhaven, MS",Lincoln County,Mississippi,28,85
+15060,,,"Brookings, OR",Micropolitan Statistical Area,,,Curry County,Oregon,41,15
+15100,,,"Brookings, SD",Micropolitan Statistical Area,,,Brookings County,South Dakota,46,11
+15180,,154,"Brownsville-Harlingen, TX",Metropolitan Statistical Area,,"Brownsville-Harlingen-Raymondville, TX",Cameron County,Texas,48,61
+15220,,,"Brownwood, TX",Micropolitan Statistical Area,,,Brown County,Texas,48,49
+15260,,,"Brunswick, GA",Metropolitan Statistical Area,,,Brantley County,Georgia,13,25
+15260,,,"Brunswick, GA",Metropolitan Statistical Area,,,Glynn County,Georgia,13,127
+15260,,,"Brunswick, GA",Metropolitan Statistical Area,,,McIntosh County,Georgia,13,191
+15340,,360,"Bucyrus, OH",Micropolitan Statistical Area,,"Mansfield-Ashland-Bucyrus, OH",Crawford County,Ohio,39,33
+15380,,160,"Buffalo-Cheektowaga-Niagara Falls, NY",Metropolitan Statistical Area,,"Buffalo-Cheektowaga, NY",Erie County,New York,36,29
+15380,,160,"Buffalo-Cheektowaga-Niagara Falls, NY",Metropolitan Statistical Area,,"Buffalo-Cheektowaga, NY",Niagara County,New York,36,63
+15420,,,"Burley, ID",Micropolitan Statistical Area,,,Cassia County,Idaho,16,31
+15420,,,"Burley, ID",Micropolitan Statistical Area,,,Minidoka County,Idaho,16,67
+15460,,,"Burlington, IA-IL",Micropolitan Statistical Area,,,Henderson County,Illinois,17,71
+15460,,,"Burlington, IA-IL",Micropolitan Statistical Area,,,Des Moines County,Iowa,19,57
+15500,,268,"Burlington, NC",Metropolitan Statistical Area,,"Greensboro--Winston-Salem--High Point, NC",Alamance County,North Carolina,37,1
+15540,,,"Burlington-South Burlington, VT",Metropolitan Statistical Area,,,Chittenden County,Vermont,50,7
+15540,,,"Burlington-South Burlington, VT",Metropolitan Statistical Area,,,Franklin County,Vermont,50,11
+15540,,,"Burlington-South Burlington, VT",Metropolitan Statistical Area,,,Grand Isle County,Vermont,50,13
+15580,,,"Butte-Silver Bow, MT",Micropolitan Statistical Area,,,Silver Bow County,Montana,30,93
+15620,,,"Cadillac, MI",Micropolitan Statistical Area,,,Missaukee County,Michigan,26,113
+15620,,,"Cadillac, MI",Micropolitan Statistical Area,,,Wexford County,Michigan,26,165
+15660,,122,"Calhoun, GA",Micropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Gordon County,Georgia,13,129
+15680,,548,"California-Lexington Park, MD",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",St. Mary's County,Maryland,24,37
+15700,,548,"Cambridge, MD",Micropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Dorchester County,Maryland,24,19
+15740,,198,"Cambridge, OH",Micropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Guernsey County,Ohio,39,59
+15780,,,"Camden, AR",Micropolitan Statistical Area,,,Calhoun County,Arkansas,5,13
+15780,,,"Camden, AR",Micropolitan Statistical Area,,,Ouachita County,Arkansas,5,103
+15820,,,"Campbellsville, KY",Micropolitan Statistical Area,,,Taylor County,Kentucky,21,217
+15860,,444,"Cañon City, CO",Micropolitan Statistical Area,,"Pueblo-Cañon City, CO",Fremont County,Colorado,8,43
+15900,,426,"Canton, IL",Micropolitan Statistical Area,,"Peoria-Canton, IL",Fulton County,Illinois,17,57
+15940,,184,"Canton-Massillon, OH",Metropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Carroll County,Ohio,39,19
+15940,,184,"Canton-Massillon, OH",Metropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Stark County,Ohio,39,151
+15980,,162,"Cape Coral-Fort Myers, FL",Metropolitan Statistical Area,,"Cape Coral-Fort Myers-Naples, FL",Lee County,Florida,12,71
+16020,,164,"Cape Girardeau, MO-IL",Metropolitan Statistical Area,,"Cape Girardeau-Sikeston, MO-IL",Alexander County,Illinois,17,3
+16020,,164,"Cape Girardeau, MO-IL",Metropolitan Statistical Area,,"Cape Girardeau-Sikeston, MO-IL",Bollinger County,Missouri,29,17
+16020,,164,"Cape Girardeau, MO-IL",Metropolitan Statistical Area,,"Cape Girardeau-Sikeston, MO-IL",Cape Girardeau County,Missouri,29,31
+16060,,,"Carbondale-Marion, IL",Metropolitan Statistical Area,,,Jackson County,Illinois,17,77
+16060,,,"Carbondale-Marion, IL",Metropolitan Statistical Area,,,Williamson County,Illinois,17,199
+16100,,,"Carlsbad-Artesia, NM",Micropolitan Statistical Area,,,Eddy County,New Mexico,35,15
+16180,,456,"Carson City, NV",Metropolitan Statistical Area,,"Reno-Carson City-Fernley, NV",Carson City,Nevada,32,510
+16220,,,"Casper, WY",Metropolitan Statistical Area,,,Natrona County,Wyoming,56,25
+16260,,,"Cedar City, UT",Micropolitan Statistical Area,,,Iron County,Utah,49,21
+16300,,168,"Cedar Rapids, IA",Metropolitan Statistical Area,,"Cedar Rapids-Iowa City, IA",Benton County,Iowa,19,11
+16300,,168,"Cedar Rapids, IA",Metropolitan Statistical Area,,"Cedar Rapids-Iowa City, IA",Jones County,Iowa,19,105
+16300,,168,"Cedar Rapids, IA",Metropolitan Statistical Area,,"Cedar Rapids-Iowa City, IA",Linn County,Iowa,19,113
+16340,,122,"Cedartown, GA",Micropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Polk County,Georgia,13,233
+16380,,338,"Celina, OH",Micropolitan Statistical Area,,"Lima-Van Wert-Celina, OH",Mercer County,Ohio,39,107
+16460,,476,"Centralia, IL",Micropolitan Statistical Area,,"St. Louis-St. Charles-Farmington, MO-IL",Marion County,Illinois,17,121
+16500,,500,"Centralia, WA",Micropolitan Statistical Area,,"Seattle-Tacoma, WA",Lewis County,Washington,53,41
+16540,,548,"Chambersburg-Waynesboro, PA",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Franklin County,Pennsylvania,42,55
+16580,,,"Champaign-Urbana, IL",Metropolitan Statistical Area,,,Champaign County,Illinois,17,19
+16580,,,"Champaign-Urbana, IL",Metropolitan Statistical Area,,,Ford County,Illinois,17,53
+16580,,,"Champaign-Urbana, IL",Metropolitan Statistical Area,,,Piatt County,Illinois,17,147
+16620,,170,"Charleston, WV",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Boone County,West Virginia,54,5
+16620,,170,"Charleston, WV",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Clay County,West Virginia,54,15
+16620,,170,"Charleston, WV",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Kanawha County,West Virginia,54,39
+16660,,,"Charleston-Mattoon, IL",Micropolitan Statistical Area,,,Coles County,Illinois,17,29
+16660,,,"Charleston-Mattoon, IL",Micropolitan Statistical Area,,,Cumberland County,Illinois,17,35
+16700,,,"Charleston-North Charleston, SC",Metropolitan Statistical Area,,,Berkeley County,South Carolina,45,15
+16700,,,"Charleston-North Charleston, SC",Metropolitan Statistical Area,,,Charleston County,South Carolina,45,19
+16700,,,"Charleston-North Charleston, SC",Metropolitan Statistical Area,,,Dorchester County,South Carolina,45,35
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Cabarrus County,North Carolina,37,25
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Gaston County,North Carolina,37,71
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Iredell County,North Carolina,37,97
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Lincoln County,North Carolina,37,109
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Mecklenburg County,North Carolina,37,119
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Rowan County,North Carolina,37,159
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Union County,North Carolina,37,179
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Chester County,South Carolina,45,23
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",Lancaster County,South Carolina,45,57
+16740,,172,"Charlotte-Concord-Gastonia, NC-SC",Metropolitan Statistical Area,,"Charlotte-Concord, NC-SC",York County,South Carolina,45,91
+16820,,,"Charlottesville, VA",Metropolitan Statistical Area,,,Albemarle County,Virginia,51,3
+16820,,,"Charlottesville, VA",Metropolitan Statistical Area,,,Buckingham County,Virginia,51,29
+16820,,,"Charlottesville, VA",Metropolitan Statistical Area,,,Fluvanna County,Virginia,51,65
+16820,,,"Charlottesville, VA",Metropolitan Statistical Area,,,Greene County,Virginia,51,79
+16820,,,"Charlottesville, VA",Metropolitan Statistical Area,,,Nelson County,Virginia,51,125
+16820,,,"Charlottesville, VA",Metropolitan Statistical Area,,,Charlottesville city,Virginia,51,540
+16860,,174,"Chattanooga, TN-GA",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Catoosa County,Georgia,13,47
+16860,,174,"Chattanooga, TN-GA",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Dade County,Georgia,13,83
+16860,,174,"Chattanooga, TN-GA",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Walker County,Georgia,13,295
+16860,,174,"Chattanooga, TN-GA",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Hamilton County,Tennessee,47,65
+16860,,174,"Chattanooga, TN-GA",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Marion County,Tennessee,47,115
+16860,,174,"Chattanooga, TN-GA",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Sequatchie County,Tennessee,47,153
+16940,,,"Cheyenne, WY",Metropolitan Statistical Area,,,Laramie County,Wyoming,56,21
+16980,16974,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Chicago-Naperville-Arlington Heights, IL","Chicago-Naperville, IL-IN-WI",Cook County,Illinois,17,31
+16980,16974,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Chicago-Naperville-Arlington Heights, IL","Chicago-Naperville, IL-IN-WI",DuPage County,Illinois,17,43
+16980,16974,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Chicago-Naperville-Arlington Heights, IL","Chicago-Naperville, IL-IN-WI",Grundy County,Illinois,17,63
+16980,16974,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Chicago-Naperville-Arlington Heights, IL","Chicago-Naperville, IL-IN-WI",Kendall County,Illinois,17,93
+16980,16974,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Chicago-Naperville-Arlington Heights, IL","Chicago-Naperville, IL-IN-WI",McHenry County,Illinois,17,111
+16980,16974,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Chicago-Naperville-Arlington Heights, IL","Chicago-Naperville, IL-IN-WI",Will County,Illinois,17,197
+16980,20994,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Elgin, IL","Chicago-Naperville, IL-IN-WI",DeKalb County,Illinois,17,37
+16980,20994,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Elgin, IL","Chicago-Naperville, IL-IN-WI",Kane County,Illinois,17,89
+16980,23844,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Gary, IN","Chicago-Naperville, IL-IN-WI",Jasper County,Indiana,18,73
+16980,23844,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Gary, IN","Chicago-Naperville, IL-IN-WI",Lake County,Indiana,18,89
+16980,23844,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Gary, IN","Chicago-Naperville, IL-IN-WI",Newton County,Indiana,18,111
+16980,23844,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Gary, IN","Chicago-Naperville, IL-IN-WI",Porter County,Indiana,18,127
+16980,29404,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Lake County-Kenosha County, IL-WI","Chicago-Naperville, IL-IN-WI",Lake County,Illinois,17,97
+16980,29404,176,"Chicago-Naperville-Elgin, IL-IN-WI",Metropolitan Statistical Area,"Lake County-Kenosha County, IL-WI","Chicago-Naperville, IL-IN-WI",Kenosha County,Wisconsin,55,59
+17020,,,"Chico, CA",Metropolitan Statistical Area,,,Butte County,California,6,7
+17060,,198,"Chillicothe, OH",Micropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Ross County,Ohio,39,141
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Dearborn County,Indiana,18,29
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Ohio County,Indiana,18,115
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Union County,Indiana,18,161
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Boone County,Kentucky,21,15
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Bracken County,Kentucky,21,23
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Campbell County,Kentucky,21,37
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Gallatin County,Kentucky,21,77
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Grant County,Kentucky,21,81
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Kenton County,Kentucky,21,117
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Pendleton County,Kentucky,21,191
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Brown County,Ohio,39,15
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Butler County,Ohio,39,17
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Clermont County,Ohio,39,25
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Hamilton County,Ohio,39,61
+17140,,178,"Cincinnati, OH-KY-IN",Metropolitan Statistical Area,,"Cincinnati-Wilmington-Maysville, OH-KY-IN",Warren County,Ohio,39,165
+17200,,,"Claremont-Lebanon, NH-VT",Micropolitan Statistical Area,,,Grafton County,New Hampshire,33,9
+17200,,,"Claremont-Lebanon, NH-VT",Micropolitan Statistical Area,,,Sullivan County,New Hampshire,33,19
+17200,,,"Claremont-Lebanon, NH-VT",Micropolitan Statistical Area,,,Orange County,Vermont,50,17
+17200,,,"Claremont-Lebanon, NH-VT",Micropolitan Statistical Area,,,Windsor County,Vermont,50,27
+17220,,,"Clarksburg, WV",Micropolitan Statistical Area,,,Doddridge County,West Virginia,54,17
+17220,,,"Clarksburg, WV",Micropolitan Statistical Area,,,Harrison County,West Virginia,54,33
+17220,,,"Clarksburg, WV",Micropolitan Statistical Area,,,Taylor County,West Virginia,54,91
+17260,,,"Clarksdale, MS",Micropolitan Statistical Area,,,Coahoma County,Mississippi,28,27
+17300,,,"Clarksville, TN-KY",Metropolitan Statistical Area,,,Christian County,Kentucky,21,47
+17300,,,"Clarksville, TN-KY",Metropolitan Statistical Area,,,Trigg County,Kentucky,21,221
+17300,,,"Clarksville, TN-KY",Metropolitan Statistical Area,,,Montgomery County,Tennessee,47,125
+17340,,,"Clearlake, CA",Micropolitan Statistical Area,,,Lake County,California,6,33
+17380,,185,"Cleveland, MS",Micropolitan Statistical Area,,"Cleveland-Indianola, MS",Bolivar County,Mississippi,28,11
+17420,,174,"Cleveland, TN",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Bradley County,Tennessee,47,11
+17420,,174,"Cleveland, TN",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Polk County,Tennessee,47,139
+17460,,184,"Cleveland-Elyria, OH",Metropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Cuyahoga County,Ohio,39,35
+17460,,184,"Cleveland-Elyria, OH",Metropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Geauga County,Ohio,39,55
+17460,,184,"Cleveland-Elyria, OH",Metropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Lake County,Ohio,39,85
+17460,,184,"Cleveland-Elyria, OH",Metropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Lorain County,Ohio,39,93
+17460,,184,"Cleveland-Elyria, OH",Metropolitan Statistical Area,,"Cleveland-Akron-Canton, OH",Medina County,Ohio,39,103
+17500,,,"Clewiston, FL",Micropolitan Statistical Area,,,Hendry County,Florida,12,51
+17540,,209,"Clinton, IA",Micropolitan Statistical Area,,"Davenport-Moline, IA-IL",Clinton County,Iowa,19,45
+17580,,188,"Clovis, NM",Micropolitan Statistical Area,,"Clovis-Portales, NM",Curry County,New Mexico,35,9
+17620,,434,"Coamo, PR",Micropolitan Statistical Area,,"Ponce-Coamo-Santa Isabel, PR",Coamo Municipio,Puerto Rico,72,43
+17640,,490,"Coco, PR",Micropolitan Statistical Area,,"San Juan-Carolina, PR",Salinas Municipio,Puerto Rico,72,123
+17660,,518,"Coeur d'Alene, ID",Metropolitan Statistical Area,,"Spokane-Spokane Valley-Coeur d'Alene, WA-ID",Kootenai County,Idaho,16,55
+17700,,,"Coffeyville, KS",Micropolitan Statistical Area,,,Montgomery County,Kansas,20,125
+17740,,,"Coldwater, MI",Micropolitan Statistical Area,,,Branch County,Michigan,26,23
+17780,,,"College Station-Bryan, TX",Metropolitan Statistical Area,,,Brazos County,Texas,48,41
+17780,,,"College Station-Bryan, TX",Metropolitan Statistical Area,,,Burleson County,Texas,48,51
+17780,,,"College Station-Bryan, TX",Metropolitan Statistical Area,,,Robertson County,Texas,48,395
+17820,,,"Colorado Springs, CO",Metropolitan Statistical Area,,,El Paso County,Colorado,8,41
+17820,,,"Colorado Springs, CO",Metropolitan Statistical Area,,,Teller County,Colorado,8,119
+17860,,190,"Columbia, MO",Metropolitan Statistical Area,,"Columbia-Moberly-Mexico, MO",Boone County,Missouri,29,19
+17900,,192,"Columbia, SC",Metropolitan Statistical Area,,"Columbia-Orangeburg-Newberry, SC",Calhoun County,South Carolina,45,17
+17900,,192,"Columbia, SC",Metropolitan Statistical Area,,"Columbia-Orangeburg-Newberry, SC",Fairfield County,South Carolina,45,39
+17900,,192,"Columbia, SC",Metropolitan Statistical Area,,"Columbia-Orangeburg-Newberry, SC",Kershaw County,South Carolina,45,55
+17900,,192,"Columbia, SC",Metropolitan Statistical Area,,"Columbia-Orangeburg-Newberry, SC",Lexington County,South Carolina,45,63
+17900,,192,"Columbia, SC",Metropolitan Statistical Area,,"Columbia-Orangeburg-Newberry, SC",Richland County,South Carolina,45,79
+17900,,192,"Columbia, SC",Metropolitan Statistical Area,,"Columbia-Orangeburg-Newberry, SC",Saluda County,South Carolina,45,81
+17980,,194,"Columbus, GA-AL",Metropolitan Statistical Area,,"Columbus-Auburn-Opelika, GA-AL",Russell County,Alabama,1,113
+17980,,194,"Columbus, GA-AL",Metropolitan Statistical Area,,"Columbus-Auburn-Opelika, GA-AL",Chattahoochee County,Georgia,13,53
+17980,,194,"Columbus, GA-AL",Metropolitan Statistical Area,,"Columbus-Auburn-Opelika, GA-AL",Harris County,Georgia,13,145
+17980,,194,"Columbus, GA-AL",Metropolitan Statistical Area,,"Columbus-Auburn-Opelika, GA-AL",Marion County,Georgia,13,197
+17980,,194,"Columbus, GA-AL",Metropolitan Statistical Area,,"Columbus-Auburn-Opelika, GA-AL",Muscogee County,Georgia,13,215
+18020,,294,"Columbus, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Bartholomew County,Indiana,18,5
+18060,,,"Columbus, MS",Micropolitan Statistical Area,,,Lowndes County,Mississippi,28,87
+18100,,,"Columbus, NE",Micropolitan Statistical Area,,,Platte County,Nebraska,31,141
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Delaware County,Ohio,39,41
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Fairfield County,Ohio,39,45
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Franklin County,Ohio,39,49
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Hocking County,Ohio,39,73
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Licking County,Ohio,39,89
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Madison County,Ohio,39,97
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Morrow County,Ohio,39,117
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Perry County,Ohio,39,127
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Pickaway County,Ohio,39,129
+18140,,198,"Columbus, OH",Metropolitan Statistical Area,,"Columbus-Marion-Zanesville, OH",Union County,Ohio,39,159
+18180,,148,"Concord, NH",Micropolitan Statistical Area,,"Boston-Worcester-Providence, MA-RI-NH-CT",Merrimack County,New Hampshire,33,13
+18220,,458,"Connersville, IN",Micropolitan Statistical Area,,"Richmond-Connersville, IN",Fayette County,Indiana,18,41
+18260,,,"Cookeville, TN",Micropolitan Statistical Area,,,Jackson County,Tennessee,47,87
+18260,,,"Cookeville, TN",Micropolitan Statistical Area,,,Overton County,Tennessee,47,133
+18260,,,"Cookeville, TN",Micropolitan Statistical Area,,,Putnam County,Tennessee,47,141
+18300,,,"Coos Bay, OR",Micropolitan Statistical Area,,,Coos County,Oregon,41,11
+18380,,,"Cordele, GA",Micropolitan Statistical Area,,,Crisp County,Georgia,13,81
+18420,,,"Corinth, MS",Micropolitan Statistical Area,,,Alcorn County,Mississippi,28,3
+18460,,,"Cornelia, GA",Micropolitan Statistical Area,,,Habersham County,Georgia,13,137
+18500,,236,"Corning, NY",Micropolitan Statistical Area,,"Elmira-Corning, NY",Steuben County,New York,36,101
+18580,,204,"Corpus Christi, TX",Metropolitan Statistical Area,,"Corpus Christi-Kingsville-Alice, TX",Aransas County,Texas,48,7
+18580,,204,"Corpus Christi, TX",Metropolitan Statistical Area,,"Corpus Christi-Kingsville-Alice, TX",Nueces County,Texas,48,355
+18580,,204,"Corpus Christi, TX",Metropolitan Statistical Area,,"Corpus Christi-Kingsville-Alice, TX",San Patricio County,Texas,48,409
+18620,,206,"Corsicana, TX",Micropolitan Statistical Area,,"Dallas-Fort Worth, TX-OK",Navarro County,Texas,48,349
+18660,,296,"Cortland, NY",Micropolitan Statistical Area,,"Ithaca-Cortland, NY",Cortland County,New York,36,23
+18700,,440,"Corvallis, OR",Metropolitan Statistical Area,,"Portland-Vancouver-Salem, OR-WA",Benton County,Oregon,41,3
+18740,,,"Coshocton, OH",Micropolitan Statistical Area,,,Coshocton County,Ohio,39,31
+18780,,525,"Craig, CO",Micropolitan Statistical Area,,"Steamboat Springs-Craig, CO",Moffat County,Colorado,8,81
+18820,,294,"Crawfordsville, IN",Micropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Montgomery County,Indiana,18,107
+18860,,,"Crescent City, CA",Micropolitan Statistical Area,,,Del Norte County,California,6,15
+18880,,,"Crestview-Fort Walton Beach-Destin, FL",Metropolitan Statistical Area,,,Okaloosa County,Florida,12,91
+18880,,,"Crestview-Fort Walton Beach-Destin, FL",Metropolitan Statistical Area,,,Walton County,Florida,12,131
+18900,,,"Crossville, TN",Micropolitan Statistical Area,,,Cumberland County,Tennessee,47,35
+18980,,142,"Cullman, AL",Micropolitan Statistical Area,,"Birmingham-Hoover-Talladega, AL",Cullman County,Alabama,1,43
+19000,,,"Cullowhee, NC",Micropolitan Statistical Area,,,Jackson County,North Carolina,37,99
+19060,,,"Cumberland, MD-WV",Metropolitan Statistical Area,,,Allegany County,Maryland,24,1
+19060,,,"Cumberland, MD-WV",Metropolitan Statistical Area,,,Mineral County,West Virginia,54,57
+19100,19124,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Dallas-Plano-Irving, TX","Dallas-Fort Worth, TX-OK",Collin County,Texas,48,85
+19100,19124,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Dallas-Plano-Irving, TX","Dallas-Fort Worth, TX-OK",Dallas County,Texas,48,113
+19100,19124,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Dallas-Plano-Irving, TX","Dallas-Fort Worth, TX-OK",Denton County,Texas,48,121
+19100,19124,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Dallas-Plano-Irving, TX","Dallas-Fort Worth, TX-OK",Ellis County,Texas,48,139
+19100,19124,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Dallas-Plano-Irving, TX","Dallas-Fort Worth, TX-OK",Hunt County,Texas,48,231
+19100,19124,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Dallas-Plano-Irving, TX","Dallas-Fort Worth, TX-OK",Kaufman County,Texas,48,257
+19100,19124,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Dallas-Plano-Irving, TX","Dallas-Fort Worth, TX-OK",Rockwall County,Texas,48,397
+19100,23104,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Fort Worth-Arlington, TX","Dallas-Fort Worth, TX-OK",Hood County,Texas,48,221
+19100,23104,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Fort Worth-Arlington, TX","Dallas-Fort Worth, TX-OK",Johnson County,Texas,48,251
+19100,23104,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Fort Worth-Arlington, TX","Dallas-Fort Worth, TX-OK",Parker County,Texas,48,367
+19100,23104,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Fort Worth-Arlington, TX","Dallas-Fort Worth, TX-OK",Somervell County,Texas,48,425
+19100,23104,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Fort Worth-Arlington, TX","Dallas-Fort Worth, TX-OK",Tarrant County,Texas,48,439
+19100,23104,206,"Dallas-Fort Worth-Arlington, TX",Metropolitan Statistical Area,"Fort Worth-Arlington, TX","Dallas-Fort Worth, TX-OK",Wise County,Texas,48,497
+19140,,174,"Dalton, GA",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Murray County,Georgia,13,213
+19140,,174,"Dalton, GA",Metropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Whitfield County,Georgia,13,313
+19180,,,"Danville, IL",Metropolitan Statistical Area,,,Vermilion County,Illinois,17,183
+19220,,,"Danville, KY",Micropolitan Statistical Area,,,Boyle County,Kentucky,21,21
+19220,,,"Danville, KY",Micropolitan Statistical Area,,,Lincoln County,Kentucky,21,137
+19260,,,"Danville, VA",Micropolitan Statistical Area,,,Pittsylvania County,Virginia,51,143
+19260,,,"Danville, VA",Micropolitan Statistical Area,,,Danville city,Virginia,51,590
+19300,,380,"Daphne-Fairhope-Foley, AL",Metropolitan Statistical Area,,"Mobile-Daphne-Fairhope, AL",Baldwin County,Alabama,1,3
+19340,,209,"Davenport-Moline-Rock Island, IA-IL",Metropolitan Statistical Area,,"Davenport-Moline, IA-IL",Henry County,Illinois,17,73
+19340,,209,"Davenport-Moline-Rock Island, IA-IL",Metropolitan Statistical Area,,"Davenport-Moline, IA-IL",Mercer County,Illinois,17,131
+19340,,209,"Davenport-Moline-Rock Island, IA-IL",Metropolitan Statistical Area,,"Davenport-Moline, IA-IL",Rock Island County,Illinois,17,161
+19340,,209,"Davenport-Moline-Rock Island, IA-IL",Metropolitan Statistical Area,,"Davenport-Moline, IA-IL",Scott County,Iowa,19,163
+19380,,212,"Dayton, OH",Metropolitan Statistical Area,,"Dayton-Springfield-Sidney, OH",Greene County,Ohio,39,57
+19380,,212,"Dayton, OH",Metropolitan Statistical Area,,"Dayton-Springfield-Sidney, OH",Miami County,Ohio,39,109
+19380,,212,"Dayton, OH",Metropolitan Statistical Area,,"Dayton-Springfield-Sidney, OH",Montgomery County,Ohio,39,113
+19420,,174,"Dayton, TN",Micropolitan Statistical Area,,"Chattanooga-Cleveland-Dalton, TN-GA-AL",Rhea County,Tennessee,47,143
+19460,,290,"Decatur, AL",Metropolitan Statistical Area,,"Huntsville-Decatur-Albertville, AL",Lawrence County,Alabama,1,79
+19460,,290,"Decatur, AL",Metropolitan Statistical Area,,"Huntsville-Decatur-Albertville, AL",Morgan County,Alabama,1,103
+19500,,,"Decatur, IL",Metropolitan Statistical Area,,,Macon County,Illinois,17,115
+19540,,258,"Decatur, IN",Micropolitan Statistical Area,,"Fort Wayne-Huntington-Auburn, IN",Adams County,Indiana,18,1
+19580,,,"Defiance, OH",Micropolitan Statistical Area,,,Defiance County,Ohio,39,39
+19620,,,"Del Rio, TX",Micropolitan Statistical Area,,,Val Verde County,Texas,48,465
+19660,,422,"Deltona-Daytona Beach-Ormond Beach, FL",Metropolitan Statistical Area,,"Orlando-Deltona-Daytona Beach, FL",Flagler County,Florida,12,35
+19660,,422,"Deltona-Daytona Beach-Ormond Beach, FL",Metropolitan Statistical Area,,"Orlando-Deltona-Daytona Beach, FL",Volusia County,Florida,12,127
+19700,,,"Deming, NM",Micropolitan Statistical Area,,,Luna County,New Mexico,35,29
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Adams County,Colorado,8,1
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Arapahoe County,Colorado,8,5
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Broomfield County,Colorado,8,14
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Clear Creek County,Colorado,8,19
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Denver County,Colorado,8,31
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Douglas County,Colorado,8,35
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Elbert County,Colorado,8,39
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Gilpin County,Colorado,8,47
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Jefferson County,Colorado,8,59
+19740,,216,"Denver-Aurora-Lakewood, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Park County,Colorado,8,93
+19760,,217,"DeRidder, LA",Micropolitan Statistical Area,,"DeRidder-Fort Polk South, LA",Beauregard Parish,Louisiana,22,11
+19780,,218,"Des Moines-West Des Moines, IA",Metropolitan Statistical Area,,"Des Moines-Ames-West Des Moines, IA",Dallas County,Iowa,19,49
+19780,,218,"Des Moines-West Des Moines, IA",Metropolitan Statistical Area,,"Des Moines-Ames-West Des Moines, IA",Guthrie County,Iowa,19,77
+19780,,218,"Des Moines-West Des Moines, IA",Metropolitan Statistical Area,,"Des Moines-Ames-West Des Moines, IA",Madison County,Iowa,19,121
+19780,,218,"Des Moines-West Des Moines, IA",Metropolitan Statistical Area,,"Des Moines-Ames-West Des Moines, IA",Polk County,Iowa,19,153
+19780,,218,"Des Moines-West Des Moines, IA",Metropolitan Statistical Area,,"Des Moines-Ames-West Des Moines, IA",Warren County,Iowa,19,181
+19820,19804,220,"Detroit-Warren-Dearborn, MI",Metropolitan Statistical Area,"Detroit-Dearborn-Livonia, MI","Detroit-Warren-Ann Arbor, MI",Wayne County,Michigan,26,163
+19820,47664,220,"Detroit-Warren-Dearborn, MI",Metropolitan Statistical Area,"Warren-Troy-Farmington Hills, MI","Detroit-Warren-Ann Arbor, MI",Lapeer County,Michigan,26,87
+19820,47664,220,"Detroit-Warren-Dearborn, MI",Metropolitan Statistical Area,"Warren-Troy-Farmington Hills, MI","Detroit-Warren-Ann Arbor, MI",Livingston County,Michigan,26,93
+19820,47664,220,"Detroit-Warren-Dearborn, MI",Metropolitan Statistical Area,"Warren-Troy-Farmington Hills, MI","Detroit-Warren-Ann Arbor, MI",Macomb County,Michigan,26,99
+19820,47664,220,"Detroit-Warren-Dearborn, MI",Metropolitan Statistical Area,"Warren-Troy-Farmington Hills, MI","Detroit-Warren-Ann Arbor, MI",Oakland County,Michigan,26,125
+19820,47664,220,"Detroit-Warren-Dearborn, MI",Metropolitan Statistical Area,"Warren-Troy-Farmington Hills, MI","Detroit-Warren-Ann Arbor, MI",St. Clair County,Michigan,26,147
+19860,,,"Dickinson, ND",Micropolitan Statistical Area,,,Stark County,North Dakota,38,89
+19940,,221,"Dixon, IL",Micropolitan Statistical Area,,"Dixon-Sterling, IL",Lee County,Illinois,17,103
+19980,,,"Dodge City, KS",Micropolitan Statistical Area,,,Ford County,Kansas,20,57
+20020,,222,"Dothan, AL",Metropolitan Statistical Area,,"Dothan-Enterprise-Ozark, AL",Geneva County,Alabama,1,61
+20020,,222,"Dothan, AL",Metropolitan Statistical Area,,"Dothan-Enterprise-Ozark, AL",Henry County,Alabama,1,67
+20020,,222,"Dothan, AL",Metropolitan Statistical Area,,"Dothan-Enterprise-Ozark, AL",Houston County,Alabama,1,69
+20060,,,"Douglas, GA",Micropolitan Statistical Area,,,Coffee County,Georgia,13,69
+20100,,428,"Dover, DE",Metropolitan Statistical Area,,"Philadelphia-Reading-Camden, PA-NJ-DE-MD",Kent County,Delaware,10,1
+20140,,,"Dublin, GA",Micropolitan Statistical Area,,,Johnson County,Georgia,13,167
+20140,,,"Dublin, GA",Micropolitan Statistical Area,,,Laurens County,Georgia,13,175
+20180,,524,"DuBois, PA",Micropolitan Statistical Area,,"State College-DuBois, PA",Clearfield County,Pennsylvania,42,33
+20220,,,"Dubuque, IA",Metropolitan Statistical Area,,,Dubuque County,Iowa,19,61
+20260,,,"Duluth, MN-WI",Metropolitan Statistical Area,,,Carlton County,Minnesota,27,17
+20260,,,"Duluth, MN-WI",Metropolitan Statistical Area,,,St. Louis County,Minnesota,27,137
+20260,,,"Duluth, MN-WI",Metropolitan Statistical Area,,,Douglas County,Wisconsin,55,31
+20300,,,"Dumas, TX",Micropolitan Statistical Area,,,Moore County,Texas,48,341
+20340,,,"Duncan, OK",Micropolitan Statistical Area,,,Stephens County,Oklahoma,40,137
+20380,,450,"Dunn, NC",Micropolitan Statistical Area,,"Raleigh-Durham-Chapel Hill, NC",Harnett County,North Carolina,37,85
+20420,,,"Durango, CO",Micropolitan Statistical Area,,,La Plata County,Colorado,8,67
+20460,,206,"Durant, OK",Micropolitan Statistical Area,,"Dallas-Fort Worth, TX-OK",Bryan County,Oklahoma,40,13
+20500,,450,"Durham-Chapel Hill, NC",Metropolitan Statistical Area,,"Raleigh-Durham-Chapel Hill, NC",Chatham County,North Carolina,37,37
+20500,,450,"Durham-Chapel Hill, NC",Metropolitan Statistical Area,,"Raleigh-Durham-Chapel Hill, NC",Durham County,North Carolina,37,63
+20500,,450,"Durham-Chapel Hill, NC",Metropolitan Statistical Area,,"Raleigh-Durham-Chapel Hill, NC",Orange County,North Carolina,37,135
+20500,,450,"Durham-Chapel Hill, NC",Metropolitan Statistical Area,,"Raleigh-Durham-Chapel Hill, NC",Person County,North Carolina,37,145
+20540,,,"Dyersburg, TN",Micropolitan Statistical Area,,,Dyer County,Tennessee,47,45
+20580,,,"Eagle Pass, TX",Micropolitan Statistical Area,,,Maverick County,Texas,48,323
+20660,,548,"Easton, MD",Micropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Talbot County,Maryland,24,41
+20700,,408,"East Stroudsburg, PA",Metropolitan Statistical Area,,"New York-Newark, NY-NJ-CT-PA",Monroe County,Pennsylvania,42,89
+20740,,232,"Eau Claire, WI",Metropolitan Statistical Area,,"Eau Claire-Menomonie, WI",Chippewa County,Wisconsin,55,17
+20740,,232,"Eau Claire, WI",Metropolitan Statistical Area,,"Eau Claire-Menomonie, WI",Eau Claire County,Wisconsin,55,35
+20780,,233,"Edwards, CO",Micropolitan Statistical Area,,"Edwards-Glenwood Springs, CO",Eagle County,Colorado,8,37
+20820,,,"Effingham, IL",Micropolitan Statistical Area,,,Effingham County,Illinois,17,49
+20900,,288,"El Campo, TX",Micropolitan Statistical Area,,"Houston-The Woodlands, TX",Wharton County,Texas,48,481
+20940,,,"El Centro, CA",Metropolitan Statistical Area,,,Imperial County,California,6,25
+20980,,,"El Dorado, AR",Micropolitan Statistical Area,,,Union County,Arkansas,5,139
+21020,,545,"Elizabeth City, NC",Micropolitan Statistical Area,,"Virginia Beach-Norfolk, VA-NC",Camden County,North Carolina,37,29
+21020,,545,"Elizabeth City, NC",Micropolitan Statistical Area,,"Virginia Beach-Norfolk, VA-NC",Pasquotank County,North Carolina,37,139
+21020,,545,"Elizabeth City, NC",Micropolitan Statistical Area,,"Virginia Beach-Norfolk, VA-NC",Perquimans County,North Carolina,37,143
+21060,,350,"Elizabethtown-Fort Knox, KY",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Hardin County,Kentucky,21,93
+21060,,350,"Elizabethtown-Fort Knox, KY",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Larue County,Kentucky,21,123
+21060,,350,"Elizabethtown-Fort Knox, KY",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Meade County,Kentucky,21,163
+21120,,,"Elk City, OK",Micropolitan Statistical Area,,,Beckham County,Oklahoma,40,9
+21140,,515,"Elkhart-Goshen, IN",Metropolitan Statistical Area,,"South Bend-Elkhart-Mishawaka, IN-MI",Elkhart County,Indiana,18,39
+21180,,,"Elkins, WV",Micropolitan Statistical Area,,,Randolph County,West Virginia,54,83
+21220,,,"Elko, NV",Micropolitan Statistical Area,,,Elko County,Nevada,32,7
+21220,,,"Elko, NV",Micropolitan Statistical Area,,,Eureka County,Nevada,32,11
+21260,,,"Ellensburg, WA",Micropolitan Statistical Area,,,Kittitas County,Washington,53,37
+21300,,236,"Elmira, NY",Metropolitan Statistical Area,,"Elmira-Corning, NY",Chemung County,New York,36,15
+21340,,238,"El Paso, TX",Metropolitan Statistical Area,,"El Paso-Las Cruces, TX-NM",El Paso County,Texas,48,141
+21340,,238,"El Paso, TX",Metropolitan Statistical Area,,"El Paso-Las Cruces, TX-NM",Hudspeth County,Texas,48,229
+21380,,,"Emporia, KS",Micropolitan Statistical Area,,,Lyon County,Kansas,20,111
+21420,,,"Enid, OK",Micropolitan Statistical Area,,,Garfield County,Oklahoma,40,47
+21460,,222,"Enterprise, AL",Micropolitan Statistical Area,,"Dothan-Enterprise-Ozark, AL",Coffee County,Alabama,1,31
+21500,,240,"Erie, PA",Metropolitan Statistical Area,,"Erie-Meadville, PA",Erie County,Pennsylvania,42,49
+21540,,,"Escanaba, MI",Micropolitan Statistical Area,,,Delta County,Michigan,26,41
+21580,,106,"Española, NM",Micropolitan Statistical Area,,"Albuquerque-Santa Fe-Las Vegas, NM",Rio Arriba County,New Mexico,35,39
+21660,,,"Eugene, OR",Metropolitan Statistical Area,,,Lane County,Oregon,41,39
+21700,,,"Eureka-Arcata-Fortuna, CA",Micropolitan Statistical Area,,,Humboldt County,California,6,23
+21740,,,"Evanston, WY",Micropolitan Statistical Area,,,Uinta County,Wyoming,56,41
+21780,,,"Evansville, IN-KY",Metropolitan Statistical Area,,,Posey County,Indiana,18,129
+21780,,,"Evansville, IN-KY",Metropolitan Statistical Area,,,Vanderburgh County,Indiana,18,163
+21780,,,"Evansville, IN-KY",Metropolitan Statistical Area,,,Warrick County,Indiana,18,173
+21780,,,"Evansville, IN-KY",Metropolitan Statistical Area,,,Henderson County,Kentucky,21,101
+21820,,,"Fairbanks, AK",Metropolitan Statistical Area,,,Fairbanks North Star Borough,Alaska,2,90
+21840,,,"Fairfield, IA",Micropolitan Statistical Area,,,Jefferson County,Iowa,19,101
+21900,,390,"Fairmont, WV",Micropolitan Statistical Area,,"Morgantown-Fairmont, WV",Marion County,West Virginia,54,49
+21980,,,"Fallon, NV",Micropolitan Statistical Area,,,Churchill County,Nevada,32,1
+22020,,244,"Fargo, ND-MN",Metropolitan Statistical Area,,"Fargo-Wahpeton, ND-MN",Clay County,Minnesota,27,27
+22020,,244,"Fargo, ND-MN",Metropolitan Statistical Area,,"Fargo-Wahpeton, ND-MN",Cass County,North Dakota,38,17
+22060,,378,"Faribault-Northfield, MN",Micropolitan Statistical Area,,"Minneapolis-St. Paul, MN-WI",Rice County,Minnesota,27,131
+22100,,476,"Farmington, MO",Micropolitan Statistical Area,,"St. Louis-St. Charles-Farmington, MO-IL",St. Francois County,Missouri,29,187
+22140,,,"Farmington, NM",Metropolitan Statistical Area,,,San Juan County,New Mexico,35,45
+22180,,246,"Fayetteville, NC",Metropolitan Statistical Area,,"Fayetteville-Lumberton-Laurinburg, NC",Cumberland County,North Carolina,37,51
+22180,,246,"Fayetteville, NC",Metropolitan Statistical Area,,"Fayetteville-Lumberton-Laurinburg, NC",Hoke County,North Carolina,37,93
+22220,,,"Fayetteville-Springdale-Rogers, AR-MO",Metropolitan Statistical Area,,,Benton County,Arkansas,5,7
+22220,,,"Fayetteville-Springdale-Rogers, AR-MO",Metropolitan Statistical Area,,,Madison County,Arkansas,5,87
+22220,,,"Fayetteville-Springdale-Rogers, AR-MO",Metropolitan Statistical Area,,,Washington County,Arkansas,5,143
+22220,,,"Fayetteville-Springdale-Rogers, AR-MO",Metropolitan Statistical Area,,,McDonald County,Missouri,29,119
+22260,,,"Fergus Falls, MN",Micropolitan Statistical Area,,,Otter Tail County,Minnesota,27,111
+22280,,456,"Fernley, NV",Micropolitan Statistical Area,,"Reno-Carson City-Fernley, NV",Lyon County,Nevada,32,19
+22300,,248,"Findlay, OH",Micropolitan Statistical Area,,"Findlay-Tiffin, OH",Hancock County,Ohio,39,63
+22340,,,"Fitzgerald, GA",Micropolitan Statistical Area,,,Ben Hill County,Georgia,13,17
+22380,,,"Flagstaff, AZ",Metropolitan Statistical Area,,,Coconino County,Arizona,4,5
+22420,,220,"Flint, MI",Metropolitan Statistical Area,,"Detroit-Warren-Ann Arbor, MI",Genesee County,Michigan,26,49
+22500,,,"Florence, SC",Metropolitan Statistical Area,,,Darlington County,South Carolina,45,31
+22500,,,"Florence, SC",Metropolitan Statistical Area,,,Florence County,South Carolina,45,41
+22520,,,"Florence-Muscle Shoals, AL",Metropolitan Statistical Area,,,Colbert County,Alabama,1,33
+22520,,,"Florence-Muscle Shoals, AL",Metropolitan Statistical Area,,,Lauderdale County,Alabama,1,77
+22540,,,"Fond du Lac, WI",Metropolitan Statistical Area,,,Fond du Lac County,Wisconsin,55,39
+22580,,,"Forest City, NC",Micropolitan Statistical Area,,,Rutherford County,North Carolina,37,161
+22620,,368,"Forrest City, AR",Micropolitan Statistical Area,,"Memphis-Forrest City, TN-MS-AR",St. Francis County,Arkansas,5,123
+22660,,,"Fort Collins, CO",Metropolitan Statistical Area,,,Larimer County,Colorado,8,69
+22700,,,"Fort Dodge, IA",Micropolitan Statistical Area,,,Webster County,Iowa,19,187
+22780,,,"Fort Leonard Wood, MO",Micropolitan Statistical Area,,,Pulaski County,Missouri,29,169
+22800,,,"Fort Madison-Keokuk, IA-IL-MO",Micropolitan Statistical Area,,,Hancock County,Illinois,17,67
+22800,,,"Fort Madison-Keokuk, IA-IL-MO",Micropolitan Statistical Area,,,Lee County,Iowa,19,111
+22800,,,"Fort Madison-Keokuk, IA-IL-MO",Micropolitan Statistical Area,,,Clark County,Missouri,29,45
+22820,,,"Fort Morgan, CO",Micropolitan Statistical Area,,,Morgan County,Colorado,8,87
+22860,,217,"Fort Polk South, LA",Micropolitan Statistical Area,,"DeRidder-Fort Polk South, LA",Vernon Parish,Louisiana,22,115
+22900,,,"Fort Smith, AR-OK",Metropolitan Statistical Area,,,Crawford County,Arkansas,5,33
+22900,,,"Fort Smith, AR-OK",Metropolitan Statistical Area,,,Sebastian County,Arkansas,5,131
+22900,,,"Fort Smith, AR-OK",Metropolitan Statistical Area,,,Le Flore County,Oklahoma,40,79
+22900,,,"Fort Smith, AR-OK",Metropolitan Statistical Area,,,Sequoyah County,Oklahoma,40,135
+23060,,258,"Fort Wayne, IN",Metropolitan Statistical Area,,"Fort Wayne-Huntington-Auburn, IN",Allen County,Indiana,18,3
+23060,,258,"Fort Wayne, IN",Metropolitan Statistical Area,,"Fort Wayne-Huntington-Auburn, IN",Wells County,Indiana,18,179
+23060,,258,"Fort Wayne, IN",Metropolitan Statistical Area,,"Fort Wayne-Huntington-Auburn, IN",Whitley County,Indiana,18,183
+23140,,320,"Frankfort, IN",Micropolitan Statistical Area,,"Lafayette-West Lafayette-Frankfort, IN",Clinton County,Indiana,18,23
+23180,,336,"Frankfort, KY",Micropolitan Statistical Area,,"Lexington-Fayette--Richmond--Frankfort, KY",Anderson County,Kentucky,21,5
+23180,,336,"Frankfort, KY",Micropolitan Statistical Area,,"Lexington-Fayette--Richmond--Frankfort, KY",Franklin County,Kentucky,21,73
+23240,,,"Fredericksburg, TX",Micropolitan Statistical Area,,,Gillespie County,Texas,48,171
+23300,,466,"Freeport, IL",Micropolitan Statistical Area,,"Rockford-Freeport-Rochelle, IL",Stephenson County,Illinois,17,177
+23340,,420,"Fremont, NE",Micropolitan Statistical Area,,"Omaha-Council Bluffs-Fremont, NE-IA",Dodge County,Nebraska,31,53
+23380,,,"Fremont, OH",Micropolitan Statistical Area,,,Sandusky County,Ohio,39,143
+23420,,260,"Fresno, CA",Metropolitan Statistical Area,,"Fresno-Madera, CA",Fresno County,California,6,19
+23460,,,"Gadsden, AL",Metropolitan Statistical Area,,,Etowah County,Alabama,1,55
+23500,,273,"Gaffney, SC",Micropolitan Statistical Area,,"Greenville-Spartanburg-Anderson, SC",Cherokee County,South Carolina,45,21
+23540,,264,"Gainesville, FL",Metropolitan Statistical Area,,"Gainesville-Lake City, FL",Alachua County,Florida,12,1
+23540,,264,"Gainesville, FL",Metropolitan Statistical Area,,"Gainesville-Lake City, FL",Gilchrist County,Florida,12,41
+23580,,122,"Gainesville, GA",Metropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Hall County,Georgia,13,139
+23620,,206,"Gainesville, TX",Micropolitan Statistical Area,,"Dallas-Fort Worth, TX-OK",Cooke County,Texas,48,97
+23660,,,"Galesburg, IL",Micropolitan Statistical Area,,,Knox County,Illinois,17,95
+23700,,,"Gallup, NM",Micropolitan Statistical Area,,,McKinley County,New Mexico,35,31
+23780,,,"Garden City, KS",Micropolitan Statistical Area,,,Finney County,Kansas,20,55
+23780,,,"Garden City, KS",Micropolitan Statistical Area,,,Kearny County,Kansas,20,93
+23820,,456,"Gardnerville Ranchos, NV",Micropolitan Statistical Area,,"Reno-Carson City-Fernley, NV",Douglas County,Nevada,32,5
+23860,,396,"Georgetown, SC",Micropolitan Statistical Area,,"Myrtle Beach-Conway, SC-NC",Georgetown County,South Carolina,45,43
+23900,,276,"Gettysburg, PA",Metropolitan Statistical Area,,"Harrisburg-York-Lebanon, PA",Adams County,Pennsylvania,42,1
+23940,,,"Gillette, WY",Micropolitan Statistical Area,,,Campbell County,Wyoming,56,5
+23980,,150,"Glasgow, KY",Micropolitan Statistical Area,,"Bowling Green-Glasgow, KY",Barren County,Kentucky,21,9
+23980,,150,"Glasgow, KY",Micropolitan Statistical Area,,"Bowling Green-Glasgow, KY",Metcalfe County,Kentucky,21,169
+24020,,104,"Glens Falls, NY",Metropolitan Statistical Area,,"Albany-Schenectady, NY",Warren County,New York,36,113
+24020,,104,"Glens Falls, NY",Metropolitan Statistical Area,,"Albany-Schenectady, NY",Washington County,New York,36,115
+24060,,233,"Glenwood Springs, CO",Micropolitan Statistical Area,,"Edwards-Glenwood Springs, CO",Garfield County,Colorado,8,45
+24060,,233,"Glenwood Springs, CO",Micropolitan Statistical Area,,"Edwards-Glenwood Springs, CO",Pitkin County,Colorado,8,97
+24100,,104,"Gloversville, NY",Micropolitan Statistical Area,,"Albany-Schenectady, NY",Fulton County,New York,36,35
+24140,,,"Goldsboro, NC",Metropolitan Statistical Area,,,Wayne County,North Carolina,37,191
+24220,,,"Grand Forks, ND-MN",Metropolitan Statistical Area,,,Polk County,Minnesota,27,119
+24220,,,"Grand Forks, ND-MN",Metropolitan Statistical Area,,,Grand Forks County,North Dakota,38,35
+24260,,,"Grand Island, NE",Metropolitan Statistical Area,,,Hall County,Nebraska,31,79
+24260,,,"Grand Island, NE",Metropolitan Statistical Area,,,Hamilton County,Nebraska,31,81
+24260,,,"Grand Island, NE",Metropolitan Statistical Area,,,Howard County,Nebraska,31,93
+24260,,,"Grand Island, NE",Metropolitan Statistical Area,,,Merrick County,Nebraska,31,121
+24300,,,"Grand Junction, CO",Metropolitan Statistical Area,,,Mesa County,Colorado,8,77
+24340,,266,"Grand Rapids-Wyoming, MI",Metropolitan Statistical Area,,"Grand Rapids-Wyoming-Muskegon, MI",Barry County,Michigan,26,15
+24340,,266,"Grand Rapids-Wyoming, MI",Metropolitan Statistical Area,,"Grand Rapids-Wyoming-Muskegon, MI",Kent County,Michigan,26,81
+24340,,266,"Grand Rapids-Wyoming, MI",Metropolitan Statistical Area,,"Grand Rapids-Wyoming-Muskegon, MI",Montcalm County,Michigan,26,117
+24340,,266,"Grand Rapids-Wyoming, MI",Metropolitan Statistical Area,,"Grand Rapids-Wyoming-Muskegon, MI",Ottawa County,Michigan,26,139
+24380,,106,"Grants, NM",Micropolitan Statistical Area,,"Albuquerque-Santa Fe-Las Vegas, NM",Cibola County,New Mexico,35,6
+24420,,366,"Grants Pass, OR",Metropolitan Statistical Area,,"Medford-Grants Pass, OR",Josephine County,Oregon,41,33
+24460,,,"Great Bend, KS",Micropolitan Statistical Area,,,Barton County,Kansas,20,9
+24500,,,"Great Falls, MT",Metropolitan Statistical Area,,,Cascade County,Montana,30,13
+24540,,216,"Greeley, CO",Metropolitan Statistical Area,,"Denver-Aurora, CO",Weld County,Colorado,8,123
+24580,,267,"Green Bay, WI",Metropolitan Statistical Area,,"Green Bay-Shawano, WI",Brown County,Wisconsin,55,9
+24580,,267,"Green Bay, WI",Metropolitan Statistical Area,,"Green Bay-Shawano, WI",Kewaunee County,Wisconsin,55,61
+24580,,267,"Green Bay, WI",Metropolitan Statistical Area,,"Green Bay-Shawano, WI",Oconto County,Wisconsin,55,83
+24620,,,"Greeneville, TN",Micropolitan Statistical Area,,,Greene County,Tennessee,47,59
+24640,,521,"Greenfield Town, MA",Micropolitan Statistical Area,,"Springfield-Greenfield Town, MA",Franklin County,Massachusetts,25,11
+24660,,268,"Greensboro-High Point, NC",Metropolitan Statistical Area,,"Greensboro--Winston-Salem--High Point, NC",Guilford County,North Carolina,37,81
+24660,,268,"Greensboro-High Point, NC",Metropolitan Statistical Area,,"Greensboro--Winston-Salem--High Point, NC",Randolph County,North Carolina,37,151
+24660,,268,"Greensboro-High Point, NC",Metropolitan Statistical Area,,"Greensboro--Winston-Salem--High Point, NC",Rockingham County,North Carolina,37,157
+24700,,294,"Greensburg, IN",Micropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Decatur County,Indiana,18,31
+24740,,,"Greenville, MS",Micropolitan Statistical Area,,,Washington County,Mississippi,28,151
+24780,,274,"Greenville, NC",Metropolitan Statistical Area,,"Greenville-Washington, NC",Pitt County,North Carolina,37,147
+24820,,212,"Greenville, OH",Micropolitan Statistical Area,,"Dayton-Springfield-Sidney, OH",Darke County,Ohio,39,37
+24860,,273,"Greenville-Anderson-Mauldin, SC",Metropolitan Statistical Area,,"Greenville-Spartanburg-Anderson, SC",Anderson County,South Carolina,45,7
+24860,,273,"Greenville-Anderson-Mauldin, SC",Metropolitan Statistical Area,,"Greenville-Spartanburg-Anderson, SC",Greenville County,South Carolina,45,45
+24860,,273,"Greenville-Anderson-Mauldin, SC",Metropolitan Statistical Area,,"Greenville-Spartanburg-Anderson, SC",Laurens County,South Carolina,45,59
+24860,,273,"Greenville-Anderson-Mauldin, SC",Metropolitan Statistical Area,,"Greenville-Spartanburg-Anderson, SC",Pickens County,South Carolina,45,77
+24900,,,"Greenwood, MS",Micropolitan Statistical Area,,,Carroll County,Mississippi,28,15
+24900,,,"Greenwood, MS",Micropolitan Statistical Area,,,Leflore County,Mississippi,28,83
+24940,,273,"Greenwood, SC",Micropolitan Statistical Area,,"Greenville-Spartanburg-Anderson, SC",Abbeville County,South Carolina,45,1
+24940,,273,"Greenwood, SC",Micropolitan Statistical Area,,"Greenville-Spartanburg-Anderson, SC",Greenwood County,South Carolina,45,47
+24980,,,"Grenada, MS",Micropolitan Statistical Area,,,Grenada County,Mississippi,28,43
+25020,,490,"Guayama, PR",Metropolitan Statistical Area,,"San Juan-Carolina, PR",Arroyo Municipio,Puerto Rico,72,15
+25020,,490,"Guayama, PR",Metropolitan Statistical Area,,"San Juan-Carolina, PR",Guayama Municipio,Puerto Rico,72,57
+25020,,490,"Guayama, PR",Metropolitan Statistical Area,,"San Juan-Carolina, PR",Patillas Municipio,Puerto Rico,72,109
+25060,,,"Gulfport-Biloxi-Pascagoula, MS",Metropolitan Statistical Area,,,Hancock County,Mississippi,28,45
+25060,,,"Gulfport-Biloxi-Pascagoula, MS",Metropolitan Statistical Area,,,Harrison County,Mississippi,28,47
+25060,,,"Gulfport-Biloxi-Pascagoula, MS",Metropolitan Statistical Area,,,Jackson County,Mississippi,28,59
+25100,,,"Guymon, OK",Micropolitan Statistical Area,,,Texas County,Oklahoma,40,139
+25180,,548,"Hagerstown-Martinsburg, MD-WV",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Washington County,Maryland,24,43
+25180,,548,"Hagerstown-Martinsburg, MD-WV",Metropolitan Statistical Area,,"Washington-Baltimore-Arlington, DC-MD-VA-WV-PA",Berkeley County,West Virginia,54,3
+25200,,,"Hailey, ID",Micropolitan Statistical Area,,,Blaine County,Idaho,16,13
+25200,,,"Hailey, ID",Micropolitan Statistical Area,,,Camas County,Idaho,16,25
+25200,,,"Hailey, ID",Micropolitan Statistical Area,,,Lincoln County,Idaho,16,63
+25220,,406,"Hammond, LA",Metropolitan Statistical Area,,"New Orleans-Metairie-Hammond, LA-MS",Tangipahoa Parish,Louisiana,22,105
+25260,,546,"Hanford-Corcoran, CA",Metropolitan Statistical Area,,"Visalia-Porterville-Hanford, CA",Kings County,California,6,31
+25300,,448,"Hannibal, MO",Micropolitan Statistical Area,,"Quincy-Hannibal, IL-MO",Marion County,Missouri,29,127
+25300,,448,"Hannibal, MO",Micropolitan Statistical Area,,"Quincy-Hannibal, IL-MO",Ralls County,Missouri,29,173
+25420,,276,"Harrisburg-Carlisle, PA",Metropolitan Statistical Area,,"Harrisburg-York-Lebanon, PA",Cumberland County,Pennsylvania,42,41
+25420,,276,"Harrisburg-Carlisle, PA",Metropolitan Statistical Area,,"Harrisburg-York-Lebanon, PA",Dauphin County,Pennsylvania,42,43
+25420,,276,"Harrisburg-Carlisle, PA",Metropolitan Statistical Area,,"Harrisburg-York-Lebanon, PA",Perry County,Pennsylvania,42,99
+25460,,,"Harrison, AR",Micropolitan Statistical Area,,,Boone County,Arkansas,5,9
+25460,,,"Harrison, AR",Micropolitan Statistical Area,,,Newton County,Arkansas,5,101
+25500,,277,"Harrisonburg, VA",Metropolitan Statistical Area,,"Harrisonburg-Staunton-Waynesboro, VA",Rockingham County,Virginia,51,165
+25500,,277,"Harrisonburg, VA",Metropolitan Statistical Area,,"Harrisonburg-Staunton-Waynesboro, VA",Harrisonburg city,Virginia,51,660
+25540,,278,"Hartford-West Hartford-East Hartford, CT",Metropolitan Statistical Area,,"Hartford-West Hartford, CT",Hartford County,Connecticut,9,3
+25540,,278,"Hartford-West Hartford-East Hartford, CT",Metropolitan Statistical Area,,"Hartford-West Hartford, CT",Middlesex County,Connecticut,9,7
+25540,,278,"Hartford-West Hartford-East Hartford, CT",Metropolitan Statistical Area,,"Hartford-West Hartford, CT",Tolland County,Connecticut,9,13
+25580,,,"Hastings, NE",Micropolitan Statistical Area,,,Adams County,Nebraska,31,1
+25620,,,"Hattiesburg, MS",Metropolitan Statistical Area,,,Forrest County,Mississippi,28,35
+25620,,,"Hattiesburg, MS",Metropolitan Statistical Area,,,Lamar County,Mississippi,28,73
+25620,,,"Hattiesburg, MS",Metropolitan Statistical Area,,,Perry County,Mississippi,28,111
+25700,,,"Hays, KS",Micropolitan Statistical Area,,,Ellis County,Kansas,20,51
+25720,,482,"Heber, UT",Micropolitan Statistical Area,,"Salt Lake City-Provo-Orem, UT",Wasatch County,Utah,49,51
+25740,,,"Helena, MT",Micropolitan Statistical Area,,,Jefferson County,Montana,30,43
+25740,,,"Helena, MT",Micropolitan Statistical Area,,,Lewis and Clark County,Montana,30,49
+25760,,,"Helena-West Helena, AR",Micropolitan Statistical Area,,,Phillips County,Arkansas,5,107
+25780,,450,"Henderson, NC",Micropolitan Statistical Area,,"Raleigh-Durham-Chapel Hill, NC",Vance County,North Carolina,37,181
+25820,,,"Hereford, TX",Micropolitan Statistical Area,,,Deaf Smith County,Texas,48,117
+25840,,,"Hermiston-Pendleton, OR",Micropolitan Statistical Area,,,Morrow County,Oregon,41,49
+25840,,,"Hermiston-Pendleton, OR",Micropolitan Statistical Area,,,Umatilla County,Oregon,41,59
+25860,,280,"Hickory-Lenoir-Morganton, NC",Metropolitan Statistical Area,,"Hickory-Lenoir, NC",Alexander County,North Carolina,37,3
+25860,,280,"Hickory-Lenoir-Morganton, NC",Metropolitan Statistical Area,,"Hickory-Lenoir, NC",Burke County,North Carolina,37,23
+25860,,280,"Hickory-Lenoir-Morganton, NC",Metropolitan Statistical Area,,"Hickory-Lenoir, NC",Caldwell County,North Carolina,37,27
+25860,,280,"Hickory-Lenoir-Morganton, NC",Metropolitan Statistical Area,,"Hickory-Lenoir, NC",Catawba County,North Carolina,37,35
+25880,,,"Hillsdale, MI",Micropolitan Statistical Area,,,Hillsdale County,Michigan,26,59
+25900,,,"Hilo, HI",Micropolitan Statistical Area,,,Hawaii County,Hawaii,15,1
+25940,,,"Hilton Head Island-Bluffton-Beaufort, SC",Metropolitan Statistical Area,,,Beaufort County,South Carolina,45,13
+25940,,,"Hilton Head Island-Bluffton-Beaufort, SC",Metropolitan Statistical Area,,,Jasper County,South Carolina,45,53
+25980,,496,"Hinesville, GA",Metropolitan Statistical Area,,"Savannah-Hinesville-Statesboro, GA",Liberty County,Georgia,13,179
+25980,,496,"Hinesville, GA",Metropolitan Statistical Area,,"Savannah-Hinesville-Statesboro, GA",Long County,Georgia,13,183
+26020,,,"Hobbs, NM",Micropolitan Statistical Area,,,Lea County,New Mexico,35,25
+26090,,266,"Holland, MI",Micropolitan Statistical Area,,"Grand Rapids-Wyoming-Muskegon, MI",Allegan County,Michigan,26,5
+26140,,,"Homosassa Springs, FL",Metropolitan Statistical Area,,,Citrus County,Florida,12,17
+26220,,,"Hood River, OR",Micropolitan Statistical Area,,,Hood River County,Oregon,41,27
+26300,,284,"Hot Springs, AR",Metropolitan Statistical Area,,"Hot Springs-Malvern, AR",Garland County,Arkansas,5,51
+26340,,,"Houghton, MI",Micropolitan Statistical Area,,,Houghton County,Michigan,26,61
+26340,,,"Houghton, MI",Micropolitan Statistical Area,,,Keweenaw County,Michigan,26,83
+26380,,,"Houma-Thibodaux, LA",Metropolitan Statistical Area,,,Lafourche Parish,Louisiana,22,57
+26380,,,"Houma-Thibodaux, LA",Metropolitan Statistical Area,,,Terrebonne Parish,Louisiana,22,109
+26420,,288,"Houston-The Woodlands-Sugar Land, TX",Metropolitan Statistical Area,,"Houston-The Woodlands, TX",Austin County,Texas,48,15
+26420,,288,"Houston-The Woodlands-Sugar Land, TX",Metropolitan Statistical Area,,"Houston-The Woodlands, TX",Brazoria County,Texas,48,39
+26420,,288,"Houston-The Woodlands-Sugar Land, TX",Metropolitan Statistical Area,,"Houston-The Woodlands, TX",Chambers County,Texas,48,71
+26420,,288,"Houston-The Woodlands-Sugar Land, TX",Metropolitan Statistical Area,,"Houston-The Woodlands, TX",Fort Bend County,Texas,48,157
+26420,,288,"Houston-The Woodlands-Sugar Land, TX",Metropolitan Statistical Area,,"Houston-The Woodlands, TX",Galveston County,Texas,48,167
+26420,,288,"Houston-The Woodlands-Sugar Land, TX",Metropolitan Statistical Area,,"Houston-The Woodlands, TX",Harris County,Texas,48,201
+26420,,288,"Houston-The Woodlands-Sugar Land, TX",Metropolitan Statistical Area,,"Houston-The Woodlands, TX",Liberty County,Texas,48,291
+26420,,288,"Houston-The Woodlands-Sugar Land, TX",Metropolitan Statistical Area,,"Houston-The Woodlands, TX",Montgomery County,Texas,48,339
+26420,,288,"Houston-The Woodlands-Sugar Land, TX",Metropolitan Statistical Area,,"Houston-The Woodlands, TX",Waller County,Texas,48,473
+26460,,104,"Hudson, NY",Micropolitan Statistical Area,,"Albany-Schenectady, NY",Columbia County,New York,36,21
+26500,,,"Huntingdon, PA",Micropolitan Statistical Area,,,Huntingdon County,Pennsylvania,42,61
+26540,,258,"Huntington, IN",Micropolitan Statistical Area,,"Fort Wayne-Huntington-Auburn, IN",Huntington County,Indiana,18,69
+26580,,170,"Huntington-Ashland, WV-KY-OH",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Boyd County,Kentucky,21,19
+26580,,170,"Huntington-Ashland, WV-KY-OH",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Greenup County,Kentucky,21,89
+26580,,170,"Huntington-Ashland, WV-KY-OH",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Lawrence County,Ohio,39,87
+26580,,170,"Huntington-Ashland, WV-KY-OH",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Cabell County,West Virginia,54,11
+26580,,170,"Huntington-Ashland, WV-KY-OH",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Lincoln County,West Virginia,54,43
+26580,,170,"Huntington-Ashland, WV-KY-OH",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Putnam County,West Virginia,54,79
+26580,,170,"Huntington-Ashland, WV-KY-OH",Metropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Wayne County,West Virginia,54,99
+26620,,290,"Huntsville, AL",Metropolitan Statistical Area,,"Huntsville-Decatur-Albertville, AL",Limestone County,Alabama,1,83
+26620,,290,"Huntsville, AL",Metropolitan Statistical Area,,"Huntsville-Decatur-Albertville, AL",Madison County,Alabama,1,89
+26660,,288,"Huntsville, TX",Micropolitan Statistical Area,,"Houston-The Woodlands, TX",Trinity County,Texas,48,455
+26660,,288,"Huntsville, TX",Micropolitan Statistical Area,,"Houston-The Woodlands, TX",Walker County,Texas,48,471
+26700,,,"Huron, SD",Micropolitan Statistical Area,,,Beadle County,South Dakota,46,5
+26740,,,"Hutchinson, KS",Micropolitan Statistical Area,,,Reno County,Kansas,20,155
+26780,,378,"Hutchinson, MN",Micropolitan Statistical Area,,"Minneapolis-St. Paul, MN-WI",McLeod County,Minnesota,27,85
+26820,,292,"Idaho Falls, ID",Metropolitan Statistical Area,,"Idaho Falls-Rexburg-Blackfoot, ID",Bonneville County,Idaho,16,19
+26820,,292,"Idaho Falls, ID",Metropolitan Statistical Area,,"Idaho Falls-Rexburg-Blackfoot, ID",Butte County,Idaho,16,23
+26820,,292,"Idaho Falls, ID",Metropolitan Statistical Area,,"Idaho Falls-Rexburg-Blackfoot, ID",Jefferson County,Idaho,16,51
+26860,,430,"Indiana, PA",Micropolitan Statistical Area,,"Pittsburgh-New Castle-Weirton, PA-OH-WV",Indiana County,Pennsylvania,42,63
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Boone County,Indiana,18,11
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Brown County,Indiana,18,13
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Hamilton County,Indiana,18,57
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Hancock County,Indiana,18,59
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Hendricks County,Indiana,18,63
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Johnson County,Indiana,18,81
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Madison County,Indiana,18,95
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Marion County,Indiana,18,97
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Morgan County,Indiana,18,109
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Putnam County,Indiana,18,133
+26900,,294,"Indianapolis-Carmel-Anderson, IN",Metropolitan Statistical Area,,"Indianapolis-Carmel-Muncie, IN",Shelby County,Indiana,18,145
+26940,,185,"Indianola, MS",Micropolitan Statistical Area,,"Cleveland-Indianola, MS",Sunflower County,Mississippi,28,133
+26960,,266,"Ionia, MI",Micropolitan Statistical Area,,"Grand Rapids-Wyoming-Muskegon, MI",Ionia County,Michigan,26,67
+26980,,168,"Iowa City, IA",Metropolitan Statistical Area,,"Cedar Rapids-Iowa City, IA",Johnson County,Iowa,19,103
+26980,,168,"Iowa City, IA",Metropolitan Statistical Area,,"Cedar Rapids-Iowa City, IA",Washington County,Iowa,19,183
+27020,,,"Iron Mountain, MI-WI",Micropolitan Statistical Area,,,Dickinson County,Michigan,26,43
+27020,,,"Iron Mountain, MI-WI",Micropolitan Statistical Area,,,Florence County,Wisconsin,55,37
+27060,,296,"Ithaca, NY",Metropolitan Statistical Area,,"Ithaca-Cortland, NY",Tompkins County,New York,36,109
+27100,,,"Jackson, MI",Metropolitan Statistical Area,,,Jackson County,Michigan,26,75
+27140,,298,"Jackson, MS",Metropolitan Statistical Area,,"Jackson-Vicksburg-Brookhaven, MS",Copiah County,Mississippi,28,29
+27140,,298,"Jackson, MS",Metropolitan Statistical Area,,"Jackson-Vicksburg-Brookhaven, MS",Hinds County,Mississippi,28,49
+27140,,298,"Jackson, MS",Metropolitan Statistical Area,,"Jackson-Vicksburg-Brookhaven, MS",Madison County,Mississippi,28,89
+27140,,298,"Jackson, MS",Metropolitan Statistical Area,,"Jackson-Vicksburg-Brookhaven, MS",Rankin County,Mississippi,28,121
+27140,,298,"Jackson, MS",Metropolitan Statistical Area,,"Jackson-Vicksburg-Brookhaven, MS",Simpson County,Mississippi,28,127
+27140,,298,"Jackson, MS",Metropolitan Statistical Area,,"Jackson-Vicksburg-Brookhaven, MS",Yazoo County,Mississippi,28,163
+27160,,,"Jackson, OH",Micropolitan Statistical Area,,,Jackson County,Ohio,39,79
+27180,,,"Jackson, TN",Metropolitan Statistical Area,,,Chester County,Tennessee,47,23
+27180,,,"Jackson, TN",Metropolitan Statistical Area,,,Crockett County,Tennessee,47,33
+27180,,,"Jackson, TN",Metropolitan Statistical Area,,,Madison County,Tennessee,47,113
+27220,,,"Jackson, WY-ID",Micropolitan Statistical Area,,,Teton County,Idaho,16,81
+27220,,,"Jackson, WY-ID",Micropolitan Statistical Area,,,Teton County,Wyoming,56,39
+27260,,300,"Jacksonville, FL",Metropolitan Statistical Area,,"Jacksonville-St. Marys-Palatka, FL-GA",Baker County,Florida,12,3
+27260,,300,"Jacksonville, FL",Metropolitan Statistical Area,,"Jacksonville-St. Marys-Palatka, FL-GA",Clay County,Florida,12,19
+27260,,300,"Jacksonville, FL",Metropolitan Statistical Area,,"Jacksonville-St. Marys-Palatka, FL-GA",Duval County,Florida,12,31
+27260,,300,"Jacksonville, FL",Metropolitan Statistical Area,,"Jacksonville-St. Marys-Palatka, FL-GA",Nassau County,Florida,12,89
+27260,,300,"Jacksonville, FL",Metropolitan Statistical Area,,"Jacksonville-St. Marys-Palatka, FL-GA",St. Johns County,Florida,12,109
+27300,,522,"Jacksonville, IL",Micropolitan Statistical Area,,"Springfield-Jacksonville-Lincoln, IL",Morgan County,Illinois,17,137
+27300,,522,"Jacksonville, IL",Micropolitan Statistical Area,,"Springfield-Jacksonville-Lincoln, IL",Scott County,Illinois,17,171
+27340,,,"Jacksonville, NC",Metropolitan Statistical Area,,,Onslow County,North Carolina,37,133
+27380,,540,"Jacksonville, TX",Micropolitan Statistical Area,,"Tyler-Jacksonville, TX",Cherokee County,Texas,48,73
+27420,,,"Jamestown, ND",Micropolitan Statistical Area,,,Stutsman County,North Dakota,38,93
+27460,,,"Jamestown-Dunkirk-Fredonia, NY",Micropolitan Statistical Area,,,Chautauqua County,New York,36,13
+27500,,357,"Janesville-Beloit, WI",Metropolitan Statistical Area,,"Madison-Janesville-Beloit, WI",Rock County,Wisconsin,55,105
+27540,,,"Jasper, IN",Micropolitan Statistical Area,,,Dubois County,Indiana,18,37
+27540,,,"Jasper, IN",Micropolitan Statistical Area,,,Pike County,Indiana,18,125
+27580,,,"Jayuya, PR",Micropolitan Statistical Area,,,Jayuya Municipio,Puerto Rico,72,73
+27600,,122,"Jefferson, GA",Micropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Jackson County,Georgia,13,157
+27620,,,"Jefferson City, MO",Metropolitan Statistical Area,,,Callaway County,Missouri,29,27
+27620,,,"Jefferson City, MO",Metropolitan Statistical Area,,,Cole County,Missouri,29,51
+27620,,,"Jefferson City, MO",Metropolitan Statistical Area,,,Moniteau County,Missouri,29,135
+27620,,,"Jefferson City, MO",Metropolitan Statistical Area,,,Osage County,Missouri,29,151
+27700,,,"Jesup, GA",Micropolitan Statistical Area,,,Wayne County,Georgia,13,305
+27740,,304,"Johnson City, TN",Metropolitan Statistical Area,,"Johnson City-Kingsport-Bristol, TN-VA",Carter County,Tennessee,47,19
+27740,,304,"Johnson City, TN",Metropolitan Statistical Area,,"Johnson City-Kingsport-Bristol, TN-VA",Unicoi County,Tennessee,47,171
+27740,,304,"Johnson City, TN",Metropolitan Statistical Area,,"Johnson City-Kingsport-Bristol, TN-VA",Washington County,Tennessee,47,179
+27780,,306,"Johnstown, PA",Metropolitan Statistical Area,,"Johnstown-Somerset, PA",Cambria County,Pennsylvania,42,21
+27860,,308,"Jonesboro, AR",Metropolitan Statistical Area,,"Jonesboro-Paragould, AR",Craighead County,Arkansas,5,31
+27860,,308,"Jonesboro, AR",Metropolitan Statistical Area,,"Jonesboro-Paragould, AR",Poinsett County,Arkansas,5,111
+27900,,309,"Joplin, MO",Metropolitan Statistical Area,,"Joplin-Miami, MO-OK",Jasper County,Missouri,29,97
+27900,,309,"Joplin, MO",Metropolitan Statistical Area,,"Joplin-Miami, MO-OK",Newton County,Missouri,29,145
+27920,,358,"Junction City, KS",Micropolitan Statistical Area,,"Manhattan-Junction City, KS",Geary County,Kansas,20,61
+27940,,,"Juneau, AK",Micropolitan Statistical Area,,,Juneau City and Borough,Alaska,2,110
+27980,,,"Kahului-Wailuku-Lahaina, HI",Metropolitan Statistical Area,,,Kalawao County,Hawaii,15,5
+27980,,,"Kahului-Wailuku-Lahaina, HI",Metropolitan Statistical Area,,,Maui County,Hawaii,15,9
+28020,,310,"Kalamazoo-Portage, MI",Metropolitan Statistical Area,,"Kalamazoo-Battle Creek-Portage, MI",Kalamazoo County,Michigan,26,77
+28020,,310,"Kalamazoo-Portage, MI",Metropolitan Statistical Area,,"Kalamazoo-Battle Creek-Portage, MI",Van Buren County,Michigan,26,159
+28060,,,"Kalispell, MT",Micropolitan Statistical Area,,,Flathead County,Montana,30,29
+28100,,176,"Kankakee, IL",Metropolitan Statistical Area,,"Chicago-Naperville, IL-IN-WI",Kankakee County,Illinois,17,91
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Johnson County,Kansas,20,91
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Leavenworth County,Kansas,20,103
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Linn County,Kansas,20,107
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Miami County,Kansas,20,121
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Wyandotte County,Kansas,20,209
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Bates County,Missouri,29,13
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Caldwell County,Missouri,29,25
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Cass County,Missouri,29,37
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Clay County,Missouri,29,47
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Clinton County,Missouri,29,49
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Jackson County,Missouri,29,95
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Lafayette County,Missouri,29,107
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Platte County,Missouri,29,165
+28140,,312,"Kansas City, MO-KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Ray County,Missouri,29,177
+28180,,,"Kapaa, HI",Micropolitan Statistical Area,,,Kauai County,Hawaii,15,7
+28260,,,"Kearney, NE",Micropolitan Statistical Area,,,Buffalo County,Nebraska,31,19
+28260,,,"Kearney, NE",Micropolitan Statistical Area,,,Kearney County,Nebraska,31,99
+28300,,,"Keene, NH",Micropolitan Statistical Area,,,Cheshire County,New Hampshire,33,5
+28340,,258,"Kendallville, IN",Micropolitan Statistical Area,,"Fort Wayne-Huntington-Auburn, IN",Noble County,Indiana,18,113
+28380,,,"Kennett, MO",Micropolitan Statistical Area,,,Dunklin County,Missouri,29,69
+28420,,,"Kennewick-Richland, WA",Metropolitan Statistical Area,,,Benton County,Washington,53,5
+28420,,,"Kennewick-Richland, WA",Metropolitan Statistical Area,,,Franklin County,Washington,53,21
+28500,,,"Kerrville, TX",Micropolitan Statistical Area,,,Kerr County,Texas,48,265
+28540,,,"Ketchikan, AK",Micropolitan Statistical Area,,,Ketchikan Gateway Borough,Alaska,2,130
+28580,,,"Key West, FL",Micropolitan Statistical Area,,,Monroe County,Florida,12,87
+28620,,545,"Kill Devil Hills, NC",Micropolitan Statistical Area,,"Virginia Beach-Norfolk, VA-NC",Dare County,North Carolina,37,55
+28620,,545,"Kill Devil Hills, NC",Micropolitan Statistical Area,,"Virginia Beach-Norfolk, VA-NC",Tyrrell County,North Carolina,37,177
+28660,,,"Killeen-Temple, TX",Metropolitan Statistical Area,,,Bell County,Texas,48,27
+28660,,,"Killeen-Temple, TX",Metropolitan Statistical Area,,,Coryell County,Texas,48,99
+28660,,,"Killeen-Temple, TX",Metropolitan Statistical Area,,,Lampasas County,Texas,48,281
+28700,,304,"Kingsport-Bristol-Bristol, TN-VA",Metropolitan Statistical Area,,"Johnson City-Kingsport-Bristol, TN-VA",Hawkins County,Tennessee,47,73
+28700,,304,"Kingsport-Bristol-Bristol, TN-VA",Metropolitan Statistical Area,,"Johnson City-Kingsport-Bristol, TN-VA",Sullivan County,Tennessee,47,163
+28700,,304,"Kingsport-Bristol-Bristol, TN-VA",Metropolitan Statistical Area,,"Johnson City-Kingsport-Bristol, TN-VA",Scott County,Virginia,51,169
+28700,,304,"Kingsport-Bristol-Bristol, TN-VA",Metropolitan Statistical Area,,"Johnson City-Kingsport-Bristol, TN-VA",Washington County,Virginia,51,191
+28700,,304,"Kingsport-Bristol-Bristol, TN-VA",Metropolitan Statistical Area,,"Johnson City-Kingsport-Bristol, TN-VA",Bristol city,Virginia,51,520
+28740,,408,"Kingston, NY",Metropolitan Statistical Area,,"New York-Newark, NY-NJ-CT-PA",Ulster County,New York,36,111
+28780,,204,"Kingsville, TX",Micropolitan Statistical Area,,"Corpus Christi-Kingsville-Alice, TX",Kenedy County,Texas,48,261
+28780,,204,"Kingsville, TX",Micropolitan Statistical Area,,"Corpus Christi-Kingsville-Alice, TX",Kleberg County,Texas,48,273
+28820,,,"Kinston, NC",Micropolitan Statistical Area,,,Lenoir County,North Carolina,37,107
+28860,,,"Kirksville, MO",Micropolitan Statistical Area,,,Adair County,Missouri,29,1
+28860,,,"Kirksville, MO",Micropolitan Statistical Area,,,Schuyler County,Missouri,29,197
+28900,,,"Klamath Falls, OR",Micropolitan Statistical Area,,,Klamath County,Oregon,41,35
+28940,,314,"Knoxville, TN",Metropolitan Statistical Area,,"Knoxville-Morristown-Sevierville, TN",Anderson County,Tennessee,47,1
+28940,,314,"Knoxville, TN",Metropolitan Statistical Area,,"Knoxville-Morristown-Sevierville, TN",Blount County,Tennessee,47,9
+28940,,314,"Knoxville, TN",Metropolitan Statistical Area,,"Knoxville-Morristown-Sevierville, TN",Campbell County,Tennessee,47,13
+28940,,314,"Knoxville, TN",Metropolitan Statistical Area,,"Knoxville-Morristown-Sevierville, TN",Grainger County,Tennessee,47,57
+28940,,314,"Knoxville, TN",Metropolitan Statistical Area,,"Knoxville-Morristown-Sevierville, TN",Knox County,Tennessee,47,93
+28940,,314,"Knoxville, TN",Metropolitan Statistical Area,,"Knoxville-Morristown-Sevierville, TN",Loudon County,Tennessee,47,105
+28940,,314,"Knoxville, TN",Metropolitan Statistical Area,,"Knoxville-Morristown-Sevierville, TN",Morgan County,Tennessee,47,129
+28940,,314,"Knoxville, TN",Metropolitan Statistical Area,,"Knoxville-Morristown-Sevierville, TN",Roane County,Tennessee,47,145
+28940,,314,"Knoxville, TN",Metropolitan Statistical Area,,"Knoxville-Morristown-Sevierville, TN",Union County,Tennessee,47,173
+29020,,316,"Kokomo, IN",Metropolitan Statistical Area,,"Kokomo-Peru, IN",Howard County,Indiana,18,67
+29060,,148,"Laconia, NH",Micropolitan Statistical Area,,"Boston-Worcester-Providence, MA-RI-NH-CT",Belknap County,New Hampshire,33,1
+29100,,,"La Crosse-Onalaska, WI-MN",Metropolitan Statistical Area,,,Houston County,Minnesota,27,55
+29100,,,"La Crosse-Onalaska, WI-MN",Metropolitan Statistical Area,,,La Crosse County,Wisconsin,55,63
+29180,,318,"Lafayette, LA",Metropolitan Statistical Area,,"Lafayette-Opelousas-Morgan City, LA",Acadia Parish,Louisiana,22,1
+29180,,318,"Lafayette, LA",Metropolitan Statistical Area,,"Lafayette-Opelousas-Morgan City, LA",Iberia Parish,Louisiana,22,45
+29180,,318,"Lafayette, LA",Metropolitan Statistical Area,,"Lafayette-Opelousas-Morgan City, LA",Lafayette Parish,Louisiana,22,55
+29180,,318,"Lafayette, LA",Metropolitan Statistical Area,,"Lafayette-Opelousas-Morgan City, LA",St. Martin Parish,Louisiana,22,99
+29180,,318,"Lafayette, LA",Metropolitan Statistical Area,,"Lafayette-Opelousas-Morgan City, LA",Vermilion Parish,Louisiana,22,113
+29200,,320,"Lafayette-West Lafayette, IN",Metropolitan Statistical Area,,"Lafayette-West Lafayette-Frankfort, IN",Benton County,Indiana,18,7
+29200,,320,"Lafayette-West Lafayette, IN",Metropolitan Statistical Area,,"Lafayette-West Lafayette-Frankfort, IN",Carroll County,Indiana,18,15
+29200,,320,"Lafayette-West Lafayette, IN",Metropolitan Statistical Area,,"Lafayette-West Lafayette-Frankfort, IN",Tippecanoe County,Indiana,18,157
+29260,,,"La Grande, OR",Micropolitan Statistical Area,,,Union County,Oregon,41,61
+29300,,122,"LaGrange, GA",Micropolitan Statistical Area,,"Atlanta--Athens-Clarke County--Sandy Springs, GA",Troup County,Georgia,13,285
+29340,,,"Lake Charles, LA",Metropolitan Statistical Area,,,Calcasieu Parish,Louisiana,22,19
+29340,,,"Lake Charles, LA",Metropolitan Statistical Area,,,Cameron Parish,Louisiana,22,23
+29380,,264,"Lake City, FL",Micropolitan Statistical Area,,"Gainesville-Lake City, FL",Columbia County,Florida,12,23
+29420,,332,"Lake Havasu City-Kingman, AZ",Metropolitan Statistical Area,,"Las Vegas-Henderson, NV-AZ",Mohave County,Arizona,4,15
+29460,,,"Lakeland-Winter Haven, FL",Metropolitan Statistical Area,,,Polk County,Florida,12,105
+29500,,,"Lamesa, TX",Micropolitan Statistical Area,,,Dawson County,Texas,48,115
+29540,,,"Lancaster, PA",Metropolitan Statistical Area,,,Lancaster County,Pennsylvania,42,71
+29620,,330,"Lansing-East Lansing, MI",Metropolitan Statistical Area,,"Lansing-East Lansing-Owosso, MI",Clinton County,Michigan,26,37
+29620,,330,"Lansing-East Lansing, MI",Metropolitan Statistical Area,,"Lansing-East Lansing-Owosso, MI",Eaton County,Michigan,26,45
+29620,,330,"Lansing-East Lansing, MI",Metropolitan Statistical Area,,"Lansing-East Lansing-Owosso, MI",Ingham County,Michigan,26,65
+29660,,,"Laramie, WY",Micropolitan Statistical Area,,,Albany County,Wyoming,56,1
+29700,,,"Laredo, TX",Metropolitan Statistical Area,,,Webb County,Texas,48,479
+29740,,238,"Las Cruces, NM",Metropolitan Statistical Area,,"El Paso-Las Cruces, TX-NM",Doña Ana County,New Mexico,35,13
+29780,,106,"Las Vegas, NM",Micropolitan Statistical Area,,"Albuquerque-Santa Fe-Las Vegas, NM",San Miguel County,New Mexico,35,47
+29820,,332,"Las Vegas-Henderson-Paradise, NV",Metropolitan Statistical Area,,"Las Vegas-Henderson, NV-AZ",Clark County,Nevada,32,3
+29860,,,"Laurel, MS",Micropolitan Statistical Area,,,Jasper County,Mississippi,28,61
+29860,,,"Laurel, MS",Micropolitan Statistical Area,,,Jones County,Mississippi,28,67
+29900,,246,"Laurinburg, NC",Micropolitan Statistical Area,,"Fayetteville-Lumberton-Laurinburg, NC",Scotland County,North Carolina,37,165
+29940,,312,"Lawrence, KS",Metropolitan Statistical Area,,"Kansas City-Overland Park-Kansas City, MO-KS",Douglas County,Kansas,20,45
+29980,,400,"Lawrenceburg, TN",Micropolitan Statistical Area,,"Nashville-Davidson--Murfreesboro, TN",Lawrence County,Tennessee,47,99
+30020,,,"Lawton, OK",Metropolitan Statistical Area,,,Comanche County,Oklahoma,40,31
+30020,,,"Lawton, OK",Metropolitan Statistical Area,,,Cotton County,Oklahoma,40,33
+30060,,,"Lebanon, MO",Micropolitan Statistical Area,,,Laclede County,Missouri,29,105
+30140,,276,"Lebanon, PA",Metropolitan Statistical Area,,"Harrisburg-York-Lebanon, PA",Lebanon County,Pennsylvania,42,75
+30220,,352,"Levelland, TX",Micropolitan Statistical Area,,"Lubbock-Levelland, TX",Hockley County,Texas,48,219
+30260,,146,"Lewisburg, PA",Micropolitan Statistical Area,,"Bloomsburg-Berwick-Sunbury, PA",Union County,Pennsylvania,42,119
+30280,,400,"Lewisburg, TN",Micropolitan Statistical Area,,"Nashville-Davidson--Murfreesboro, TN",Marshall County,Tennessee,47,117
+30300,,,"Lewiston, ID-WA",Metropolitan Statistical Area,,,Nez Perce County,Idaho,16,69
+30300,,,"Lewiston, ID-WA",Metropolitan Statistical Area,,,Asotin County,Washington,53,3
+30340,,438,"Lewiston-Auburn, ME",Metropolitan Statistical Area,,"Portland-Lewiston-South Portland, ME",Androscoggin County,Maine,23,1
+30380,,,"Lewistown, PA",Micropolitan Statistical Area,,,Mifflin County,Pennsylvania,42,87
+30420,,,"Lexington, NE",Micropolitan Statistical Area,,,Dawson County,Nebraska,31,47
+30420,,,"Lexington, NE",Micropolitan Statistical Area,,,Gosper County,Nebraska,31,73
+30460,,336,"Lexington-Fayette, KY",Metropolitan Statistical Area,,"Lexington-Fayette--Richmond--Frankfort, KY",Bourbon County,Kentucky,21,17
+30460,,336,"Lexington-Fayette, KY",Metropolitan Statistical Area,,"Lexington-Fayette--Richmond--Frankfort, KY",Clark County,Kentucky,21,49
+30460,,336,"Lexington-Fayette, KY",Metropolitan Statistical Area,,"Lexington-Fayette--Richmond--Frankfort, KY",Fayette County,Kentucky,21,67
+30460,,336,"Lexington-Fayette, KY",Metropolitan Statistical Area,,"Lexington-Fayette--Richmond--Frankfort, KY",Jessamine County,Kentucky,21,113
+30460,,336,"Lexington-Fayette, KY",Metropolitan Statistical Area,,"Lexington-Fayette--Richmond--Frankfort, KY",Scott County,Kentucky,21,209
+30460,,336,"Lexington-Fayette, KY",Metropolitan Statistical Area,,"Lexington-Fayette--Richmond--Frankfort, KY",Woodford County,Kentucky,21,239
+30580,,,"Liberal, KS",Micropolitan Statistical Area,,,Seward County,Kansas,20,175
+30620,,338,"Lima, OH",Metropolitan Statistical Area,,"Lima-Van Wert-Celina, OH",Allen County,Ohio,39,3
+30660,,522,"Lincoln, IL",Micropolitan Statistical Area,,"Springfield-Jacksonville-Lincoln, IL",Logan County,Illinois,17,107
+30700,,339,"Lincoln, NE",Metropolitan Statistical Area,,"Lincoln-Beatrice, NE",Lancaster County,Nebraska,31,109
+30700,,339,"Lincoln, NE",Metropolitan Statistical Area,,"Lincoln-Beatrice, NE",Seward County,Nebraska,31,159
+30780,,340,"Little Rock-North Little Rock-Conway, AR",Metropolitan Statistical Area,,"Little Rock-North Little Rock, AR",Faulkner County,Arkansas,5,45
+30780,,340,"Little Rock-North Little Rock-Conway, AR",Metropolitan Statistical Area,,"Little Rock-North Little Rock, AR",Grant County,Arkansas,5,53
+30780,,340,"Little Rock-North Little Rock-Conway, AR",Metropolitan Statistical Area,,"Little Rock-North Little Rock, AR",Lonoke County,Arkansas,5,85
+30780,,340,"Little Rock-North Little Rock-Conway, AR",Metropolitan Statistical Area,,"Little Rock-North Little Rock, AR",Perry County,Arkansas,5,105
+30780,,340,"Little Rock-North Little Rock-Conway, AR",Metropolitan Statistical Area,,"Little Rock-North Little Rock, AR",Pulaski County,Arkansas,5,119
+30780,,340,"Little Rock-North Little Rock-Conway, AR",Metropolitan Statistical Area,,"Little Rock-North Little Rock, AR",Saline County,Arkansas,5,125
+30820,,558,"Lock Haven, PA",Micropolitan Statistical Area,,"Williamsport-Lock Haven, PA",Clinton County,Pennsylvania,42,35
+30860,,,"Logan, UT-ID",Metropolitan Statistical Area,,,Franklin County,Idaho,16,41
+30860,,,"Logan, UT-ID",Metropolitan Statistical Area,,,Cache County,Utah,49,5
+30880,,170,"Logan, WV",Micropolitan Statistical Area,,"Charleston-Huntington-Ashland, WV-OH-KY",Logan County,West Virginia,54,45
+30900,,,"Logansport, IN",Micropolitan Statistical Area,,,Cass County,Indiana,18,17
+30940,,,"London, KY",Micropolitan Statistical Area,,,Knox County,Kentucky,21,121
+30940,,,"London, KY",Micropolitan Statistical Area,,,Laurel County,Kentucky,21,125
+30940,,,"London, KY",Micropolitan Statistical Area,,,Whitley County,Kentucky,21,235
+30980,,346,"Longview, TX",Metropolitan Statistical Area,,"Longview-Marshall, TX",Gregg County,Texas,48,183
+30980,,346,"Longview, TX",Metropolitan Statistical Area,,"Longview-Marshall, TX",Rusk County,Texas,48,401
+30980,,346,"Longview, TX",Metropolitan Statistical Area,,"Longview-Marshall, TX",Upshur County,Texas,48,459
+31020,,440,"Longview, WA",Metropolitan Statistical Area,,"Portland-Vancouver-Salem, OR-WA",Cowlitz County,Washington,53,15
+31060,,106,"Los Alamos, NM",Micropolitan Statistical Area,,"Albuquerque-Santa Fe-Las Vegas, NM",Los Alamos County,New Mexico,35,28
+31080,11244,348,"Los Angeles-Long Beach-Anaheim, CA",Metropolitan Statistical Area,"Anaheim-Santa Ana-Irvine, CA","Los Angeles-Long Beach, CA",Orange County,California,6,59
+31080,31084,348,"Los Angeles-Long Beach-Anaheim, CA",Metropolitan Statistical Area,"Los Angeles-Long Beach-Glendale, CA","Los Angeles-Long Beach, CA",Los Angeles County,California,6,37
+31140,,350,"Louisville/Jefferson County, KY-IN",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Clark County,Indiana,18,19
+31140,,350,"Louisville/Jefferson County, KY-IN",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Floyd County,Indiana,18,43
+31140,,350,"Louisville/Jefferson County, KY-IN",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Harrison County,Indiana,18,61
+31140,,350,"Louisville/Jefferson County, KY-IN",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Scott County,Indiana,18,143
+31140,,350,"Louisville/Jefferson County, KY-IN",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Washington County,Indiana,18,175
+31140,,350,"Louisville/Jefferson County, KY-IN",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Bullitt County,Kentucky,21,29
+31140,,350,"Louisville/Jefferson County, KY-IN",Metropolitan Statistical Area,,"Louisville/Jefferson County--Elizabethtown--Madison, KY-IN",Henry County,Kentucky,21,103

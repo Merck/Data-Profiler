@@ -1,0 +1,45 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+imagePullSecrets: registry-credentials
+replicas: 2
+podName: dp-ui-alternate
+loadBalancer: development-internal.dataprofiler.com # By default, keep this on development to ease with local installs. Deploys via Jenkins will always overwrite this value.
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+image:
+  name: "container-registry.dataprofiler.com/ui:kube-development-f3b3f45a810107d37e2ca1554863340f4133d04e"
+
+ui:
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "800m"
+    limits:
+      memory: "512Mi"
+      cpu: "2000m"
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

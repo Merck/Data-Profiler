@@ -1,0 +1,23 @@
+[Unit]
+Description=Hadoop MR Job History Service
+After=network.target
+
+[Service]
+User=mapred
+Group=mapred
+{% if hadoop_major_version == '3' %}
+ExecStart={{ hadoop_home }}/bin/mapred --daemon  --config /opt/hadoop/current/etc/hadoop start historyserver
+ExecStop={{ hadoop_home }}/bin/mapred --daemon  --config /opt/hadoop/current/etc/hadoop stop historyserver
+{% else %}
+ExecStart={{ hadoop_home }}/sbin/mr-jobhistory-daemon.sh --config /opt/hadoop/current/etc/hadoop start historyserver
+ExecStop={{ hadoop_home }}/sbin/mr-jobhistory-daemon.sh --config /opt/hadoop/current/etc/hadoop stop historyserver
+{% endif %}
+Environment=JAVA_HOME={{ java_home }}
+Restart=always
+RestartSec=60
+StartLimitBurst=5
+TimeoutStartSec=5min
+PIDFile=/tmp/mapred-mapred-historyserver.pid
+
+[Install]
+WantedBy=multi-user.target

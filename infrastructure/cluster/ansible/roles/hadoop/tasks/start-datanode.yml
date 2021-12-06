@@ -1,0 +1,61 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: Check if DataNode is running
+  become_user: hdfs
+  shell: jps | grep 'DataNode'
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  register: datanode_status
+
+- name: Check DataNode systemd service status
+  shell: systemctl status hdfs@datanode.service
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  register: datanode_service_status
+
+- debug:
+    msg:
+      - "warn: datanode instance outside of systemd control is running"
+      - "stopping datanode...."
+  when: datanode_status.rc == 0 and datanode_service_status.rc == 3
+
+- name:
+  become_user: hdfs
+  shell: "{{ hadoop_home }}/sbin/hadoop-daemon.sh --config {{ hadoop_home }}/etc/hadoop stop datanode"
+  ignore_errors: yes
+  no_log: yes
+  changed_when: false
+  when: datanode_status.rc == 0 and datanode_service_status.rc == 3
+
+- name: Enable datanode systemd service
+  become: yes
+  shell: systemctl enable hdfs@datanode.service
+
+- name: Reload datanode systemd service config
+  become: yes
+  shell: systemctl daemon-reload
+
+- name: Start datanode systemd service
+  become: yes
+  shell: systemctl restart hdfs@datanode.service

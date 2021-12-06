@@ -1,0 +1,18 @@
+version: '3'
+services:
+  container-registry:
+    image: registry:2
+    environment:
+      - REGISTRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
+      - REGISTRY_STORAGE=s3
+      - REGISTRY_STORAGE_REDIRECT_DISABLE=true
+      - REGISTRY_STORAGE_S3_REGION=us-east-1
+      - REGISTRY_STORAGE_S3_BUCKET=dataprofiler-backups
+      - REGISTRY_STORAGE_S3_ROOTDIRECTORY=/container-registry
+    ports: 
+      - 80:5000
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - /home/dataprofiler-docker/auth:/auth

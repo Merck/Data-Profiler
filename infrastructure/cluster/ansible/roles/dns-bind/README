@@ -1,0 +1,78 @@
+Notes:
+
+dns.yml:
+
+    - Configures Primary DNS with dynamic update capability
+    - Configures Secondary DNS and enables DNS AXFR Zone Transfer from Primary DNS
+    - Configures DNS resolution on clients
+
+
+dns_client_uninstall.yml:
+
+    Use this playbook if DNS has previously been set up using this ansible role. It
+    attempts to reset DNS settings to the way they were before DNS playbook install.
+
+    It will remove all references to the internal nameservers by:
+
+        - removing netplan configuration: /etc/netplan/99-private-nameservers.yaml
+        - removing dhclient domain configuration (/etc/dhcp/dhclient.conf)
+        - resetting /etc/resolv.conf to /run/systemd/resolve/stub-resolv.conf
+        - removing enter and exit hooks for DHCP (/etc/dhcp/dhclient-enter-hooks.d/dnsupdate and
+                /etc/dhcp/dhclient-exit-hooks.d/dnsupdate)
+        - applying netplan configuration (via netplan apply)
+        - run dhclient to force refresh
+
+
+Dynamic DNS:
+
+    DHCLIENT hooks are utilized to update the internal nameserver records
+    via nsupdate (included in dnsutils package).
+
+    This is done with the custom script 'dnsupdate' which is placed in
+    /etc/dhcp/dhclient-exit-hooks.d .
+
+    On reboot, this hook is executed and the host's current network info is
+    sent to the nameserver. This update may be forced manually by running the
+    command 'sudo dhclient' on any particular node, or by running the utility
+    script 'dns-check.sh' .
+
+
+Utility Scripts:
+
+    dns-check.sh
+
+        usage: dns-check-and-update.sh [ development | preview | production ]
+
+    	function: Checks forward and reverse zone lookups on all hosts based
+    	on AWS EC2 inventory. If problems are found, the script attempts to fix
+    	the issues by forcing an nsupdate from that host.
+
+    dns-update-cname-records.sh
+
+        usage: no args
+
+        function: Manually updates the CNAME records for the following hosts:
+            - secrets.dataprofiler.com
+            - container-registry.dataprofiler.com
+
+
+Known issues:
+
+    # Manual edits once Dynamic DNS has started
+
+    Once the Primary DNS is operating with dynamic updates enabled, care must be taken
+    to avoid modifying zone configuration manually. Doing so corrupts the DNS DB Cache and
+    prevents the primary server from reloading the zones.
+
+    If a manual update MUST be applied, dynamic updates must be frozen using the
+    following command on the primary node:
+
+        - rndc freeze
+
+    Once the manual edits are completed, run the command
+
+        - rndc thaw
+
+    to restore Dynamic DNS updates.
+
+

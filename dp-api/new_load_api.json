@@ -1,0 +1,35 @@
+{
+    "jobId": "uuid",
+    "datasetName": "someName",
+    "status": "string (new, in-progress, completed, cancelled, error)",
+    "submissionTimeStamp": 13123123,
+    "creatingUser": "dataprofiler",
+    "datasetVisibilityExpression": "LIST.Public_Data - can be left empty if dataset is not new",
+    "deleteDatasetBeforeReload": false,
+    "datasetProperties": {
+        "key": "value"
+    },
+    "tables": [
+        {
+            "tableName": "someTable",
+            "tableVisibilityExpression": "LIST.Public_Data",
+            "dataFormat": "format (csv, avro, parquet)",
+            "sourceS3Bucket": "bucketName",
+            "sourceS3Key": "/some/key/in/bucket",
+            "estimatedRows": 12312312,
+            "csvOptions": {
+                "delimiter": ",",
+                "escape": "\\",
+                "quote": "\"",
+                "charset": "utf-8"
+            },
+            "status": "string (new, in-progress, completed, cancelled, error)",
+            "tableProperties": {
+                "key": "value"
+            },
+            "columnProperties": {
+                "key": "values"
+            }
+        }
+    ]
+}

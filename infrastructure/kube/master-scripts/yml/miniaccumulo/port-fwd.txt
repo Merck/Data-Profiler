@@ -1,0 +1,6 @@
+
+echo "1" > /proc/sys/net/ipv4/ip_forward
+
+apk update
+apk add iptables -y
+iptables -t nat -A PREROUTING -p tcp -i eth0 -d 0.0.0.0 --dport 2181 -j DNAT --to 127.0.0.1:2181

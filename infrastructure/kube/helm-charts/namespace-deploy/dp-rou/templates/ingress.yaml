@@ -1,0 +1,57 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Namespace }}-rou
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/client_max_body_size: 100m
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "90"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-max-temp-file-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "90"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "false"
+    # https://kubernetes.github.io/ingress-nginx/examples/rewrite/
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Csrf-Token "nocheck";
+      add_header Last-Modified $date_gmt;
+      add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+      gzip            on;
+      gzip_min_length 1000;
+      gzip_proxied    expired no-cache no-store private auth;
+      gzip_types      text/plain text/css application/json application/javascript;
+    nginx.ingress.kubernetes.io/cors-allow-headers: DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Forwarded-For,Content-Type,Location,X-API-Token,X-Assigned-Attributes,X-Attributes-To-Reject,X-Special-Attributes-To-Apply,X-Authenticated-Via,X-Authorization-Token,X-Current-Attributes,X-Refresh-Token,X-Username
+spec:
+  rules:
+  - host: {{ .Values.loadBalancer }}
+    http:
+      paths:
+          - path: /rou(/|$)(.*)
+            backend:
+              serviceName: {{ .Values.podName }}
+              servicePort: {{ .Values.service.api.port }}

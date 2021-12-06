@@ -1,0 +1,169 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nginx-ldap-auth
+  namespace: ingress-nginx
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: nginx-ldap-auth
+  namespace: ingress-nginx
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - secrets
+    resourceNames:
+      - "nginx-ldap-auth"
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: nginx-ldap-auth
+  namespace: ingress-nginx
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: nginx-ldap-auth
+subjects:
+  - kind: ServiceAccount
+    name: nginx-ldap-auth
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: dataprofiler-only-nginx-ldap-auth
+  namespace: ingress-nginx
+spec:
+  type: ClusterIP
+  ports:
+    - name: dataprofiler-only-nginx-ldap-auth
+      port: 5555
+      protocol: TCP
+      targetPort: 5555
+  selector:
+    app: dataprofiler-only-nginx-ldap-auth
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: dataprofiler-only-nginx-ldap-auth
+  namespace: ingress-nginx
+  labels:
+    app: dataprofiler-only-nginx-ldap-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dataprofiler-only-nginx-ldap-auth
+  template:
+    metadata:
+      labels:
+        app: dataprofiler-only-nginx-ldap-auth
+    spec:
+      serviceAccountName: nginx-ldap-auth
+      containers:
+        - image: container-registry.com/nginx-ldap-auth:latest
+          name: nginx-ldap-auth
+          ports:
+            - name: http
+              containerPort: 5555
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx-ldap-auth
+          resources:
+            limits:
+              cpu: 50m
+              memory: 20Mi
+            requests:
+              cpu: 10m
+              memory: 5Mi
+      volumes:
+        - name: config
+          secret:
+            secretName: nginx-ldap-auth
+            items:
+              - key: dataprofiler-only-nginx-ldap-auth.yaml
+                path: dataprofiler-only-nginx-ldap-auth.yaml
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-ldap-auth
+  namespace: ingress-nginx
+spec:
+  type: ClusterIP
+  ports:
+    - name: nginx-ldap-auth
+      port: 5555
+      protocol: TCP
+      targetPort: 5555
+  selector:
+    app: nginx-ldap-auth
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nginx-ldap-auth
+  namespace: ingress-nginx
+  labels:
+    app: nginx-ldap-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-ldap-auth
+  template:
+    metadata:
+      labels:
+        app: nginx-ldap-auth
+    spec:
+      serviceAccountName: nginx-ldap-auth
+      containers:
+        - image: container-registry.com/nginx-ldap-auth:latest
+          name: nginx-ldap-auth
+          ports:
+            - name: http
+              containerPort: 5555
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx-ldap-auth
+          resources:
+            limits:
+              cpu: 50m
+              memory: 20Mi
+            requests:
+              cpu: 10m
+              memory: 5Mi
+      volumes:
+        - name: config
+          secret:
+            secretName: nginx-ldap-auth
+            items:
+              - key: nginx-ldap-auth.yaml
+                path: nginx-ldap-auth.yaml

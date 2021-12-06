@@ -1,0 +1,30 @@
+<configuration>
+  <property>
+    <name>hive.server2.thrift.port</name>
+    <value>10000</value>
+  </property>
+  <property>
+    <name>hive.server2.use.SSL</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>hive.server2.keystore.path</name>
+    <value>/certs/keystore.jks</value>
+  </property>
+  <property>
+    <name>hive.server2.truststore.path</name>
+    <value>/certs/truststore.jks</value>
+  </property>
+  <property>
+    <name>hive.server2.keystore.password</name>
+    <value></value>
+  </property>
+  <property>
+    <name>hive.server2.custom.authentication.class</name>
+    <value>org.apache.hive.service.auth.SparkSqlLdapAuthenticator</value>
+  </property>
+  <property>
+    <name>hive.server2.authentication</name>
+    <value>CUSTOM</value>
+  </property>
+</configuration>

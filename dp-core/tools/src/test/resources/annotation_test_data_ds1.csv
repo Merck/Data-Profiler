@@ -1,0 +1,13 @@
+Annotation Type,Dataset,Table,Column,Note,CreatedBy,CreatedOn
+DATASET,ds1,,,"this is a note on ds1","created by garfield",1579882669175
+DATASET,ds1,,,"this is a note on ds1","created by oddie",1579882669175
+TABLE,ds1,ds1-t1,,"this is a note on ds1.t1","created by garfield",1579882669175
+TABLE,ds1,ds1-t1,,"this is a note on ds1.t1","created by oddie",1579882669175
+COLUMN,ds1,ds1-t1,ds1-t1-c1,"this is a note on ds1.t1.c1","created by garfield",1579882669175
+COLUMN,ds1,ds1-t1,ds1-t1-c2,"this is a note on ds1.t1.c2","created by garfield",1579882669175
+TABLE,ds1,ds1-t2,,"this is a note on ds1.t2.c1","created by garfield",1579882669175
+DATASET,hierarchy-ds-1,,,"hierarchy test: comments are protected under the dataprofiler amendments","created by the founding doods and doodettes",1579882669175
+TABLE,hierarchy-ds-1,table1,,"hierarchy test: comments are protected under the dataprofiler amendments","created by the founding doods and doodettes",1579882669175
+COLUMN,hierarchy-ds-1,t1,c1,"hierarchy test: comments are protected under the dataprofiler amendments","created by the founding doods and doodettes",1579882669175
+TABLE,hierarchy-ds-2,table2,,"hierarchy test: comments are protected under the dataprofiler amendments","created by the founding doods and doodettes",1579882669175
+DATASET,hierarchy-ds-12,,,"hierarchy test: comments are protected under the dataprofiler amendments","created by the founding doods and doodettes",1579882669175

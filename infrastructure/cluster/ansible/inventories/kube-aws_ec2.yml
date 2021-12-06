@@ -1,0 +1,68 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+plugin: aws_ec2
+
+regions:
+  - us-east-1
+filters:
+  tag:dataprofiler:
+    - "true"
+  tag:dataprofiler_role:
+    - kube
+
+groups:
+  bastion: "'bastion' in tags.dataprofiler_role"
+  data_processing: "'data_processing' in tags.dataprofiler_role"
+  name_nodes: "'accumulo-master' in tags.Name"
+  name_node: "'accumulo-master-1' in tags.Name"
+  secondary_name_node: "'accumulo-master-2' in tags.Name"
+  journal_node: "'accumulo-master-1' in tags.Name"
+  data_nodes: "'accumulo-worker' in tags.Name"
+  history_server: "'accumulo-master-1' in tags.Name"
+  accumulo: "'accumulo' in tags.dataprofiler_role"
+  accumulo_masters: "'accumulo-master' in tags.Name"
+  accumulo_master: "'accumulo-master-1' in tags.Name"
+  accumulo_secondary_master: "'accumulo-master-2' in tags.Name"
+  accumulo_workers: "'accumulo-worker' in tags.Name"
+  zookeepers: "'zookeeper' in tags.dataprofiler_role"
+  spark: "'spark' in tags.dataprofiler_role"
+  spark_masters: "'spark-master' in tags.Name"
+  spark_workers: "'spark-worker' in tags.Name"
+  dns: "'dns' in tags.Name"
+  dns_primary: "'dns-1' in tags.Name"
+  dns_secondary: "'dns-2' in tags.Name"
+  kube: "'kube' in tags.dataprofiler_role"
+  kube_masters: "'kube-master' in tags.Name" 
+  kube_workers: "'kube-worker' in tags.Name"
+  spark_master: "'spark-master' in tags.Name"
+  spark_history_server: "'spark-master' in tags.Name"
+  spark_shuffle_service: "'spark-worker' in tags.Name"
+
+# TODO: set a specific tag with a hosts hostname
+hostnames:
+  - tag:Name
+
+compose:
+  ansible_host: private_ip_address
+  dataprofiler_hostname: "tags['Name']"
+  dataprofiler_fqdn: "tags['Name'] + '.dataprofiler.com'"
+  dataprofiler_env: "tags['dataprofiler_env']"

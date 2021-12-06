@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+  <property>
+    <name>dfs.datanode.synconclose</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>{{ worker_data_dirs[0] }}/hadoop/name</value>
+  </property>
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>{% for dir in worker_data_dirs -%}
+              {{ dir }}/hadoop/data
+              {%- if not loop.last -%} , {%- endif -%}
+           {%- endfor %}</value>
+  </property>
+  <property>
+    <name>dfs.nameservices</name>
+    <value>{{ nameservice_id }}</value>
+  </property>
+{% set nn_list = [] %}
+{% for item in groups['name_nodes'] %}{{ nn_list.append('nn' + loop.index|string() ) }}{% endfor %}
+  <property>
+    <name>dfs.ha.namenodes.{{ nameservice_id }}</name>
+    <value>{{ nn_list | join(',') }}</value>
+  </property>
+{% for nn_host in groups['name_nodes'] %}{% set nn_id = 'nn' + loop.index|string() %}
+  <property>
+    <name>dfs.namenode.rpc-address.{{ nameservice_id }}.{{ nn_id }}</name>
+    <value>{{ hostvars[nn_host]['dataprofiler_fqdn'] }}:8020</value>
+  </property>
+  <property>
+    <name>dfs.namenode.http-address.{{ nameservice_id }}.{{ nn_id }}</name>
+    <value>{{ hostvars[nn_host]['dataprofiler_fqdn'] }}:50070</value>
+  </property>
+  <property>
+    <name>dfs.namenode.https-address.{{ nameservice_id }}.{{ nn_id }}</name>
+    <value>{{ hostvars[nn_host]['dataprofiler_fqdn'] }}:50071</value>
+  </property>
+{% endfor %}
+  <property>
+    <name>dfs.namenode.shared.edits.dir</name>
+    <value>qjournal://{{ journal_quorum }}/{{ nameservice_id }}</value>
+  </property>
+  <property>
+    <name>dfs.client.failover.proxy.provider.{{ nameservice_id }}</name>
+    <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
+  </property>
+  <property>
+    <name>dfs.ha.fencing.methods</name>
+    <value>shell(/bin/true)</value>
+  </property>
+  <property>
+    <name>dfs.journalnode.edits.dir</name>
+    <value>{{ worker_data_dirs[0] }}/hadoop/journal</value>
+  </property>
+  <property>
+    <name>dfs.ha.automatic-failover.enabled</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dfs.client.read.shortcircuit</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dfs.domain.socket.path</name>
+    <value>/var/lib/hadoop-hdfs/dn_socket</value>
+  </property>
+  <property>
+    <name>dfs.namenode.datanode.registration.ip-hostname-check</name> 
+    <value>false</value>
+  </property>
+</configuration>

@@ -1,0 +1,2657 @@
+#! /usr/bin/env python3
+import argparse
+import binascii
+import concurrent.futures
+import configparser
+import csv
+import datetime
+import getpass
+from glob import glob
+import gzip
+import json
+import multiprocessing
+import os
+import re
+import shlex
+import shutil
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+import traceback
+from pprint import pprint
+from pathlib import Path
+import uuid
+
+import boto3
+import chardet
+import requests
+
+from dataprofiler import Api, make
+
+DATAPROFILER_TOOLS_JAR = '/usr/lib/dataprofiler/tools/dataprofiler-tools-current.jar'
+
+COMMAND_DIR = '/usr/lib/dataprofiler/commands/'
+
+CURR_CONFIG = '/etc/dataprofiler.conf'
+NEXT_CONFIG = '/etc/dataprofiler_next.conf'
+
+# The default number of records per partition
+RECORDS_PER_PARTITION_SMALL = '1000000'
+RECORDS_PER_PARTITION_LARGE = '10000000'
+
+SLACK_WEBHOOK = 'https://hooks.slack.com/services/xxxx/xxxxx'
+COLOR_SUCCESS = '#00ff00'
+COLOR_FAIL = '#ff0000'
+
+S3_EXPORT_KEY = 'exports'
+S3_URL_EXPIRATION = 14 * 24 * 60 * 60  # 14 days in seconds
+
+
+def stream_output(fd):
+    for line in iter(fd.readline, b''):
+        print(line.decode("utf-8").strip())
+
+
+slack_notifications = True
+
+
+def get_env_name():
+    return socket.gethostname().replace('data-processing-', '')
+
+
+def slack_notification(message):
+    if not slack_notifications:
+        return
+
+    payload = json.dumps({'channel': '#proj-alerts', 'text': '(%s) %s' % (socket.gethostname(), message)})
+    response = requests.post(SLACK_WEBHOOK, data=payload,
+                             headers={'Content-Type': 'application/json'})
+
+    if response.status_code != 200:
+        print('Error sending slack notification')
+
+
+def data_index_slack_notification(dataset_name, table_name, succeeded, stats):
+    if not slack_notifications:
+        return
+
+    env_name = get_env_name()
+    stats_str = ', '.join([': '.join([k, v]) for k, v in stats.items()])
+
+    fields = [{'title': 'Environment', 'value': env_name, 'short': True}]
+
+    if dataset_name is not None:
+        fields.extend(
+            [dict({'title': 'Dataset', 'value': dataset_name, 'short': True})])
+
+    if table_name is not None:
+        fields.extend(
+            [dict({'title': 'Table', 'value': table_name, 'short': True})])
+
+    fields.extend([dict({'title': k, 'value': v, 'short': True}) for k, v in
+                   stats.items()])
+
+    if succeeded:
+        pre_text = 'Indexed data on *{}*'.format(env_name)
+        fallback_text = 'Indexed data on *{}* with statistics {}'.format(
+            env_name, stats_str)
+        color = COLOR_SUCCESS
+        emoji = ':zoltar:'
+
+    else:
+        pre_text = 'Failed to index data on *{}*'.format(env_name)
+        fallback_text = 'Failed to index data on*{}*. Error: {}'.format(
+            env_name, stats_str)
+        color = COLOR_FAIL
+        emoji = ':zoltar:'
+
+    payload = json.dumps({
+        'channel': "#proj-loading",
+        'username': 'ZOLTAR',
+        'icon_emoji': emoji,
+        'text': '',
+        'attachments': [{
+            'fallback': fallback_text,
+            'pretext': pre_text,
+            'color': color,
+            'footer': 'Muster',
+            'fields': fields
+        }]
+    })
+
+    response = requests.post(SLACK_WEBHOOK, data=payload,
+                             headers={'Content-Type': 'application/json'})
+
+    if response.status_code != 200:
+        print('Error sending slack notification')
+
+
+def data_load_slack_notification(dataset_name, succeeded, stats, success_msg="Loaded dataset ",
+                                 failure_msg="Failed to load dataset"):
+    if not slack_notifications:
+        return
+
+    env_name = get_env_name()
+    stats_str = ', '.join([': '.join([k, v]) for k, v in stats.items()])
+
+    fields = [{'title': 'Environment', 'value': env_name, 'short': True}]
+    fields.extend([dict({'title': k, 'value': v, 'short': True}) for k, v in
+                   stats.items()])
+
+    if succeeded:
+        pre_text = '{} *{}* to *{}*'.format(success_msg, dataset_name, env_name)
+        fallback_text = '{} *{}* to *{}* with statistics {}'.format(
+            success_msg, dataset_name, env_name, stats_str)
+        color = COLOR_SUCCESS
+        emoji = ':garfield:'
+
+    else:
+        pre_text = '{} *{}* to *{}*'.format(failure_msg, dataset_name,
+                                            env_name)
+        fallback_text = '{} *{}* to *{}*. Error: {}'.format(
+            failure_msg, dataset_name, env_name, stats_str)
+        color = COLOR_FAIL
+        emoji = ':garfield-sad:'
+
+    payload = json.dumps({
+        'channel': "#proj-loading",
+        'username': 'Larding',
+        'icon_emoji': emoji,
+        'text': '',
+        'attachments': [{
+            'fallback': fallback_text,
+            'pretext': pre_text,
+            'color': color,
+            'footer': 'Muster',
+            'fields': fields
+        }]
+    })
+
+    response = requests.post(SLACK_WEBHOOK, data=payload,
+                             headers={'Content-Type': 'application/json'})
+
+    if response.status_code != 200:
+        print('Error sending slack notification')
+
+
+def sql_or_make_job_slack_notification(job_id, succeeded, stats, job_type='SQL'):
+    if not slack_notifications:
+        return
+
+    env_name = get_env_name()
+    stats_str = ', '.join([': '.join([k, v]) for k, v in stats.items()])
+
+    fields = [{'title': 'Environment', 'value': env_name, 'short': True}]
+    fields.extend([dict({'title': k, 'value': v, 'short': True}) for k, v in
+                   stats.items()])
+
+    if succeeded:
+        pre_text = 'Ran {} job *{}* on *{}*'.format(job_type, job_id, env_name)
+        fallback_text = 'Ran {} job *{}* on *{}* with statistics {}'.format(
+            job_type, job_id, env_name, stats_str)
+        color = COLOR_SUCCESS
+        emoji = ':garfield:'
+
+    else:
+        pre_text = 'Failed {} job *{}* on *{}*'.format(job_type, job_id,
+                                                       env_name)
+        fallback_text = 'Failed {} *{}* on *{}*. Error: {}'.format(job_type,
+                                                                   job_id, env_name, stats_str)
+        color = COLOR_FAIL
+        emoji = ':garfield-sad:'
+
+    payload = json.dumps({
+        'channel': "#proj-loading",
+        'username': 'Larding',
+        'icon_emoji': emoji,
+        'text': '',
+        'attachments': [{
+            'fallback': fallback_text,
+            'pretext': pre_text,
+            'color': color,
+            'footer': 'Muster',
+            'fields': fields
+        }]
+    })
+
+    response = requests.post(SLACK_WEBHOOK, data=payload,
+                             headers={'Content-Type': 'application/json'})
+
+    if response.status_code != 200:
+        print('Error sending slack notification')
+
+
+def namespace_change_slack_notification(source_namespace, backup_namespace):
+    if not slack_notifications:
+        return
+
+    fallback_text = """User {} is updating namespace on host {}. '{}' has been moved to 'curr' and 'curr' has been
+     moved to '{}'""".format(getpass.getuser(), socket.gethostname(),
+                             source_namespace, backup_namespace)
+
+    pre_text = 'Namespace *curr* has been replaced by *{}* and *curr* has been moved to *{}*'.format(
+        source_namespace,
+        backup_namespace)
+
+    payload = json.dumps({
+        'channel': "#proj-loading",
+        'username': 'Name-Changer',
+        'icon_emoji': ':elephant:',
+        'text': '',
+        'attachments': [{
+            'fallback': fallback_text,
+            'pretext': pre_text,
+            'color': COLOR_SUCCESS,
+            'footer': 'Muster',
+            'fields': [
+                {'title': 'Host', 'value': socket.gethostname(), 'short': True},
+                {'title': 'Deployer', 'value': getpass.getuser(),
+                 'short': True},
+                {'title': 'Source Namespace', 'value': source_namespace,
+                 'short': True},
+                {'title': 'Backup Namespace', 'value': backup_namespace,
+                 'short': True}
+            ]
+        }]
+    })
+
+    response = requests.post(SLACK_WEBHOOK, data=payload,
+                             headers={'Content-Type': 'application/json'})
+
+    if response.status_code != 200:
+        print('Error sending slack notification')
+
+
+def elapsed_time(start, end=None):
+    if end is None:
+        end = time.time()
+    return datetime.timedelta(seconds=end - start)
+
+
+def elapsed_time_msg(msg, start, end=None):
+    if end is None:
+        end = time.time()
+    return '%s: %s' % (msg, str(datetime.timedelta(seconds=end - start)))
+
+
+#
+# HDFS Utility Wrappers
+#
+
+def hdfs(cmd, capture_stdout=False):
+    if capture_stdout:
+        stdout = subprocess.PIPE
+    else:
+        stdout = None
+
+    return subprocess.Popen(['hdfs', 'dfs'] + cmd, stdout=stdout)
+
+
+def hdfs_call(cmd):
+    p = hdfs(cmd)
+    p.wait()
+
+    print("done waiting on " + " ".join(cmd))
+
+    if p.returncode != 0:
+        raise Exception("HDFS command failed " + ' '.join(cmd))
+
+
+def hdfs_ls(dirname, recursive=False, include_dirs=False, extra_info=False):
+    out = []
+    cmd = ['-ls']
+    if recursive:
+        cmd.append('-R')
+    cmd.append(dirname)
+    res = hdfs(cmd, capture_stdout=True)
+    for line in iter(res.stdout.readline, b''):
+        line = line.decode('utf-8')
+        line = line.strip()
+        fields = line.split()
+        if len(fields) < 8:
+            continue
+        is_dir = fields[1] == '-'
+        if is_dir and not include_dirs:
+            continue
+        fname = ' '.join(fields[7:])
+        if extra_info:
+            out.append({"is_dir": is_dir, "size": fields[4], "fname": fname})
+        else:
+            out.append(fname)
+
+    return out
+
+
+def local_rmdir(dirname):
+    try:
+        shutil.rmtree(dirname)
+    except OSError as e:
+        print("Error: %s : %s" % (dirname, e.strerror))
+
+def hdfs_rmfile(fname):
+    hdfs_call(['-rm', fname])
+
+def hdfs_rmdir(dirname):
+    hdfs_call(['-rm', '-f', '-r', dirname])
+
+
+def hdfs_mkdir(dirname):
+    hdfs_call(['-mkdir', dirname])
+
+
+def hdfs_files_size(fnames):
+    res = hdfs(['-stat', '%b'] + fnames, capture_stdout=True)
+
+    return [int(x) for x in res.stdout.read().decode('utf-8').split('\n') if
+            len(x)]
+
+
+def hdfs_copy_from_local(fnames, destdir):
+    return hdfs_call(['-copyFromLocal'] + fnames + [destdir])
+
+
+def hdfs_copy_to_local(fnames, destdir):
+    if not isinstance(fnames, list):
+        fnames = [fnames]
+    return hdfs_call(['-copyToLocal'] + fnames + [destdir])
+
+
+def hdfs_mv(src, dest):
+    return hdfs_call(['-mv', src, dest])
+
+
+#
+# Accumulo Utilities
+#
+
+def run_accumulo_shell_cmd(cmd, capture_stdout=False):
+    if capture_stdout:
+        stdout = subprocess.PIPE
+    else:
+        stdout = None
+
+    config = json.load(open(CURR_CONFIG))
+    p = subprocess.Popen(
+        ['accumulo', 'shell', '-p', config['accumuloPassword'], '-u', 'root',
+         '-e'] + cmd, stdout=stdout)
+    p.wait()
+
+    if capture_stdout:
+        return p.stdout.read()
+    else:
+        return
+
+
+def check_accumulo_visibility(visibility):
+    output = run_accumulo_shell_cmd(['getauths -u root'], capture_stdout=True)
+    vis = output.decode('utf-8').split('\n')[-2].split(',')
+    return visibility in vis
+
+
+#
+# Other Utilities
+#
+
+def files_in_dir(dirname):
+    return [os.path.join(dirname, f) for f in os.listdir(dirname) if
+            os.path.isfile(os.path.join(dirname, f))]
+
+
+def open_potential_gzip(fname, mode='rt', encoding=None):
+    fd = open(fname, 'rb')
+    header = fd.read(2)
+    fd.seek(0)
+
+    # re-open to get the right mode
+    if binascii.hexlify(header) == b'1f8b':
+        if encoding:
+            return gzip.open(fname, mode=mode, encoding=encoding)
+        else:
+            return gzip.open(fname, mode=mode)
+    else:
+        if encoding:
+            return open(fname, mode=mode, encoding=encoding)
+        else:
+            return open(fname, mode=mode)
+
+
+#
+# File Splitting
+#
+
+class UnsupportedFileTypeException(Exception):
+    pass
+
+
+def split_file(orig_fname):
+    fname = orig_fname + '-split-orig'
+    shutil.move(orig_fname, fname)
+
+    basepath, ext = os.path.splitext(orig_fname)
+    if ext == '.gz':
+        print("opening gzip")
+        fd = gzip.open(fname)
+    else:
+        print("opening file")
+        basepath = orig_fname
+        fd = open(fname)
+
+    header = fd.readline()
+    print(header)
+    # We are assuming an HDFS block size of 128 - so target a little less than that for safety
+    file_size_target = 1024 * 1024 * 120
+
+    os.mkdir(basepath)
+    fdirname = os.path.basename(basepath)
+    split_no = 0
+    split_fnames = []
+    while True:
+        split_fname = os.path.join(basepath,
+                                   fdirname + '-split-' + str(split_no) + '.gz')
+        split_fnames.append(split_fname)
+        print('Writing split ' + split_fname)
+        split_out_fd = open(split_fname, 'w')
+        gzip_p = subprocess.Popen(['/bin/gzip'], stdin=subprocess.PIPE,
+                                  stdout=split_out_fd)
+        split_fd = gzip_p.stdin
+
+        split_fd.write(header + b'\n')
+
+        done = False
+        while True:
+            # We want to read lines in chunks - so try and read 5MB chunks
+            lines = fd.readlines(1024 * 1024 * 5)
+            if len(lines) == 0:
+                done = True
+                break
+
+            split_fd.writelines(lines)
+            split_fd.flush()
+
+            if os.stat(split_fname).st_size >= file_size_target:
+                split_fd.close()
+                print("waiting on gzip to stop")
+                gzip_p.wait()
+                break
+
+        if done:
+            break
+
+        split_no += 1
+
+    os.unlink(fname)
+
+    return fdirname, split_fnames
+
+
+#
+# Download Utilities (these are partially here because it's easier to call them from process pools)
+#
+
+def download_and_split_s3_file(bucket, key, output_fname):
+    s = boto3.resource('s3')
+
+    s.Bucket(bucket).download_file(key, output_fname)
+
+    files = split_file(output_fname)
+
+    return files
+
+
+def download_and_split_and_upload_s3_file(bucket, key, output_fname,
+                                          hdfs_basepath):
+    try:
+        fdirname, files = download_and_split_s3_file(bucket, key, output_fname)
+        hdfs_destdir = os.path.join(hdfs_basepath, fdirname)
+        hdfs_mkdir(hdfs_destdir)
+
+        hdfs_copy_from_local(files, hdfs_destdir)
+    except Exception:
+        return False
+
+    return True
+
+
+#
+# Job Server - for fetching things out of Accumulo
+#
+
+class JobServerErroResponse(Exception):
+    pass
+
+
+class JobServer:
+    LOADER_CLASS = 'com.dataprofiler.LoaderTool'
+
+    def __init__(self):
+        self.server = subprocess.Popen(
+            ['java', '-cp', DATAPROFILER_TOOLS_JAR, self.LOADER_CLASS,
+             'server'],
+            stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+
+        for line in iter(self.server.stdout.readline, b''):
+            text = line.decode('utf-8').rstrip()
+            if text == 'ready':
+                print('server ready')
+                break
+
+    def __send_cmd(self, command):
+        self.server.stdin.write((command + '\n').encode('utf-8'))
+        self.server.stdin.flush()
+
+    def __get_results(self):
+        output = []
+
+        for line in iter(self.server.stdout.readline, b''):
+            text = line.decode('utf-8').rstrip()
+
+            if text == 'end':
+                break
+            elif text == 'error':
+                # The next line should be end, so consume that here before raising the exception so that if we
+                # want to continue then stdout is where we think it should be.
+                self.server.stdout.readline()
+                raise JobServerErroResponse()
+            output.append(text)
+
+        return output
+
+    def list(self, limit):
+        self.__send_cmd('list ' + str(limit))
+        jobs = []
+        for line in self.__get_results():
+            job = json.loads(line)
+            job['submissionDateTime'] = datetime.datetime.fromtimestamp(
+                job['submissionDateTime'] / 1000)
+            jobs.append(job)
+
+        return jobs
+
+    def get(self, jobid):
+        self.__send_cmd('get ' + jobid)
+        results = self.__get_results()
+        return json.loads(results[0])
+
+    def __get_details(self, command, jobid):
+        self.__send_cmd(command + ' ' + jobid)
+        results = self.__get_results()
+        if len(results) < 1:
+            return None
+        return json.loads(results[0])
+
+    def get_download_details(self, jobid):
+        return self.__get_details('get_download', jobid)
+
+    def get_command_details(self, jobid):
+        return self.__get_details('get_command_job', jobid)
+
+    def put(self, job):
+        self.__send_cmd('update ' + json.dumps(job))
+        return self.__get_results()
+
+    def head(self, fname):
+        self.__send_cmd('head ' + fname)
+
+        out = b''
+        found_begin = False
+        for line in iter(self.server.stdout.readline, b''):
+            if not found_begin:
+                if line == b'begin\n':
+                    found_begin = True
+                continue
+            if line == b'end\n':
+                break
+            out = out + line
+
+        return out
+
+    def set_visibilities_from_expression_active(self, visibilities):
+        self.__send_cmd('activate_viz_expression ' + visibilities)
+        return self.__get_results()
+
+
+#
+# Params for Spark Jobs
+#
+
+
+class SparkParamsByFileSize:
+    def __init__(self,
+                 max_file_size,
+                 files_per_job,
+                 queue,
+                 executor_cores='1',
+                 executor_mem='8G',
+                 num_executors=None,
+                 executor_mem_overhead=None,
+                 extra_conf=None):
+        self.max_file_size = max_file_size
+        self.files_per_job = files_per_job
+        self.queue = queue
+        self.executor_cores = executor_cores
+        self.executor_mem = executor_mem
+        self.num_executors = num_executors
+        self.extra_conf = {}
+        if extra_conf:
+            self.extra_conf.update(extra_conf)
+        if executor_mem_overhead is not None:
+            self.extra_conf[
+                'spark.yarn.executor.memoryOverhead'] = executor_mem_overhead
+
+    def __repr__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
+
+
+class SparkJob:
+    # This number is here to prevent us from overwhelming the system with spark-submit
+    # process. It's related to the number of data loads that we support as well. This
+    # is not a good way to do this - we can definitely not use all of the cluster resources
+    # if we have a signle job with lots of small files. But this is a reasonable compromise.
+    MAX_NUM_SUBMITTED_JOBS = 8
+
+    def __init__(self, klass, params, args, jar, tags=None, pyfile=None):
+        self.klass = klass
+        self.args = args
+        self.params = params  # type:SparkParamsByFileSize
+        self.jar = jar
+        self.fd = None
+        self.pid = None
+        if tags is None:
+            self.tags = {}
+        else:
+            self.tags = tags
+        self.pyfile = pyfile
+
+    @classmethod
+    def pyspark(cls, pyfile, params, args, jar, tags=None):
+        return cls(None, params, args, jar, tags=tags, pyfile=pyfile)
+
+    @classmethod
+    def pyspark_shell(cls):
+        myenv = cls.setup_env()
+
+        cmd = ['/usr/hdp/current/spark2-client/bin/pyspark', '--jars', DATAPROFILER_TOOLS_JAR]
+        subprocess.run(cmd, env=myenv)
+
+    @classmethod
+    def setup_env(cls):
+        myenv = os.environ.copy()
+        myenv['SPARK_MAJOR_VERSION'] = '2'
+        myenv['PYSPARK_PYTHON'] = 'python3'
+
+        return myenv
+
+    def exec(self):
+        myenv = self.setup_env()
+
+        cmd = ['/usr/bin/spark-submit']
+        cmd.extend([
+            '--master', 'yarn', '--deploy-mode', 'cluster',
+            '--driver-memory', '10GB',
+            '--executor-cores', self.params.executor_cores,
+            '--executor-memory', self.params.executor_mem,
+            '--conf', 'spark.driver.maxResultSize=0',
+            '--conf', "spark.yarn.jars=hdfs:///dataprofiler/jars/*",
+            '--conf', 'spark.kryoserializer.buffer.max=1024'
+        ])
+
+        if self.params.num_executors:
+            cmd.extend(['--num-executors', self.params.num_executors])
+        else:
+            cmd.extend(['--conf', 'spark.dynamicAllocation.enabled=true',
+                        '--conf', 'spark.shuffle.service.enabled=true',
+                        '--conf', 'spark.yarn.maxAppAttempts=2'])
+
+        for key, value in self.params.extra_conf.items():
+            cmd.append('--conf')
+            cmd.append('{}={}'.format(key, value))
+
+        if self.params.queue is not None:
+            cmd.extend(['--queue', self.params.queue])
+
+        if self.pyfile is None:
+            cmd.extend(['--class', self.klass])
+            cmd.append(self.jar)
+        else:
+            cmd.extend(['--jars', self.jar])
+            cmd.append(self.pyfile)
+
+        cmd.extend(self.args)
+
+        print(' '.join(cmd))
+
+        print("Starting spark job: " + ' '.join(cmd))
+
+        self.fd = tempfile.TemporaryFile()
+
+        self.pid = subprocess.Popen(cmd, env=myenv, stderr=self.fd)
+
+    def done(self):
+        return self.pid.poll() is not None
+
+    def failed(self):
+        print('check pid ' + str(self.pid) + ' ' + str(self.pid.args))
+        self.fd.seek(0)
+        output = self.fd.read().decode('utf-8')
+
+        if self.pid.returncode != 0:
+            print(' bad return code')
+            print(output)
+            return True
+
+        if 'final status: FAILED' in output:
+            print('Spark job failed')
+            print(output)
+            return True
+
+        print(' job succeeded')
+        return False
+
+    @classmethod
+    def run_jobs(cls, jobs_to_run, callback=None):
+        running_jobs = []
+        jobs_failed = False
+        while True:
+            if len(jobs_to_run) and len(running_jobs) < cls.MAX_NUM_SUBMITTED_JOBS:
+                job = jobs_to_run.pop()
+                running_jobs.append(job)
+                job.exec()
+                continue
+
+            done = [x for x in running_jobs if x.done()]
+            running_jobs = [x for x in running_jobs if not x.done()]
+
+            if len(done):
+                print('{} jobs {} pids'.format(len(jobs_to_run),
+                                               len(running_jobs)))
+
+            for j in done:
+                if j.failed():
+                    jobs_failed = True
+
+            if callback is not None:
+                for job in done:
+                    if not callback(job):
+                        raise Exception("Tracker requested exist")
+            elif jobs_failed:
+                raise Exception("Jobs failed - exiting")
+
+            time.sleep(1)
+
+            if len(jobs_to_run) == 0 and len(running_jobs) == 0:
+                break
+
+        return jobs_failed
+
+
+#
+# Higher Level Dataset File Infor
+#
+
+class DataSetFileInfo:
+    WHITELIST = [',', '\t', '|', ';', ':']
+    SCHEMA_SUFFIX = '-schema'
+    CSV = 1
+    ORC = 2
+    PARQUET = 3
+    AVRO = 4
+    JSON = 5
+
+    def __init__(self, fname, is_split, size):
+        self.fname = fname
+        self.is_split = is_split
+        self.splits = []
+        self._size = int(size)
+        self.format = self.CSV
+        # Use RFC 4180 defaults
+        # https://tools.ietf.org/html/rfc4180#page-2
+        self.delimiter = ","
+        self.escape = '"'
+        self.quote = '"'
+        self.charset = "utf-8"
+        self.schema_fname = None
+        self.dialect = None
+        # This controls whether params that are output (for use with our spark jobs)
+        # are quoted or not. They often need to be quoted because they are passed
+        # through multuple shells (that's what spark-submit does).
+        self.quote_params = True
+        # Applies to JSON Loader. Specifies keys of nested array types that should NOT be exploded
+        self.explode_blacklist = ''
+
+    def __repr__(self):
+        s = '<DataSetFileInfo: {}({})'.format(self.fname, self.size)
+        if self.is_split:
+            s = s + ' splits: {}>'.format(
+                ' '.join([repr(x) for x in self.splits]))
+        else:
+            s = s + '>'
+
+        return s
+
+    def __choose_file_to_sniff(self):
+        print('sniffing format of file ' + self.fname)
+        if self.is_split:
+            fname = self.splits[0].fname
+            print("Checking split instead: " + fname)
+        else:
+            fname = self.fname
+
+        return fname
+
+    def is_orc(self, data):
+        return data[:3] == b'ORC'
+
+    def is_parquet(self, data):
+        return data[:4] == b'PAR1'
+
+    def is_avro(self, data):
+        return data[:3] == b'Obj'
+
+    def is_json(self, data):
+        return data[:1] == b'{' or data[:1] == b'['
+        # The following is another way to do this and may have to be
+        # employed if the method above proves to be too 'fragile'.
+        # The potential issue with this method is that it
+        # needs to load the entire buffer, which may take longer.
+        # try:
+        #     json_obj = json.loads(data)
+        # except ValueError as e:
+        #     return False
+        # return True
+
+
+    def sniff_format(self, jobserver):
+        fname = self.__choose_file_to_sniff()
+
+        data = jobserver.head(fname)
+        # Check for an ORC formation
+        if self.is_orc(data):
+            self.format = self.ORC
+            print('Found ORC format')
+            return
+        elif self.is_parquet(data):
+            self.format = self.PARQUET
+            print("Found Parquet format")
+            return
+        elif self.is_avro(data):
+            self.format = self.AVRO
+            print("Found Avro format")
+            return
+        elif self.is_json(data):
+            self.format = self.JSON
+            print("Found JSON format")
+            return
+
+        self.charset = chardet.detect(data)['encoding']
+
+        # If chardet fails to determine encoding, default to UTF-8
+        if self.charset is None:
+            self.charset = 'utf-8'
+
+        data = data.decode(self.charset)
+
+        self.sniff_csv_format_from_data(fname, data)
+
+    def sniff_format_local(self):
+        fname = self.__choose_file_to_sniff()
+        fd = open_potential_gzip(fname, mode='rb')
+        data = fd.read(1024 * 128)
+        # Check for an ORC formation
+        if self.is_orc(data):
+            self.format = self.ORC
+            print('Found ORC format')
+            return
+        elif self.is_parquet(data):
+            self.format = self.PARQUET
+            print("Found Parquet format")
+            return
+        elif self.is_avro(data):
+            self.format = self.AVRO
+            print("Found Avro format")
+            return
+        elif self.is_json(data):
+            self.format = self.JSON
+            print("Found JSON format")
+            return
+
+        self.charset = chardet.detect(data)['encoding']
+        data = data.decode(self.charset)
+
+        self.sniff_csv_format_from_data(fname, data)
+
+    def __ext_to_delim(self, fname):
+        ext_to_delim = {
+            ".tsv": "\t",
+            ".csv": ","
+        }
+        ext = os.path.splitext(fname)[1]
+        if ext in ext_to_delim.keys():
+            return ext_to_delim[ext]
+        else:
+            return None
+
+    def sniff_csv_format_from_data(self, fname, data):
+        # Throw away the last line assuming it might have been truncated
+        data = '\n'.join(data.splitlines()[:-1])
+
+        exc = None
+        try:
+            self.dialect = csv.Sniffer().sniff(data)
+        except Exception as e:
+            exc = e
+
+        if exc or self.dialect.delimiter not in self.WHITELIST:
+            # Just try the header line - sometimes files have really odd data that confuses things
+            try:
+                data = data.splitlines()[0]
+                self.dialect = csv.Sniffer().sniff(data)
+                exc = None
+            except Exception as e:
+                exc = e
+
+        if exc or self.dialect.delimiter not in self.WHITELIST:
+            # For some files the sniffer gets confused but limiting the choices helps. So let's guess
+            # based on the file extensions
+            delim = self.__ext_to_delim(fname)
+            if delim is not None:
+                try:
+                    self.dialect = csv.Sniffer().sniff(data, [delim])
+                    print(self.dialect.delimiter)
+                    exc = None
+                except Exception as e:
+                    exc = e
+
+        if exc or self.dialect.delimiter not in self.WHITELIST:
+            # Single column files are a real pain in the you know what - so try to figure out
+            # if that is why we are failing and just mark them based on their file extension.
+            data = data.splitlines()[0]
+            escape = False
+            single_column = True
+            for c in data:
+                if c in self.WHITELIST and not escape:
+                    # This is where it doesn't look like single column so just bail and let
+                    # things fail
+                    single_column = False
+                    break
+                # Figure out if we are potentially escaping the next char. Yes - we are
+                # only supporting \ as escape, but by this point we are so screwed we need
+                # to stop being fancy and try and be safe.
+                if c == '\\':
+                    escape = True
+                else:
+                    escape = False
+
+            if single_column:
+                self.dialect = csv.unix_dialect
+                delim = self.__ext_to_delim(fname)
+                if delim is not None:
+                    self.dialect.delimiter = delim
+                exc = None
+
+        if exc or self.dialect.delimiter not in self.WHITELIST:
+            print('Failed to determine csv format for ' + fname)
+            print(data)
+            if exc:
+                raise exc
+            else:
+                raise Exception("Failed to detect delim - found " + self.dialect.delimiter)
+
+        print('Detected delimiter: ' + repr(self.dialect.delimiter))
+        print('Detected escape: ' + repr(self.dialect.escapechar))
+        print('Detected quote: ' + repr(self.dialect.quotechar))
+
+        self.delimiter = self.__quote_and_default(self.dialect.delimiter,
+                                                  self.delimiter)
+        self.escape = self.__quote_and_default(self.dialect.escapechar,
+                                               self.escape)
+        self.quote = self.__quote_and_default(self.dialect.quotechar,
+                                              self.quote)
+
+    def __quote_and_default(self, char, default):
+        if char is None:
+            char = default
+        if self.quote_params:
+            return shlex.quote(char)
+        else:
+            return char
+
+    def get_dataloader_class(self):
+        if self.format == self.ORC:
+            return 'com.dataprofiler.loader.OrcDataLoader'
+        elif self.format == self.PARQUET:
+            return 'com.dataprofiler.loader.ParquetDataLoader'
+        elif self.format == self.AVRO:
+            return 'com.dataprofiler.loader.AvroDataLoader'
+        elif self.format == self.JSON:
+            return 'com.dataprofiler.loader.JsonDataLoader'
+        else:
+            return 'com.dataprofiler.loader.CsvDataLoader'
+
+    def get_file_params(self):
+        if self.format != self.CSV:
+            if self.format == self.JSON:
+                p = [self.fname, self.explode_blacklist]
+            else:
+                p = [self.fname]
+        else:
+            p = [self.delimiter, self.escape, self.quote, self.charset,
+                 self.fname]
+
+        if self.schema_fname is not None:
+            return p + [self.schema_fname]
+        else:
+            return p
+
+    @property
+    def size(self):
+        if self.is_split:
+            size = 0
+            for f in self.splits:
+                size += f._size
+
+            return size
+        else:
+            return self._size
+
+    @classmethod
+    def local_ls(cls, dirname, recursive=True, include_dirs=True,
+                 extra_info=True):
+        # this is only to imitate hdfs_ls to allow this to work on local
+        # directories. So all of the flags are not actually implemented
+
+        out_files = []
+        for root, dirs, files in os.walk(dirname, topdown=True):
+            for name in files + dirs:
+                file = {}
+                fname = os.path.join(root, name)
+                file['fname'] = fname
+                file['is_dir'] = os.path.isdir(fname)
+                file['size'] = os.path.getsize(fname)
+                out_files.append(file)
+
+        return out_files
+
+    @classmethod
+    def __path_all_parts(cls, path):
+        allparts = []
+
+        curpath = os.path.normpath(path)
+        while 1:
+            parts = os.path.split(curpath)
+            if parts[0] == curpath:  # absolute paths
+                allparts.insert(0, parts[0])
+                break
+            elif parts[1] == curpath:  # relative paths
+                allparts.insert(0, parts[1])
+                break
+            elif parts[1] == '':  # at /
+                allparts.insert(0, parts[0])
+            else:
+                curpath = parts[0]
+                allparts.insert(0, parts[1])
+
+        return allparts
+
+    @classmethod
+    def __from_generic(cls, path, ls):
+        hdfs_files = ls(path, extra_info=True, include_dirs=True,
+                        recursive=True)
+        directories = []
+        files = []
+        schema_files = []
+        for file in hdfs_files:
+            fname = file['fname']
+            if fname.endswith(cls.SCHEMA_SUFFIX):
+                schema_files.append(fname)
+                continue
+            f = cls(fname, file['is_dir'], file['size'])
+            if f.is_split:
+                directories.append(f)
+            else:
+                files.append(f)
+
+        # Sometimes when we get splits the actual split files are deeply nested in directories (this
+        # seems to be something that HIVE does). For that case, we want to just get rid of all of the
+        # intermediary directories. That's what this does.
+        base_path_len = len(cls.__path_all_parts(path))
+        real_dirs = []
+        for directory in directories:
+            l = len(cls.__path_all_parts(directory.fname))
+            if l == base_path_len + 1:
+                real_dirs.append(directory)
+
+        directories = real_dirs
+
+        fs = []
+        for directory in directories:
+            leftovers = []
+            for file in files:
+                fpath = Path(file.fname)
+                dpath = Path(directory.fname)
+                if dpath in fpath.parents:
+                    directory.splits.append(file)
+                else:
+                    leftovers.append(file)
+
+            # exclude empty directories
+            if len(directory.splits):
+                fs.append(directory)
+
+            files = leftovers
+
+        for file in files:
+            fs.append(file)
+
+        # If there were some schema files - insist that they are there for every file
+        if len(schema_files):
+            schema_source_files = {x[:-len(cls.SCHEMA_SUFFIX)]: x for x in
+                                   schema_files}
+            for file in fs:
+                if file.fname in schema_source_files:
+                    file.schema_fname = schema_source_files[file.fname]
+                    del schema_source_files[file.fname]
+
+            for file in fs:
+                if file.schema_fname is None:
+                    raise Exception("Failed to find a schema for " + file.fname)
+
+            if len(schema_source_files):
+                print(
+                    "There were extra schema files " + str(schema_source_files))
+
+        return fs
+
+    @classmethod
+    def from_hdfs(cls, hdfs_path):
+        return cls.__from_generic(hdfs_path, hdfs_ls)
+
+    @classmethod
+    def from_local(cls, local_path):
+        return cls.__from_generic(local_path, cls.local_ls)
+
+    @classmethod
+    def rename_files_to_safe_names(cls, files, hdfs_path=None):
+        # Spark doesn't seem to like files with spaces in them - so handle that here
+        # https://issues.apache.org/jira/browse/SPARK-24320
+        for f in files:
+            if f.is_split:
+                # set hdfs_path to None so that we don't scan HDFS repeatedly
+                cls.rename_files_to_safe_names(f.splits, hdfs_path=None)
+            new_fname = re.sub(r"\s", "_", f.fname)
+            if new_fname == f.fname:
+                continue
+
+            # blah - be extra safe to make the inputFilename unique. I'm recalculating the set each time
+            # since the names potentially change each time.
+            all_names = set([x.fname for x in files if x != f])
+            if new_fname in all_names:
+                # This is so unlikely I'm not going to take the time to make this
+                # make nice file names
+                counter = 1
+                while True:
+                    test_fname = "{}-{}".format(counter, new_fname)
+                    if test_fname in all_names:
+                        counter += 1
+                    else:
+                        new_fname = test_fname
+                        break
+
+            print(
+                "Renaming file {} to {} because of Spark bugs.".format(f.fname,
+                                                                       new_fname))
+            hdfs_mv(f.fname, new_fname)
+            f.fname = new_fname
+
+        if hdfs_path is not None:
+            # This is to correct the split names
+            return cls.from_hdfs(hdfs_path)
+
+
+class TablePropertyPostProcessingJob:
+    def __init__(self, dataset_name, files, table_props):
+        self.dataset_name = dataset_name
+        self.files = files
+        self.table_props = table_props
+        self.api = Api()
+
+    def fire(self):
+        for file in self.files:
+            self.api.set_table_properties(self.dataset_name, Datasets.raw_fname_to_table_name(file), self.table_props)
+
+class DatasetPropertyPostProcessingJob:
+    def __init__(self, dataset_name, dataset_props):
+        self.dataset_name = dataset_name
+        self.dataset_props = dataset_props
+        self.api = Api()
+
+    def fire(self):
+        self.api.set_dataset_properties(self.dataset_name, self.dataset_props)
+
+class IngestFileTracker:
+    GROUP = "data"
+    PENDING = "pending"
+    ERROR = "error"
+    COMPLETE = "complete"
+    UNKNOWN = "unknown"
+
+    def __init__(self, dataset_name, restart=False):
+        self.tracker_fname = '/tmp/' + dataset_name + '.load_status'
+        self.tracker = configparser.ConfigParser()
+        if restart and os.path.isfile(self.tracker_fname):
+            self.tracker.read(self.tracker_fname)
+        else:
+            self.tracker.add_section(self.GROUP)
+        self.dataset_name = dataset_name
+
+    def set_pending(self, fnames):
+        self.set_status(fnames, self.PENDING)
+
+    def set_complete(self, fnames):
+        self.set_status(fnames, self.COMPLETE)
+
+    def set_error(self, fnames):
+        self.set_status(fnames, self.ERROR)
+
+    def get_status(self, fname):
+        try:
+            return self.tracker[self.GROUP][fname]
+        except KeyError:
+            return self.UNKNOWN
+
+    def set_status(self, fnames, status):
+        for fname in fnames:
+            self.tracker[self.GROUP][fname] = status
+        with open(self.tracker_fname, 'w') as fd:
+            self.tracker.write(fd)
+
+    def spark_job_callback(self, job):
+        files = job.tags["files"]
+        if job.failed():
+            self.set_error(files)
+            msg = 'Spark job failed for files ' + " ".join(files)
+            print(msg)
+        else:
+            self.set_complete(files)
+
+        return True
+
+
+#
+# Main Program
+#
+
+class Datasets:
+    s3 = boto3.client('s3')
+
+    S3_BUCKET = 'dataprofiler-data'
+    S3_ROOT_DIR = 'data/parquet/'
+    S3_RAW_ROOT_DIR = 'data/ingest/'
+
+    HDFS_ROOT_DIR = '/data'
+    HDFS_RAW_DIR = '/data/raw/'
+    HDFS_PARQUET_DIR = '/data/parquet/'
+    HDFS_SEQ_DIR = '/data/ingest/'
+    HDFS_RFILE_DIR = '/data/rfile/'
+
+    WORKING_DIR_ROOT = '/data-xvdf/loading/'
+
+    DOWNLOAD_POOL_FACTOR = 8  # multiplier against number of cpu cores for download process pools
+
+    HDFS_BLOCK_SIZE = 126 * 1024 * 1024  # block size is probably 128MB - we use slightly smaller to give some slack
+
+    NEW = 0
+    IN_PROGRESS = 6
+    COMPLETE = 7
+    CANCELLED = 8
+    ERROR = 9
+
+    def __init__(self, hdfs_prefix=None, job_id=None, yarn_queue=None):
+        self.hdfs_prefix = hdfs_prefix
+        if self.hdfs_prefix and self.hdfs_prefix[0] != '/':
+            self.hdfs_prefix = '/' + self.hdfs_prefix
+
+        self.job_id = job_id
+
+        self.set_spark_params(yarn_queue)
+
+        self.jobserver = JobServer()
+        self.api = Api()
+
+    #
+    # Low Level Utilities
+    #
+
+    def set_spark_params(self, yarn_queue):
+        # We have 3 queue names that we use for now other than default and they all map to the larger
+        # spark params. In the future we might want to decouple what queue you are on from the rest of
+        # the params, but not right now.
+        if yarn_queue is None:
+            yarn_queue = 'default'
+
+        print("setting yarn queue to: " + yarn_queue)
+        self.spark_params = []
+        if yarn_queue in ['large', 'ingest']:
+            self.spark_params.extend([
+                SparkParamsByFileSize(10000, 1, yarn_queue, executor_cores='1', executor_mem='4G'),
+                SparkParamsByFileSize(100000, 1, yarn_queue, executor_cores='1', executor_mem='8G'),
+                SparkParamsByFileSize(None, 1, yarn_queue, executor_cores='4', executor_mem='40G')
+            ])
+            print(self.spark_params)
+        else:
+            self.spark_params.extend([
+                SparkParamsByFileSize(10000, 1, yarn_queue, executor_cores='1', executor_mem='4G'),
+                SparkParamsByFileSize(100000, 1, yarn_queue, executor_cores='1', executor_mem='8G'),
+                SparkParamsByFileSize(None, 1, yarn_queue, executor_cores='4', executor_mem='8G')
+            ])
+            print(self.spark_params)
+
+    def __get_base_path(self, step_partial_path, dataset_name, job_id=None):
+        if self.job_id:
+            uniq = self.job_id
+        elif job_id:
+            uniq = job_id
+        else:
+            uniq = dataset_name
+
+        if self.hdfs_prefix is None:
+            return step_partial_path + uniq + '/'
+
+        out = self.hdfs_prefix + '/' + step_partial_path + '/' + uniq + '/'
+
+        # normpath eats double // (which we want), but removes trailing / (which we don't want). So add that back.
+        return os.path.normpath(out) + '/'
+
+    def __get_local_base_path(self, step_partial_path, dataset_name):
+        if self.job_id is None:
+            uniq = dataset_name
+        else:
+            uniq = self.job_id
+
+        # If any of the path parts are absolute, join throws away everything before it (which is really freakin
+        # annoying). So we remove the first separator from step_partial_path
+        assert (len(step_partial_path) > 1)
+        path = os.path.join(self.working_dirname, step_partial_path[1:], uniq)
+
+        return path
+
+    def __chunk_list(self, l, chunk_size):
+        """
+        Break a list into chunks of size chunk_size
+        :param l: list
+        :param chunk_size: size of each output list
+        :return: list of lists, each of size chunk_size
+        """
+        return [l[i:i + chunk_size] for i in range(0, len(l), chunk_size)]
+
+    #
+    # Initial setup routines
+    #
+    def create_hdfs_tree(self):
+        step_dirs = [self.HDFS_ROOT_DIR, self.HDFS_RAW_DIR,
+                     self.HDFS_PARQUET_DIR, self.HDFS_SEQ_DIR,
+                     self.HDFS_RFILE_DIR]
+        dirs = [self.__get_base_path(x, '') for x in step_dirs]
+        if self.hdfs_prefix:
+            try:
+                hdfs_mkdir(self.hdfs_prefix)
+            except Exception:
+                pass
+
+        for d in dirs:
+            try:
+                hdfs_mkdir(d)
+            except Exception:
+                pass
+
+    def __table_name(self, config, namespace, table_config_key):
+        return '.'.join([namespace, config[table_config_key].split('.')[1]])
+
+    def __set_locality_group(self, config, column, table_name, namespace):
+        new_table = self.__table_name(config, namespace, table_name)
+        run_accumulo_shell_cmd(['setgroups ' + column + ' -t ' + new_table])
+
+    def __rename_accumulo_table(self, orig_name, new_name):
+        run_accumulo_shell_cmd(['renametable ' + orig_name + ' ' + new_name])
+
+    def __rename_accumulo_namespace(self, orig, new):
+        print('Renaming accumulo namespace "' + orig + '" to "' + new + '"')
+        run_accumulo_shell_cmd(['renamenamespace ' + orig + ' ' + new])
+
+    def __set_accumulo_config(self, table, property, value):
+        print(
+            "Setting {property} to {value} on table {table}".format(table=table,
+                                                                    property=property,
+                                                                    value=value))
+        run_accumulo_shell_cmd(
+            ["config -t {table} -s {property}={value}".format(table=table,
+                                                              property=property,
+                                                              value=value)])
+
+    def create_accumulo_tables(self, namespace='curr'):
+        # Get the list of tables from dataprofiler.conf
+        config = json.load(open(CURR_CONFIG))
+
+        new_tables = [self.__table_name(config, namespace, x) for x in
+                      ['accumuloMetadataTable',
+                       'accumuloDataLoadJobsTable',
+                       'accumuloSamplesTable',
+                       'accumuloRowsTable',
+                       'accumuloIndexTable',
+                       'accumuloColumnCountsTable',
+                       'accumuloProjectPageTable']]
+
+        run_accumulo_shell_cmd(['createnamespace ' + namespace])
+        run_accumulo_shell_cmd(['createnamespace ' + namespace])
+
+        # Create the tables and remove the constraint
+        for table in new_tables:
+            print('Creating Accumulo table "' + table + '"')
+            run_accumulo_shell_cmd(['createtable ' + table])
+            print('Removing constrains from table "' + table + '"')
+            run_accumulo_shell_cmd(['constraint -d 1 -t ' + table])
+
+        self.__set_locality_group(config, 'LOAD_JOBS=DataLoadJob',
+                                  'accumuloDataLoadJobsTable', namespace)
+
+        # Set index groups
+        self.__set_locality_group(config, 'GLOBAL=GLOBAL',
+                                  'accumuloIndexTable', namespace)
+        self.__set_locality_group(config, 'DATASET=DATASET',
+                                  'accumuloIndexTable', namespace)
+        self.__set_locality_group(config, 'TABLE=TABLE',
+                                  'accumuloIndexTable', namespace)
+        self.__set_locality_group(config, 'COLUMN=COLUMN',
+                                  'accumuloIndexTable', namespace)
+
+    #
+    # S3 handling
+    #
+    def __split_bucket_and_key(self, path):
+        directory = path[-1] == '/'
+        splits = path.split('/')
+        assert (len(splits) >= 1)
+        bucket_name = splits[0]
+        prefix = None
+        if len(splits) > 1:
+            prefix = os.path.normpath('/'.join(splits[1:]))
+            print("directory", directory)
+            if directory:
+                prefix = prefix + '/'
+
+        return bucket_name, prefix
+
+    def s3_ls_dirs(self, s3path):
+        bucket_name, prefix = self.__split_bucket_and_key(s3path)
+
+        l = self.s3.list_objects(Bucket=bucket_name, Prefix=prefix,
+                                 Delimiter="/")
+        for object in l.get('CommonPrefixes'):
+            value = object['Prefix'].split('/')[-2] + '/'
+            yield value
+
+    def s3_ls_objects(self, s3path, include_size=False):
+        bucket_name, prefix = self.__split_bucket_and_key(s3path)
+
+        print(prefix)
+        l = self.s3.list_objects(Bucket=bucket_name, Prefix=prefix,
+                                 Delimiter="/")
+        for object in l.get('Contents'):
+            # value = object['Key'].split('/')[-2]
+            value = os.path.join(bucket_name, object['Key'])
+            if include_size:
+                yield value, object['Size']
+            else:
+                yield value
+
+    def s3_download_and_split_and_upload_files(self, s3path_list, dataset_name,
+                                               pool, make_local_destdir=False, make_hdfs_destdir=False):
+
+        # The distcp command will put everything in a subdirectory based on the name of the s3, so keep that
+        dest_dir = self.__get_local_base_path(self.HDFS_RAW_DIR, dataset_name)
+
+        if make_local_destdir:
+            os.makedirs(dest_dir, exist_ok=True)
+
+        hdfs_dest_dir = self.__get_base_path(self.HDFS_RAW_DIR,
+                                             os.path.basename(s3path_list))
+        if make_hdfs_destdir:
+            hdfs_mkdir(hdfs_dest_dir)
+
+        print("starting load jobs " + ",".join(s3path_list))
+
+        futures = []
+        for path in s3path_list:
+            bucket_name, key = self.__split_bucket_and_key(path)
+            fname = os.path.join(dest_dir, os.path.split(key)[1])
+            print(bucket_name, key, fname)
+            f = pool.submit(download_and_split_and_upload_s3_file, bucket_name,
+                            key, fname, hdfs_dest_dir)
+            futures.append(f)
+
+        return futures
+
+    def __distcp_from_s3(self, src, dest, excludes_file=None):
+        # Use the default credentials
+        cred = configparser.ConfigParser()
+        cred.read(os.path.expanduser('~/.aws/credentials'))
+        cmd = ['/usr/bin/hadoop', 'distcp',
+               '-Dmapred.job.queue.name=' + self.spark_params[-1].queue,
+               '-Dfs.s3a.access.key=' + cred['default']['aws_access_key_id'],
+               '-Dfs.s3a.secret.key=' + cred['default']['aws_secret_access_key']]
+        if excludes_file:
+            cmd.extend(['-filters', excludes_file])
+        cmd.extend(['s3a://' + src, dest])
+        print(' '.join(cmd))
+        ret = subprocess.call(cmd)
+
+        if ret != 0:
+            raise Exception("Failed to distcp")
+
+        # Because distcp insists on creating a subdirectoy, move the files to the destination
+        distcp_dest = os.path.join(dest,
+                                   os.path.split(os.path.normpath(src))[1])
+        hdfs_mv(distcp_dest + '/*', dest)
+        hdfs_rmdir(distcp_dest)
+
+    def copy_s3_to_hdfs(self, s3path, dataset_name, excluded_files=None,
+                        make_dir=False):
+        """
+        Copy all files from an s3 path to the destination
+        """
+        dest_dir = self.__get_base_path(self.HDFS_RAW_DIR, dataset_name)
+
+        if make_dir:
+            hdfs_rmdir(dest_dir)
+            cmd = ['hdfs', 'dfs', '-mkdir', dest_dir]
+            print(' '.join(cmd))
+            subprocess.call(cmd)
+
+        excludes_file = None
+        fd = None
+        if excluded_files:
+            fd = tempfile.NamedTemporaryFile()
+            data = '\n'.join(['s3a://' + x for x in excluded_files])
+            fd.write(data.encode('utf-8'))
+            fd.flush()
+            excludes_file = fd.name
+        ret = self.__distcp_from_s3(s3path, dest_dir, excludes_file)
+        if fd:
+            fd.close()
+
+        # So distcp insists on making a directory from the source, so move the files out of that directory and delete
+
+        return ret
+
+    #
+    # High Level Commands
+    #
+    def load_and_split(self, s3path, dataset_name):
+        dest_dir = self.__get_base_path(self.HDFS_RAW_DIR, dataset_name)
+        hdfs_rmdir(dest_dir)
+        hdfs_mkdir(dest_dir)
+
+        if s3path[-1] != '/':
+            s3path = s3path + '/'
+
+        finfo = list(self.s3_ls_objects(s3path, include_size=True))
+        # For files larger than block size, we download them to local storage and split them. So
+        # this is just grabbing the large files.
+        large_files = [fname for fname, size in finfo if
+                       size > self.HDFS_BLOCK_SIZE]
+        small_files = [fname for fname, size in finfo if
+                       size <= self.HDFS_BLOCK_SIZE]
+
+        with concurrent.futures.ProcessPoolExecutor(
+                max_workers=multiprocessing.cpu_count() * self.DOWNLOAD_POOL_FACTOR) as pool:
+            futures = []
+            if len(small_files) > 0:
+                hdfs_future = pool.submit(self.copy_s3_to_hdfs, s3path,
+                                          dataset_name, large_files)
+                futures.append(hdfs_future)
+            if len(large_files) > 0:
+                s3_futures = self.s3_download_and_split_and_upload_files(
+                    large_files, dataset_name,
+                    make_local_destdir=True, pool=pool)
+                futures.extend(s3_futures)
+
+            concurrent.futures.wait(futures)
+
+        return dest_dir
+
+    def __update_tables_from_dir(self, tables, basedir):
+        files = DataSetFileInfo.from_hdfs(basedir)
+        for file in files:
+            head, fname = os.path.split(file.fname)
+            tablename, ext = os.path.splitext(fname)
+            if ext == '.gz':
+                tablename, ext = os.path.splitext(tablename)
+
+            tables[tablename] = file.fname
+
+    def raw_data_sources(self, dataset_name):
+        api = Api()
+
+        jobs = api.get_jobs_for_dataset(dataset_name)
+        tables = {}
+
+        basedir = self.__get_base_path(self.HDFS_RAW_DIR, dataset_name)
+        self.__update_tables_from_dir(tables, basedir)
+
+        self.hdfs_prefix = '/autoloader'
+
+        for job in jobs:
+            if job.deleteBeforeReload:
+                tables = {}
+            basedir = self.__get_base_path(self.HDFS_RAW_DIR, job.datasetName, job_id=job.jobId)
+            self.__update_tables_from_dir(tables, basedir)
+
+        return tables
+
+    @classmethod
+    def raw_fname_to_table_name(cls, fname):
+        base_fname = os.path.basename(fname)
+        base_fname, ext = os.path.splitext(base_fname)
+        if ext == ".gz":
+            base_fname = os.path.splitext(base_fname)[0]
+
+        return base_fname
+
+    def csv_ingest(self, path_name, dataset_name, visibilities,
+                   records_per_partition, version_id,
+                   delimiter=None, escape=None, quote=None, charset=None,
+                   file=None, restart=False,
+                   dataset_props=None,
+                   table_props=None):
+
+        basedir = self.__get_base_path(self.HDFS_RAW_DIR, path_name)
+        print(basedir)
+        outdir = self.__get_base_path(self.HDFS_SEQ_DIR, dataset_name)
+        if file:
+            fname = basedir + file
+            size = hdfs_files_size([fname])
+            files = [DataSetFileInfo(fname, False, size)]
+            DataSetFileInfo.rename_files_to_safe_names(files)
+        else:
+            files = DataSetFileInfo.from_hdfs(basedir)
+            files = DataSetFileInfo.rename_files_to_safe_names(files, basedir)
+            hdfs_rmdir(outdir)
+
+        # Run autodetection if any parameter is not specified
+        if delimiter in (None, '') or escape in (None, '') or quote in (None, '') or charset in (None, ''):
+            # This is just begging to be done in parallel - but that would require starting
+            # multiple jobservers because that crappy "protocol" is synchronous
+            [x.sniff_format(self.jobserver) for x in files]
+
+        # Override any autodetected values with specified values
+        if delimiter not in (None, ''):
+            print("Setting delimiter for all files to " + repr(delimiter))
+            for x in files:
+                x.delimiter = delimiter
+
+        if escape not in (None, ''):
+            print("Setting escape for all files to " + repr(escape))
+            for x in files:
+                x.escape = escape
+
+        if quote not in (None, ''):
+            print("Setting quote for all files to " + repr(quote))
+            for x in files:
+                x.quote = quote
+
+        if charset not in (None, ''):
+            print("Setting charset for all files to " + repr(charset))
+            for x in files:
+                x.charset = charset
+
+        # Split files by size
+        a = [[] for x in range(len(self.spark_params))]
+
+        # If we have mixed formats make sure we only have 1 file per job
+        formats = set([x.format for x in files])
+        if len(formats) != 1:
+            for param in self.spark_params:
+                if param.files_per_job > 1:
+                    msg = 'Multiple file formats with multiple files per spark job is not supported'
+                    print(msg)
+                    raise Exception(msg)
+
+        for file in files:
+            for i in range(len(a)):
+                max_size = self.spark_params[i].max_file_size
+                if max_size is None or file.size <= max_size:
+                    a[i].append(file)
+                    break
+
+        # Chunk the lists - this will divide the files into a set of jobs based on the file size and the
+        # params for the spark jobs. So big files will go into their own spark job, while smaller files will
+        # be packed so that a couple files get processed by a single job (to avoid the overhead of standing up
+        # a spark job for each file)
+        for i in range(len(a)):
+            a[i] = self.__chunk_list(a[i], self.spark_params[i].files_per_job)
+
+        jobs = []
+        post_processing_callbacks = []
+
+        if self.job_id is None:
+            tracker = IngestFileTracker(dataset_name, restart=restart)
+            if restart:
+                print("Trying to restart job from " + tracker.tracker_fname)
+            callback = tracker.spark_job_callback
+        else:
+            tracker = None
+            callback = None
+
+        for i in range(len(a)):
+            dataloader_params = self.spark_params[i]
+            for chunk in a[i]:
+                loader_args = []
+                separate_schemas = chunk[0].schema_fname is not None
+                fnames = []
+                for f in chunk:
+                    if not tracker or not tracker.get_status(
+                            f.fname) == tracker.COMPLETE:
+                        fnames.append(f.fname)
+                        loader_args.extend(f.get_file_params())
+
+                if len(fnames):
+                    if tracker:
+                        tracker.set_pending(fnames)
+                    data_loader_args = []
+
+                    if records_per_partition:
+                        data_loader_args.extend(['--records-per-partition', records_per_partition])
+
+                    if table_props:
+                        post_processing_callbacks.append(
+                            TablePropertyPostProcessingJob(dataset_name, fnames, table_props))
+
+                    if separate_schemas:
+                        data_loader_args.extend(['--separate-table-schema'])
+
+                    data_loader_args.extend(['--version-id', version_id])
+
+                    data_loader_args.extend([dataset_name, visibilities])
+
+                    tags = {"files": fnames, "group": "count"}
+
+                    job = SparkJob(chunk[0].get_dataloader_class(),
+                                   dataloader_params,
+                                   data_loader_args + loader_args,
+                                   DATAPROFILER_TOOLS_JAR, tags=tags)
+
+                    jobs.append(job)
+
+        SparkJob.run_jobs(jobs, callback=callback)
+
+        if dataset_props:
+            post_processing_callbacks.append(DatasetPropertyPostProcessingJob(dataset_name, dataset_props))
+
+        return post_processing_callbacks
+
+    def commit_metadata(self, dataset_name, version_id, delete_dataset_before_reload=False):
+        args = []
+        if delete_dataset_before_reload:
+            args.append('--full-dataset-load')
+        subprocess.run(
+            ['java', '-cp', DATAPROFILER_TOOLS_JAR, 'com.dataprofiler.metadata.CommitMetadata', version_id] + args,
+            check=True)
+
+    def delete_dataset(self, dataset_name, table_name=None,
+                       table_id=None, delete_previous=False, delete_index=False, purge=False):
+        args = []
+
+        if delete_index:
+            args.extend(['--delete-index'])
+
+        if table_id:
+            args.extend(['--table-id', table_id])
+
+        if delete_previous:
+            args.append('--delete-previous-versions')
+
+        if purge:
+            args.append('--purge')
+
+        args.extend([dataset_name])
+
+        if table_name is not None:
+            args.extend([table_name])
+
+        cmd = ['java', '-cp', DATAPROFILER_TOOLS_JAR, 'com.dataprofiler.delete.DeleteData'] + args
+        print(' '.join(cmd))
+        subprocess.run(cmd, check=True)
+
+    def generate_samples(self, dataset_name=None, table_name=None,
+                         next_namespace=False):
+        args = []
+
+        if next_namespace:
+            args.extend(['--config', NEXT_CONFIG])
+
+        if dataset_name is not None:
+            args.extend([dataset_name])
+
+        if table_name is not None:
+            args.extend([table_name])
+
+        job = SparkJob('com.dataprofiler.samples.CreateColumnCountSamples',
+                       self.spark_params[-1],
+                       args,
+                       DATAPROFILER_TOOLS_JAR)
+
+        SparkJob.run_jobs([job])
+
+    def load_job(self, job, set_job_status):
+        s3path = job['s3Path']
+        dataset_name = job['datasetName']
+        visibilities = job['visibilities']
+        dataset_props = ",".join(["{}:{}".format(k, v) for k, v in job['datasetProperties'].items()])
+        table_props = job['tableProperties']
+        delimiter = job['delimiter']
+        escape = job['escape']
+        quote = job['quote']
+        charset = job['charset']
+
+        set_job_status(self.IN_PROGRESS)
+        start = time.time()
+        try:
+            self.copy_s3_to_hdfs(s3path, dataset_name, make_dir=True)
+            print(elapsed_time_msg('Download time', start))
+        except Exception as e:
+            set_job_status(self.ERROR)
+            data_load_slack_notification(dataset_name, False, {'ERROR': str(e)})
+            raise e
+
+        self.load_from_hdfs(dataset_name, dataset_name, visibilities,
+                            RECORDS_PER_PARTITION_SMALL, delimiter, escape, quote, charset, job=job,
+                            dataset_props=dataset_props, table_props=table_props)
+
+    def __handle_raw_download_output(self, job, ds, output_dir):
+        wd = tempfile.TemporaryDirectory(prefix=self.WORKING_DIR_ROOT)
+        working_dir = wd.name
+        # working_dir = tempfile.mkdtemp(prefix=self.WORKING_DIR_ROOT)
+        print(working_dir)
+
+        hdfs_copy_to_local(output_dir, working_dir)
+
+        date_str = datetime.datetime.now().strftime('%m-%d-%Y-%H-%M-%S')
+
+        zip_dir = '{}-data-export-{}'.format(job['creatingUser'], date_str)
+        zip_path = os.path.join(working_dir, zip_dir)
+
+        os.mkdir(zip_path)
+
+        downloads = ds['downloads']
+        for i in range(len(downloads)):
+            path = os.path.join(working_dir, self.job_id, str(i))
+            if not os.path.exists(path):
+                # This just means this table was empty for some reason
+                print('Download {} did not exist - skipping.'.format(path))
+                continue
+
+            files = files_in_dir(path)
+            csv_fname = None
+            for fname in files:
+                if fname.endswith('.csv'):
+                    csv_fname = fname
+                    break
+            if csv_fname is None:
+                raise Exception('Failed to find output in ' + path)
+
+            download = downloads[i]
+            new_csv_fname = '{}-{}-{}'.format(date_str,
+                                              download['dataset'],
+                                              download['table'])
+            t = download['type']
+            if t == 'row':
+                new_csv_fname = new_csv_fname + '-rows'
+                if len(download['filters'].keys()) > 0:
+                    new_csv_fname = new_csv_fname + '-filtered'
+            elif t == 'column_count':
+                new_csv_fname = new_csv_fname + '-' + download[
+                    'column'] + '-column-count'
+
+            new_csv_fname = new_csv_fname + '.csv'
+
+            os.rename(csv_fname, os.path.join(zip_path, new_csv_fname))
+
+        zip_file = zip_path + '.zip'
+        files = files_in_dir(zip_path)
+        print(files)
+        zip_cmd_path = shutil.which('zip')
+        if zip_cmd_path is None:
+            raise Exception("Could not find the zip command")
+
+        cmd = [zip_cmd_path, '-j', zip_file] + files
+        print(' '.join(cmd))
+        subprocess.call(cmd, cwd=working_dir)
+
+        s3Bucket = json.load(open(CURR_CONFIG))['s3Bucket']
+        s3key = S3_EXPORT_KEY + zip_file
+
+        self.s3.upload_file(zip_file, s3Bucket, s3key)
+
+        signed_url = self.s3.generate_presigned_url('get_object',
+                                                    Params={'Bucket': s3Bucket,
+                                                            'Key': s3key},
+                                                    ExpiresIn=S3_URL_EXPIRATION)
+        job['s3Path'] = signed_url
+        self.jobserver.put(job)
+
+    def download_job(self, job, set_job_status):
+        ds = self.jobserver.get_download_details(self.job_id)
+        if ds is None:
+            print("Failed to find download details for job " + self.job_id)
+            set_job_status(self.ERROR)
+            return
+
+        output_dir = '/tmp/' + self.job_id + '/'
+        spark_job = SparkJob('com.dataprofiler.CsvExport',
+                             self.spark_params[-1],
+                             ['--job-id', self.job_id, output_dir],
+                             DATAPROFILER_TOOLS_JAR)
+        download_start = time.time()
+        try:
+            SparkJob.run_jobs([spark_job])
+        except Exception as e:
+            set_job_status(self.ERROR)
+            slack_notification('Failed export of download job ' + self.job_id)
+            raise e
+
+        # ok - at this point, everything will be exported, but with really poor
+        # filenames. So fix all of that and upload to S3
+        try:
+            self.__handle_raw_download_output(job, ds, output_dir)
+        except Exception as e:
+            slack_notification(
+                'Failed in download job post-processing for job' + self.job_id + ': ' + str(
+                    e))
+            hdfs_rmdir(output_dir)
+            set_job_status(self.ERROR)
+            raise e
+
+        hdfs_rmdir(output_dir)
+        set_job_status(self.COMPLETE)
+
+        slack_notification(
+            'Finished downloading job {} in {}'.format(self.job_id,
+                                                       elapsed_time_msg(
+                                                           'Download',
+                                                           download_start,
+                                                           time.time())))
+
+
+    def command_job(self, job, set_job_status):
+        cs = self.jobserver.get_command_details(self.job_id)
+        if cs is None:
+            print('Failed to find command details for job ' + self.job_id)
+            set_job_status(self.ERROR)
+            return
+
+        name = cs['commandName']
+        command_path = os.path.join(COMMAND_DIR, name, name + '-command')
+
+        cmd = [command_path]
+
+        if 'commandArguments' in cs:
+            cmd.extend(cs['commandArguments'])
+
+        # Pass in the jobID so the job can update it's status
+        cmd.extend(['--job-id', self.job_id])
+
+        p = subprocess.run(cmd)
+
+        if p.returncode == 0:
+            set_job_status(self.COMPLETE)
+        else:
+            set_job_status(self.ERROR)
+
+    def sql_job(self, set_job_status):
+        try:
+            sql_job = self.jobserver.get(self.job_id)
+        except JobServerErroResponse:
+            print("Failed to find job: " + self.job_id)
+            sys.exit(1)
+
+        set_job_status(self.IN_PROGRESS)
+        spark_job = SparkJob('com.dataprofiler.sql.SqlQueryExecutorTool',
+                             self.spark_params[-1],
+                             ['--job-id', self.job_id],
+                             DATAPROFILER_TOOLS_JAR)
+        query_start = time.time()
+        try:
+            SparkJob.run_jobs([spark_job])
+        except Exception as e:
+            set_job_status(self.ERROR)
+            sql_or_make_job_slack_notification(self.job_id, False, {'Error': str(e)})
+            raise e
+
+        query_stop = time.time()
+        set_job_status(self.COMPLETE)
+
+        sql_or_make_job_slack_notification(self.job_id, True, {
+            'SQL Time': str(elapsed_time(query_start, query_stop))})
+
+    def make_job(self, set_job_status):
+        set_job_status(self.IN_PROGRESS)
+        job = self.api.get_job_detail(self.job_id)
+        m = make.MakeMetadata(job['makeId'])
+
+        # Limit make job to 1 executor
+        self.spark_params[-1].num_executors = '1'
+
+        spark_job = SparkJob.pyspark(m.plugin_script_path(), self.spark_params[-1], ['run-cluster', self.job_id],
+                                     DATAPROFILER_TOOLS_JAR)
+
+        make_start = time.time()
+        try:
+            SparkJob.run_jobs([spark_job])
+        except Exception as e:
+            set_job_status(self.ERROR)
+            sql_or_make_job_slack_notification(self.job_id, False, {'Error': str(e)}, job_type='Make')
+            slack_notification('Failed make job ' + self.job_id)
+            raise e
+
+        make_stop = time.time()
+        set_job_status(self.COMPLETE)
+
+        sql_or_make_job_slack_notification(self.job_id, True, {'Make Time': str(elapsed_time(make_start, make_stop))},
+                                           job_type='Make')
+
+    def process_job(self):
+        assert (self.job_id is not None)
+
+        try:
+            job = self.jobserver.get(self.job_id)
+        except JobServerErroResponse:
+            print("Failed to find job: " + self.job_id)
+            sys.exit(1)
+
+        def set_job_status(status):
+            job['status'] = status
+            self.jobserver.put(job)
+
+        config = json.load(open(CURR_CONFIG))
+
+        jt = job['type']
+        if jt == 'upload':
+            print("Got upload job")
+            self.set_spark_params(config['uploadYarnQueue'])
+            self.load_job(job, set_job_status)
+        elif jt == 'download':
+            print('Got Download Job')
+            self.set_spark_params(config['interactiveYarnQueue'])
+            self.download_job(job, set_job_status)
+        elif jt == 'command':
+            print('Got command job')
+            self.set_spark_params(config['backgroundYarnQueue'])
+            self.command_job(job, set_job_status)
+        elif jt == 'sql':
+            print('Got sql job')
+            self.set_spark_params(config['interactiveYarnQueue'])
+            self.sql_job(set_job_status)
+        elif jt == 'make':
+            print('Got make job')
+            self.set_spark_params(config['interactiveYarnQueue'])
+            self.make_job(set_job_status)
+        else:
+            assert False
+
+    def load_from_hdfs(self, path_name, dataset_name, visibilities,
+                       records_per_partition, delimiter=None, escape=None,
+                       quote=None, charset=None,
+                       job=None, next_namespace=False, restart=False,
+                       delete_dataset_before_reload=False,
+                       dataset_props=None,
+                       table_props=None,
+                       column_props=None):
+        def set_job_status(status):
+            if job is not None:
+                job['status'] = status
+                self.jobserver.put(job)
+
+        if job is not None:
+            if 'deleteDatasetBeforeReload' in job and job['deleteDatasetBeforeReload']:
+                delete_dataset_before_reload = True
+        try:
+            self.jobserver.set_visibilities_from_expression_active(visibilities)
+            ingest_start = time.time()
+            set_job_status(self.IN_PROGRESS)
+            # This is an identifier for the new version of the metadata. We generate
+            # it here so that it's used by all of the tables loaded.
+            version_id = str(uuid.uuid4())
+            post_processing_callbacks = self.csv_ingest(path_name, dataset_name, visibilities,
+                                                        records_per_partition, version_id, delimiter, escape, quote,
+                                                        charset,
+                                                        restart=restart,
+                                                        dataset_props=dataset_props,
+                                                        table_props=table_props)
+
+            ingest_end = time.time()
+
+            metadata_start = time.time()
+            self.commit_metadata(dataset_name, version_id, delete_dataset_before_reload)
+            metadata_end = time.time()
+
+            pp_start = time.time()
+            for cb in post_processing_callbacks:
+                cb.fire()
+            pp_end = time.time()
+
+            set_job_status(self.COMPLETE)
+
+            perf_stats = {'Ingest': str(elapsed_time(ingest_start, ingest_end)),
+                          'Metadata': str(elapsed_time(metadata_start, metadata_end)),
+                          'Post Processing': str(elapsed_time(pp_start, pp_end))
+                          }
+
+        except Exception as e:
+            print("Loading failed: " + str(e))
+            traceback.print_tb(e.__traceback__)
+            set_job_status(self.ERROR)
+            data_load_slack_notification(dataset_name, False, {'Error': str(e)})
+            return
+
+        if self.job_id is not None:
+            perf_stats['Job ID'] = self.job_id
+
+        data_load_slack_notification(dataset_name, True, perf_stats)
+
+    def load_multi_from_hdfs(self, names, visibilities, records_per_partition,
+                             next_namespace=False, restart=False,
+                             dataset_props=None,
+                             table_props=None,
+                             column_props=None):
+        for name in names:
+            dataset_name = name.replace("_", " ")
+            dataset_name = ' '.join(
+                [x.capitalize() for x in dataset_name.split(' ')])
+            self.load_from_hdfs(name, dataset_name, visibilities,
+                                records_per_partition,
+                                next_namespace=next_namespace, restart=restart,
+                                dataset_props=dataset_props,
+                                table_props=table_props,
+                                column_props=column_props)
+
+    def load_from_local(self, dirname, dataset_name, visibilities,
+                        records_per_partition,
+                        delimiter=None, escape=None, quote=None, charset=None,
+                        next_namespace=False):
+        basedir = self.__get_base_path(self.HDFS_RAW_DIR, dataset_name)
+        hdfs_mkdir(basedir)
+
+        files = files_in_dir(dirname)
+        if len(files) == 0:
+            print("Did not find any files in {} - exiting.".format(dirname))
+
+        hdfs_copy_from_local(files, basedir)
+
+        self.load_from_hdfs(dataset_name, dataset_name, visibilities,
+                            records_per_partition, delimiter, escape, quote,
+                            charset,
+                            next_namespace=next_namespace)
+
+
+def verify(message):
+    answer = input("%s [y/n]? " % message)
+    if not (answer == "y" or answer == "Y"):
+        sys.exit(0)
+
+
+def compute_metadata(args):
+    d = Datasets()
+    for dataset_name in args.dataset_names:
+        d.create_and_load_metadata(dataset_name)
+
+
+def create_hdfs_tree(args):
+    d = Datasets(args.hdfs_prefix)
+    d.create_hdfs_tree()
+
+
+def create_accumulo_tables(args):
+    d = Datasets()
+    d.create_accumulo_tables()
+
+
+def list_accumulo_namespaces(args):
+    d = Datasets()
+    d.print_accumulo_namespaces()
+
+
+def update_accumulo_namespace(args):
+    d = Datasets()
+    d.update_accumulo_namespace(args.namespace_name)
+
+
+def delete_dataset(args):
+    msg = "Delete all tables from dataset '" + args.dataset_name + "'"
+
+    if args.table_name:
+        msg = "Delete table '" + args.table_name + "' from dataset '" + args.dataset_name + "'"
+
+    verify(msg)
+    d = Datasets()
+    d.delete_dataset(args.dataset_name, args.table_name, args.table_id, args.delete_previous_versions,
+                     args.delete_index, args.purge)
+
+
+def generate_samples(args):
+    d = Datasets()
+    d.generate_samples(args.dataset_name, args.table_name, args.next_namespace)
+
+
+def load_and_split(args):
+    d = Datasets(hdfs_prefix=args.hdfs_prefix, job_id=args.job_id)
+    d.load_and_split(args.s3_path, args.dataset_name)
+
+
+def process_job(args):
+    d = Datasets(hdfs_prefix=args.hdfs_prefix, job_id=args.job_id,
+                 yarn_queue=args.yarn_queue)
+    d.process_job()
+
+
+def select_records_per_partition(args):
+    if args.records_per_partition is not None:
+        print("Setting records per partition to " + args.records_per_partition)
+        return args.records_per_partition
+    elif args.yarn_queue in ['large', 'ingest']:
+        return RECORDS_PER_PARTITION_LARGE
+    else:
+        return RECORDS_PER_PARTITION_SMALL
+
+
+def load_from_hdfs(args):
+    d = Datasets(hdfs_prefix=args.hdfs_prefix, yarn_queue=args.yarn_queue)
+
+    d.load_from_hdfs(args.path_name, args.dataset_name, args.visibilities,
+                     select_records_per_partition(args), args.delimiter,
+                     args.escape, args.quote,
+                     args.charset, next_namespace=args.next_namespace,
+                     restart=not args.no_restart,
+                     delete_dataset_before_reload=args.delete_dataset_before_reload,
+                     dataset_props=args.dataset_properties,
+                     table_props=args.table_properties,
+                     column_props=args.column_properties)
+
+
+def load_multi_from_hdfs(args):
+    d = Datasets(hdfs_prefix=args.hdfs_prefix, yarn_queue=args.yarn_queue)
+
+    d.load_multi_from_hdfs(args.names, args.visibilities,
+                           select_records_per_partition(args),
+                           args.next_namespace, restart=not args.no_restart,
+                           dataset_props=args.dataset_properties,
+                           table_props=args.table_properties,
+                           column_props=args.column_properties)
+
+
+def load_from_local(args):
+    d = Datasets(hdfs_prefix=args.hdfs_prefix)
+    d.load_from_local(args.directory_name, args.dataset_name, args.visibilities,
+                      RECORDS_PER_PARTITION_SMALL, args.delimiter, args.escape,
+                      args.quote, args.charset, args.next_namespace)
+
+
+def add_visibility(args):
+    cmd = ['/usr/bin/java', '-cp', DATAPROFILER_TOOLS_JAR,
+           'com.dataprofiler.ActiveVisibilityManager', args.visibility]
+    p = subprocess.call(cmd)
+
+
+def send_slack_notification(args):
+    slack_notification(args.message)
+
+
+def __csv(fname, func=None):
+    f = DataSetFileInfo(fname, False, os.path.getsize(fname))
+    f.sniff_format_local()
+
+    with open_potential_gzip(fname, encoding=f.charset) as csvfile:
+        try:
+            reader = csv.reader(csvfile, f.dialect)
+            for line in reader:
+                if func:
+                    func(line)
+        except Exception as e:
+            print("Something was wrong " + str(e))
+
+
+def check_csv_format(args):
+    path = os.path.abspath(args.dirname)
+    if args.file:
+        files = [DataSetFileInfo(path, False, os.path.getsize(path))]
+    else:
+        files = DataSetFileInfo.from_local(path)
+
+    print(files)
+
+    if args.python:
+        for f in files:
+            if f.is_split:
+                fname = f.splits[0].fname
+            else:
+                fname = f.fname
+
+            print('Checking ' + fname)
+            __csv(fname, print)
+    else:
+        [x.sniff_format_local() for x in files]
+        cmd = ['/usr/bin/java', '-cp', DATAPROFILER_TOOLS_JAR,
+               'com.dataprofiler.CsvTestLoader']
+
+        for f in files:
+            cmd.extend(f.get_file_params())
+
+        print(' '.join(cmd))
+
+        p = subprocess.call(cmd)
+
+
+def normalize_csv_format(args):
+    for fname in args.fnames:
+        out_fname = fname + '-normalized.csv'
+        with open(out_fname, 'w') as csvfile:
+            writer = csv.writer(csvfile)
+
+            def f(line):
+                writer.writerow(line)
+
+            print('Normalizing ' + fname)
+            __csv(fname, f)
+
+    if args.delete_orig:
+        for fname in args.fnames:
+            os.remove(fname)
+            os.rename(fname + '-normalized.csv', fname)
+
+
+def convert_encoding(args):
+    for fname in args.fnames:
+        out_fname = fname + '-8'
+        cmd = ['iconv', '-f', args.source_encoding, '-t', args.target_encoding,
+               fname,
+               '-o', out_fname]
+        print(' '.join(cmd))
+        subprocess.call(cmd)
+        os.remove(fname)
+        os.rename(out_fname, fname)
+
+
+def list_jobs(args):
+    api = Api()
+    if args.jobid is not None:
+        j = api.get_job(args.jobid)
+        pprint(j)
+        d = api.get_job_detail(args.jobid)
+        pprint(d)
+    else:
+        print(api.get_jobs_summary(job_type=args.type, job_status=args.status))
+
+
+def list_datasets(args):
+    if args.deleted:
+        subprocess.run(['java', '-cp', DATAPROFILER_TOOLS_JAR, 'com.dataprofiler.metadata.ManageMetadata', 'show-all-datasets'],
+            check=True)
+    else:
+        api = Api()
+        print(api.get_dataset_names())
+
+
+def list_tables(args):
+    if args.all_versions:
+        com = []
+
+        if args.table is not None:
+            com.extend(['show-table', '--dataset', args.dataset_name, '--table', args.table])
+        else:
+            com.extend(['show-dataset', '--dataset', args.dataset_name])
+
+        subprocess.run(['java', '-cp', DATAPROFILER_TOOLS_JAR, 'com.dataprofiler.metadata.ManageMetadata'] + com,
+            check=True)
+    else:
+        api = Api()
+        print(api.get_table_names(args.dataset_name))
+
+
+def raw_data_sources(args):
+    d = Datasets()
+    tables = d.raw_data_sources(args.dataset_name)
+
+    for key in sorted(tables.keys()):
+        print("{} -> {}".format(key, tables[key]))
+
+
+def retry_job(args):
+    js = JobServer()
+    try:
+        job = js.get(args.jobid)
+    except JobServerErroResponse:
+        print("Failed to find job: " + args.jobid)
+        sys.exit(1)
+
+    job['status'] = 0
+    js.put(job)
+    requests.post('http://data-processing:7010/application/go')
+
+
+def pyspark_shell(args):
+    SparkJob.pyspark_shell()
+
+
+def queue_single_project(args):
+    print("Submitting project page {}".format(args.project))
+    job = Api().submit_project_page_job(args.project,args.inputs,args.outputs,args.options,args.outputVisibility)
+    print(job)
+
+
+def queue_all_projects(args):
+    env_name = get_env_name()
+    plugins = glob("{}/*/plugin.json".format(make.MakeMetadata.PLUGINS_PATH))
+    for plugin in plugins:
+        with open(plugin, 'r') as f:
+            file_data = f.read()
+        plugin_info = json.loads(file_data)
+        plugin_name = plugin_info.get('type', '')
+        queue_nightly = plugin_info.get('queue_nightly', False)
+        plugin_envs = plugin_info.get('environments', [])
+        if plugin_name == 'projectPage' and env_name in plugin_envs and queue_nightly is not False:
+            plugin_id = plugin_info.get('id')
+            if plugin_id is not None:
+                print("Submitting project page {}".format(plugin_id))
+                job = Api().submit_project_page_job(plugin_id)
+                print(job)
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Merk Data Loading Tool')
+    parser.add_argument('--no-slack', action='store_true', default=False)
+    parser.add_argument('--dev-jars')
+    subparsers = parser.add_subparsers(help='commands', dest='command')
+
+    c = subparsers.add_parser('load-and-split',
+                              help="Intelligently copy and split a dataset from S3")
+    c.add_argument('s3_path')
+    c.add_argument('dataset_name')
+    c.add_argument("--hdfs-prefix", default=None)
+    c.add_argument("--job-id", default=None)
+    c.set_defaults(func=load_and_split)
+
+    c = subparsers.add_parser('create-hdfs-tree',
+                              help='Create the directory tree in hdfs used by this program')
+    c.add_argument("--hdfs-prefix", default=None)
+    c.set_defaults(func=create_hdfs_tree)
+
+    c = subparsers.add_parser('create-accumulo-tables',
+                              help='Create all of the needed accumulo tables')
+    c.set_defaults(func=create_accumulo_tables)
+
+    c = subparsers.add_parser('delete-dataset',
+                              help='Delete a dataset from Accumulo')
+    c.add_argument('dataset_name')
+    c.add_argument('--table-name', default=None)
+    c.add_argument('--table-id', default=None, help='Specific table id (version) to delete. Only compatible with --purge.')
+    c.add_argument('--delete-previous-versions', action='store_true', default=False)
+    c.add_argument('--delete-index', action='store_true', default=True)
+    c.add_argument('--purge', action='store_true', default=False, help='Purge data from disk - this makes the action take much longer and cannot be undone.')
+    c.set_defaults(func=delete_dataset)
+
+    c = subparsers.add_parser('generate-samples',
+                              help='Generate samples for a dataset')
+    c.add_argument('--dataset-name', default=None)
+    c.add_argument('--table-name', default=None)
+    c.add_argument("--next-namespace", action="store_true")
+    c.set_defaults(func=generate_samples)
+
+    c = subparsers.add_parser('process-job',
+                              help='Process a job specified in Accumulo')
+    c.add_argument('job_id')
+    c.add_argument('--hdfs-prefix', default='/autoloader')
+    c.add_argument('--yarn-queue', default=None)
+    c.set_defaults(func=process_job)
+
+    c = subparsers.add_parser('send-slack-notification',
+                              help='Send a slack notifiaction to the proj-alerts channel')
+    c.add_argument('message')
+    c.set_defaults(func=send_slack_notification)
+
+    c = subparsers.add_parser('load-from-hdfs', help='Load data from HDFS')
+    c.add_argument('path_name')
+    c.add_argument('dataset_name')
+    c.add_argument('visibilities')
+    c.add_argument("--hdfs-prefix", default=None)
+    c.add_argument("--delimiter", default=None)
+    c.add_argument("--escape", default=None)
+    c.add_argument("--quote", default=None)
+    c.add_argument("--charset", default=None)
+    c.add_argument('--yarn-queue', default='large')
+    c.add_argument("--next-namespace", action="store_true")
+    c.add_argument("--no-restart", action="store_true", default=False)
+    c.add_argument("--records-per-partition", default=None)
+    c.add_argument("--delete-dataset-before-reload", default=False)
+    c.add_argument("--delete-before-reload", action="store_true", default=False)
+    c.add_argument("--dataset-properties", default=None)
+    c.add_argument("--table-properties", default=None)
+    c.add_argument("--column-properties", default=None)
+    c.set_defaults(func=load_from_hdfs)
+
+    c = subparsers.add_parser('load-multi-from-hdfs',
+                              help='Load data from HDFS')
+    c.add_argument('visibilities')
+    c.add_argument('names', nargs='+')
+    c.add_argument("--hdfs-prefix", default=None)
+    c.add_argument('--yarn-queue', default='large')
+    c.add_argument("--next-namespace", action="store_true")
+    c.add_argument("--no-restart", action="store_true", default=False)
+    c.add_argument("--records-per-partition", default=None)
+    c.add_argument("--dataset-properties", default=None)
+    c.add_argument("--table-properties", default=None)
+    c.add_argument("--column-properties", default=None)
+    c.set_defaults(func=load_multi_from_hdfs)
+
+    c = subparsers.add_parser('load-from-local',
+                              help='Load data from a local directory')
+    c.add_argument('directory_name')
+    c.add_argument('dataset_name')
+    c.add_argument('visibilities')
+    c.add_argument("--hdfs-prefix", default=None)
+    c.add_argument("--delimiter", default=None)
+    c.add_argument("--escape", default=None)
+    c.add_argument("--quote", default=None)
+    c.add_argument("--charset", default=None)
+    c.add_argument("--next-namespace", action="store_true")
+    c.set_defaults(func=load_from_local)
+
+    c = subparsers.add_parser('add-visibility', help='Add a visibility to Accumulo')
+    c.add_argument('visibility')
+    c.set_defaults(func=add_visibility)
+
+    c = subparsers.add_parser('check-csv',
+                              help='Check to see if Python thinks this is a valid csv')
+    c.add_argument('dirname')
+    c.add_argument('--file', default=False, action='store_true')
+    c.add_argument('--python', default=False, action='store_true')
+    c.set_defaults(func=check_csv_format)
+
+    c = subparsers.add_parser('normalize-csv', help='Normalize a csv')
+    c.add_argument('fnames', nargs='+')
+    c.add_argument('--delete-orig', default=False, action='store_true')
+    c.set_defaults(func=normalize_csv_format)
+
+    c = subparsers.add_parser('convert-encoding',
+                              help='Convert file encoding of files')
+    c.add_argument('source_encoding')
+    c.add_argument('target_encoding')
+    c.add_argument('fnames', nargs='+')
+    c.set_defaults(func=convert_encoding)
+
+    c = subparsers.add_parser('list-jobs', help='List data loading jobs')
+    c.add_argument('--type', default=Api.ALL_JOBS, choices=Api.JOB_TYPES)
+    c.add_argument('--jobid', default=None)
+    c.add_argument('--status', default=Api.ANY_JOB, choices=Api.JOB_STATUS_NAMES)
+    c.set_defaults(func=list_jobs)
+
+    c = subparsers.add_parser('list-datasets', help='List all dataset names')
+    c.add_argument('--deleted', help='Also include deleted datasets.', action='store_true', default=False)
+    c.set_defaults(func=list_datasets)
+
+    c = subparsers.add_parser('list-tables', help='List all tables for a dataset')
+    c.add_argument('dataset_name')
+    c.add_argument('--table', help='Only list this specific table name (only compatible with --all-versions', default=None)
+    c.add_argument('--all-versions', help='List all versions of the tables (warning: this is slow)', action='store_true', default=False)
+    c.set_defaults(func=list_tables)
+
+    c = subparsers.add_parser('raw-data-sources', help='Show the HDFS locations of the raw data for a dataset')
+    c.add_argument('dataset_name')
+    c.set_defaults(func=raw_data_sources)
+
+    c = subparsers.add_parser('retry-job', help='Retry a job with the daemon')
+    c.add_argument('jobid')
+    c.set_defaults(func=retry_job)
+
+    c = subparsers.add_parser('pyspark-shell', help='Start a pyspark shell with the dataprofiler environment')
+    c.set_defaults(func=pyspark_shell)
+
+    c = subparsers.add_parser('queue-all-projects', help='Queue all project queries to run')
+    c.set_defaults(func=queue_all_projects)
+
+    c = subparsers.add_parser('queue-project', help='Queue a specific project to run')
+    c.add_argument('project')
+    c.add_argument('--inputs', default=None)
+    c.add_argument('--outputs', default=None)
+    c.add_argument('--outputVisibility', default=None)
+    c.add_argument('--options', default=None)
+    c.set_defaults(func=queue_single_project)
+
+    args = parser.parse_args()
+
+    global slack_notifications
+    slack_notifications = not args.no_slack
+
+    if args.dev_jars:
+        global DATAPROFILER_TOOLS_JAR
+        DATAPROFILER_TOOLS_JAR = args.dev_jars
+
+    if args.command is None:
+        parser.print_help()
+        sys.exit(1)
+
+    args.func(args)
+
+
+if __name__ == '__main__':
+    main()
+    # print(hdfs_ls('/autoloader/data/raw/test/'))
+    # print(hdfs_ls('/autoloader/data/raw/test/', include_dirs=True))
+    # print(hdfs_ls('/autoloader/data/raw/test/', recursive=True))
+    # print(hdfs_ls('/autoloader/data/raw/test/', recursive=True, include_dirs=True))
+    # print(hdfs_ls('/autoloader/data/raw/test/', recursive=True, include_dirs=True, extra_info=True))
+    # d = Datasets()
+    # fs = DataSetFileInfo.from_hdfs('/autoloader/data/raw/test/')
+    # [x.sniff_csv_format(d.jobserver) for x in fs]
+    # print(fs)
+
+# {"jobId":"test","datasetName":"Upload Test","visibilities":"LIST.Public_Data","delimiter":",","s3Path":"dataprofiler-modern-production/uploads/Upload_Test/","status":7,"statusMessage":"Complete","submissionDateTime":1523290225343,"creatingUser":"unknown"}

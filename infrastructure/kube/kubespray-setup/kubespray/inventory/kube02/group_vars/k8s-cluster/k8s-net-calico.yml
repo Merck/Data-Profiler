@@ -1,0 +1,62 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+# see roles/network_plugin/calico/defaults/main.yml
+
+## With calico it is possible to distributed routes with border routers of the datacenter.
+## Warning : enabling router peering will disable calico's default behavior ('node mesh').
+## The subnets of each nodes will be distributed by the datacenter router
+# peer_with_router: false
+
+# Enables Internet connectivity from containers
+# nat_outgoing: true
+
+# add default ippool name
+# calico_pool_name: "default-pool"
+
+# add default ippool blockSize (defaults kube_network_node_prefix)
+# calico_pool_blocksize: 24
+
+# add default ippool CIDR (must be inside kube_pods_subnet, defaults to kube_pods_subnet otherwise)
+# calico_pool_cidr: 1.2.3.4/5
+
+# Global as_num (/calico/bgp/v1/global/as_num)
+# global_as_num: "64512"
+
+# You can set MTU value here. If left undefined or empty, it will
+# not be specified in calico CNI config, so Calico will use built-in
+# defaults. The value should be a number, not a string.
+# calico_mtu: 1500
+
+# Advertise Cluster IPs
+# calico_advertise_cluster_ips: true
+
+# Choose data store type for calico: "etcd" or "kdd" (kubernetes datastore)
+# calico_datastore: "etcd"
+
+# Use typha (only with kdd)
+# typha_enabled: false
+
+# Generate TLS certs for secure typha<->calico-node communication
+# typha_secure: false
+
+# Number of typha replicas
+# typha_replicas: 1

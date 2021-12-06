@@ -1,0 +1,55 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: download-task
+spec:
+  params:
+    - name: jobid
+      type: string
+  steps:
+    - name: "{{ .Values.image.name }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      envFrom:
+      - configMapRef:
+          name: web-{{ .Release.Namespace }}-env-file
+      command:
+      - /bin/bash
+      args: [ "/opt/app/download.sh", "$(params.jobid)" ]
+      resources:
+        # Requests: Guarenteed Minimums
+        requests:
+          memory: 1Gi  # As most DL jobs I've seen so far hit ~700, this should allow for a job to be appropriately scheduled and complete
+          cpu: 300m  # CPU seems to remain low and maybe spike, this lets the pod be scheduled and we can run up to the high limit below as needed
+        # Limits: Maximums
+        limits:
+          memory: 1Gi  # This is the MAX before OOMK is invoked, should be plenty of overhead for a DL to complete
+          cpu: 1000m  # Note CPU is 'compressable' meaning that it can be throttled if it gets too large meaning this is a 'soft' limit that would just impact performance
+      volumeMounts:
+      - mountPath: /tmp
+        name: tmp-volume
+  volumes:
+  - name: tmp-volume
+    hostPath:
+      path: /data/download-scratch
+      type: DirectoryOrCreate

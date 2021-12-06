@@ -1,0 +1,19 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          create-hadoop-pid-dir
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     S 2 3 4 5 6 .
+# Default-Stop:      1
+# Short-Description: create /var/run/hadoop
+# Description: create /var/run/hadoop
+### END INIT INFO
+
+DAEMONUSER=hdfs
+PIDDIR=/var/run/hadoop
+
+if [ ! -d $PIDDIR ]; then
+  mkdir -p $PIDDIR
+  chown $DAEMONUSER:$DAEMONUSER $PIDDIR
+fi

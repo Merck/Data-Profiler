@@ -1,0 +1,105 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ .Values.podName }}
+    namespace: {{ .Release.Namespace | quote }}
+    labels:
+        app: {{ .Values.podName }}
+spec:
+    replicas: {{ .Values.replicas }}
+    selector:
+      matchLabels:
+        app: {{ .Values.podName }}
+    template:
+        metadata:
+          namespace: {{ .Release.Namespace | quote }}
+          labels:
+            app: {{ .Values.podName }}
+        spec:
+          containers:
+          - name: {{ .Values.podName }} 
+            image: {{ .Values.image.name | quote }}
+            ports:
+            - containerPort: {{ .Values.api.service.targetPort }}
+              name: api
+            resources:
+              requests:
+                memory: {{ .Values.api.resources.requests.memory | quote }}
+                cpu: {{ .Values.api.resources.requests.cpu | quote }}
+              limits:
+                memory: {{ .Values.api.resources.limits.memory | quote }}
+                cpu: {{ .Values.api.resources.limits.cpu | quote }}
+            volumeMounts:
+              - mountPath: /tmp
+                name: dp-api-tmp-vol
+            envFrom:
+              - configMapRef:
+                  name: web-{{ .Release.Namespace }}-env-file
+            command: ["/opt/api/target/universal/stage/bin/dataprofiler-api"]
+            args: ["-J-Xmx{{ .Values.api.resources.requests.jvmheapsize }}", "-J-Xmx{{ .Values.api.resources.requests.jvmheapsize }}", "-Dplay.crypto.secret=$(PLAY_FRAMEWORK_SECRET)", "-Dpidfile.path=/dev/null"]
+            livenessProbe:
+              httpGet:
+                path: /health/check/{{ .Release.Namespace }}-liveness-probe
+                port: api
+              failureThreshold: 2
+              periodSeconds: 300
+              timeoutSeconds: 60
+            startupProbe:
+              httpGet:
+                path: /health/check/{{ .Release.Namespace }}-startup-probe
+                port: api
+              initialDelaySeconds: 60
+              failureThreshold: 4
+              periodSeconds: 60
+              timeoutSeconds: 60
+          - name: tmp-storage-reaper
+            image: {{ .Values.tmpstoragereaper.image.name | quote }}
+            resources:
+              requests:
+                memory: {{ .Values.tmpstoragereaper.resources.requests.memory | quote }}
+                cpu: {{ .Values.tmpstoragereaper.resources.requests.cpu | quote }}
+              limits:
+                memory: {{ .Values.tmpstoragereaper.resources.limits.memory | quote }}
+                cpu: {{ .Values.tmpstoragereaper.resources.limits.cpu | quote }}
+            volumeMounts:
+              - mountPath: /tmp
+                name: dp-api-tmp-vol
+          - name: download-proxy
+            image: {{ .Values.downloadProxy.image.name | quote }}
+            ports:
+              - containerPort: {{ .Values.downloadProxy.service.targetPort }}
+                name: download-proxy
+            resources:
+              requests:
+                memory: {{ .Values.downloadProxy.resources.requests.memory | quote }}
+                cpu: {{ .Values.downloadProxy.resources.requests.cpu | quote }}
+              limits:
+                memory: {{ .Values.downloadProxy.resources.limits.memory | quote }}
+                cpu: {{ .Values.downloadProxy.resources.limits.cpu | quote }}
+          imagePullSecrets:
+          - name: {{ .Values.imagePullSecrets | quote }}
+          restartPolicy: "Always"
+          volumes:
+          - name: dp-api-tmp-vol
+            emptyDir: {}

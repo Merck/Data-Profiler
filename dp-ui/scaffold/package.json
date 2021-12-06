@@ -1,0 +1,42 @@
+{
+  "name": "@dp-ui/newpackage",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "rimraf dist/ && tsc && cp -r src/assets dist/assets",
+    "develop": "nodemon -x \"yarn run build\"",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --quiet --fix && prettier --write 'src/**/*.{js,jsx,ts,tsx}'"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "dist/*"
+    ],
+    "watch": [
+      "./src/**/*"
+    ],
+    "ext": "js jsx ts tsx"
+  },
+  "dependencies": {
+    "@dp-ui/lib": "1.0.0"
+  },
+  "peerDependencies": {
+    "react": "16.x",
+    "react-dom": "16.x"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "@typescript-eslint/parser": "^2.10.0",
+    "eslint": "^7.1.0",
+    "nodemon": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "typescript": "^3.9.3"
+  }
+}

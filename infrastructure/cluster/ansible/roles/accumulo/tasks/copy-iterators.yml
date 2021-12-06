@@ -1,0 +1,39 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- name: list iterator jars in S3
+  aws_s3:
+    mode: list
+    bucket: "{{ s3_bucket }}"
+    prefix: "{{ s3_releases_folder }}/{{ dataprofiler_env }}-iterators/"
+  register: s3_bucket_items
+
+- debug:
+    var: s3_bucket_items
+    verbosity: 2
+
+- name: download s3_bucket_items
+  aws_s3:
+    mode: get
+    bucket: "{{ s3_bucket }}"
+    object: "{{ item }}"
+    dest: "{{ accumulo_home }}/lib/ext/{{ item | basename }}"
+  with_items: "{{ s3_bucket_items.s3_keys }}"

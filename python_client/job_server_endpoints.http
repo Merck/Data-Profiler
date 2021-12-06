@@ -1,0 +1,11 @@
+GET http://{{host}}:{{port}}/make/
+
+###
+
+GET http://{{host}}:{{port}}/make/example/json_form
+
+###
+
+POST http://{{host}}:{{port}}/application/go
+
+###

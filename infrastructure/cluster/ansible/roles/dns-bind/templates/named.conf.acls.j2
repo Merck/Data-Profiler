@@ -1,0 +1,11 @@
+// Access Control List
+
+{{ ansible_managed | comment('c') }}
+
+{% for acl in bind_acl %}
+acl "{{ acl.name }}" {
+{% for match in acl.cidr_list %}
+    {{ match }};
+{% endfor %}
+};
+{% endfor %}

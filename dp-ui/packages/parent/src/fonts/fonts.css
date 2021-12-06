@@ -1,0 +1,106 @@
+/*
+We import all our own fonts, please don't use a CDN to bring them in from the big, bad internet
+
+If for some reason you need to import a google font, use the following site
+https://google-webfonts-helper.herokuapp.com
+
+*/
+
+@font-face {
+  font-family: 'Monoton';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Monoton'), local('Monoton-Regular'),
+       url('./fonts/monoton-v9-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/monoton-v9-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: italic;
+  font-weight: bold;
+  src: local('Invention ExtraBold Italic'),
+       url('./fonts/Invention_W_XBdIt.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_XBdIt.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: normal;
+  font-weight: bold;
+  src: local('Invention ExtraBold'),
+       url('./fonts/Invention_W_XBd.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_XBd.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: italic;
+  font-weight: 800;
+  src: local('Invention Bold Italic'),
+       url('./fonts/Invention_W_BdIt.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_BdIt.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: normal;
+  font-weight: 800;
+  src: local('Invention Bold'),
+       url('./fonts/Invention_W_BdIt.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_BdIt.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Invention'), local('Invention Regular'),
+       url('./fonts/Invention_W_Rg.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_Rg.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Invention Italic'),
+       url('./fonts/Invention_W_It.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_It.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Invention Light'),
+       url('./fonts/Invention_W_Lt.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_Lt.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: italic;
+  font-weight: 300;
+  src: local('Invention Light Italic'),
+       url('./fonts/Invention_W_LtIt.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_LtIt.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: normal;
+  font-weight: 100;
+  src: local('Invention ExtraLight'),
+       url('./fonts/Invention_W_XLt.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_XLt.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Invention';
+  font-style: italic;
+  font-weight: 100;
+  src: local('Invention ExtraLight Italic'),
+       url('./fonts/Invention_W_XLtIt.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+       url('./fonts/Invention_W_XLtIt.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}

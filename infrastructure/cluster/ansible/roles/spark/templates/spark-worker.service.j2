@@ -1,0 +1,19 @@
+[Unit]
+Description=Spark Worker Service
+After=network.target
+
+[Service]
+User=spark
+Group=spark
+ExecStart={{ spark_home }}/sbin/start-slave.sh spark://{{ hostvars[groups['spark_masters'][0]].dataprofiler_fqdn }}:7077
+ExecStop={{ spark_home }}/sbin/stop-slave.sh
+Environment=JAVA_HOME={{ java_home }}
+Environment=SPARK_DAEMON_MEMORY={{ spark_worker_memory }}
+Restart=always
+RestartSec=60
+StartLimitBurst=5
+TimeoutStartSec=5min
+PIDFile={{ spark_pid_directory }}/spark-spark-org.apache.spark.deploy.worker.Worker-1.pid
+
+[Install]
+WantedBy=multi-user.target

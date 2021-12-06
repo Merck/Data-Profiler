@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.dataprofiler</groupId>
+  <artifactId>dataprofiler-parent</artifactId>
+  <version>1</version>
+  <packaging>pom</packaging>
+  <name>Data Profiler Maven Parent</name>
+
+  <modules>
+    <module>query-lang</module>
+    <module>util</module>
+    <module>iterators</module>
+    <module>tools</module>
+    <module>spark-sql</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>production</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <spark.scope>provided</spark.scope>
+        <hdfs.scope>provided</hdfs.scope>
+      </properties>
+    </profile>
+    <profile>
+      <id>local</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <spark.scope>compile</spark.scope>
+        <hdfs.scope>compile</hdfs.scope>
+      </properties>
+    </profile>
+  </profiles>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <httpclient.version>4.5.6</httpclient.version>
+    <lucene-core.version>6.3.0</lucene-core.version>
+    <log4j.version>1.2.17</log4j.version>
+    <slf4j.version>1.7.31</slf4j.version>
+    <cli.version>1.4</cli.version>
+    <gson.version>2.8.2</gson.version>
+    <junit.version>4.12</junit.version>
+    <jackson.version>2.12.1</jackson.version>
+    <jcommander.version>1.72</jcommander.version>
+    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+    <accumulo.version>1.9.3</accumulo.version>
+    <postgres.version>42.2.18</postgres.version>
+    <redshift.version>2.0.0.4</redshift.version>
+    <spark.version>2.4.5</spark.version>
+    <spark.scala>2.11</spark.scala>
+    <!-- Tests are skipped by default because they depend on a particular Accumulo cluster -->
+    <skipTests>false</skipTests>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>accumulo-core</artifactId>
+      <version>${accumulo.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>accumulo-minicluster</artifactId>
+      <version>${accumulo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-core_${spark.scala}</artifactId>
+      <version>${spark.version}</version>
+    </dependency>
+
+    <!-- This is here to handle a problem with some libraries (like unirest) requiring
+    a newer version of httpclient -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>${httpclient.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <version>${lucene-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <version>${cli.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${gson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-scala_${spark.scala}</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+      <version>${jcommander.version}</version>
+    </dependency>
+
+    <!-- test dependencies -->
+    <!-- https://mvnrepository.com/artifact/junit/junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.10.19</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M4</version>
+        <configuration>
+          <skipTests>${skipTests}</skipTests>
+          <groups>com.dataprofiler.test.IntegrationTest</groups>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+          <trimStackTrace>false</trimStackTrace>
+          <forkedProcessExitTimeoutInSeconds>2</forkedProcessExitTimeoutInSeconds>
+          <environmentVariables>
+            <ACCUMULO_USER>root</ACCUMULO_USER>
+          </environmentVariables>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-junit47</artifactId>
+            <version>3.0.0-M4</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.0.0</version>
+        <configuration>
+          <licenseName>dp_license</licenseName>
+          <licenseResolver>file://${project.basedir}/license</licenseResolver>
+          <organizationName>Merck &amp; Co., Inc. Kenilworth, NJ, USA</organizationName>
+          <inceptionYear>2021</inceptionYear>
+          <projectName>Data Profiler</projectName>
+          <outputDirectory>${project.basedir}</outputDirectory>
+          <includes>
+            <include>*.sh</include>
+            <include>*.xml</include>
+            <include>*.sql</include>
+            <include>*.scala</include>
+          </includes>
+          <excludes>
+            <exclude>json</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>first</id>
+            <goals>
+              <!--updates the source's headers according to the specified license-->
+              <goal>update-file-header</goal>
+
+              <!--Adds the full-blown license file to the final product-->
+              <goal>update-project-license</goal>
+
+              <!--generate and add a list of third-party licenses to the jar -->
+              <goal>add-third-party</goal>
+
+              <!-- aggregate the multi-module project third-party licenses -->
+              <goal>aggregate-add-third-party</goal>
+            </goals>
+            <phase>process-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

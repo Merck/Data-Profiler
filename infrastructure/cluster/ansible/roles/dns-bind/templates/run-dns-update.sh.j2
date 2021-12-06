@@ -1,0 +1,19 @@
+#!/bin/bash
+
+retries=2
+
+cmd_out=$(dhclient)
+cmd_res=$?
+echo "cmd_res: $cmd_res"
+
+n=0
+until [ "$n" -gt $retries -o $cmd_res == 0 ];
+do
+        echo "retrying..."
+        sleep 5
+        cmd_out=$(dhclient)
+        cmd_res=$?
+        echo "cmd_res: $cmd_res"
+        [[ $cmd_res == 0 ]] && exit 0
+        n=$((n+1))
+done

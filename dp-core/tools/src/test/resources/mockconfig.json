@@ -1,0 +1,13 @@
+{
+    "zookeepers": "primary-internal-development:2181,secondary-internal-development:2181,slave-001-internal-development:2181",
+    "accumuloInstance": "hdp-accumulo-instance",
+    "accumuloUser": "root",
+    "accumuloPassword": "",
+    "accumuloDataTable": "test.dataProfiler",
+    "accumuloMetadataTable": "test.metadata",
+    "accumuloConceptsTable": "test.concepts",
+    "accumuloDataLoadJobsTable": "test.dataLoadJobs",
+    "accumuloSamplesTable": "test.samples",
+    "fstPath": "/fst/prod.fst",
+    "accumuloMasterListTable": "test.masterList"
+}

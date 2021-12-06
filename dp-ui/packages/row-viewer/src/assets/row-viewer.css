@@ -1,0 +1,8 @@
+.react-select-bold-option {
+  font-weight: 700 !important;
+}
+
+.react-select-all-option {
+  border-bottom: 3px dotted #888 !important;
+  font-weight: 700 !important;
+}

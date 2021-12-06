@@ -1,0 +1,136 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+
+
+ansible_python_interpreter: /usr/bin/python3
+
+ansible_user: ubuntu
+ansible_ssh_private_key_file: ## Path to private key
+
+cluster_user: "{{ ansible_user }}"
+cluster_group: "{{ cluster_user }}"
+
+user_home: "/home/{{ ansible_user }}"
+
+tarballs_dir: "{{ user_home }}/tarballs"
+install_dir: "/opt"
+
+#
+# Vault vars
+#
+vault_url: https://secrets.dataprofiler.com
+vault_role_id: !vault |
+          ## VAULT ROLE ID
+
+vault_secret_id: !vault |
+          ## VAULT SECRET ID
+
+
+#
+# S3
+#
+s3_bucket: dataprofiler-dropbox
+s3_sources_folder: sources
+s3_releases_folder: releases
+
+#
+# Extra disk stuff
+#
+force_format: no
+fstype: ext3
+worker_data_dirs: ["/data_0"]
+data_dir: "{{ worker_data_dirs | first }}"
+
+#
+# Spark vars
+#
+spark_user: spark
+spark_group: spark
+spark_version: "2.4.5"
+spark_checksum:
+spark_version_name: "spark-{{ spark_version }}-bin-without-hadoop"
+spark_tarball: "{{ spark_version_name }}.tgz"
+spark_base_path: "{{ install_dir }}/spark"
+spark_home: "{{ spark_base_path }}/current"
+spark_log_directory: /var/log/spark
+spark_history_log_directory: /data/spark/history
+spark_pid_directory: /var/run/spark
+spark_work_directory: /data/spark/work
+spark_master_memory: 24g
+spark_worker_memory: 8g
+spark_shuffle_memory: 8g
+
+#
+# Hadoop vars
+#
+hadoop_checksum:
+hadoop_version: "2.9.2"
+hadoop_major_version: "2"
+hadoop_version_name: "hadoop-{{ hadoop_version }}"
+hadoop_tarball: "{{ hadoop_version_name }}.tar.gz"
+hadoop_base_path: "{{ install_dir }}/hadoop"
+hadoop_home: "{{ hadoop_base_path }}/current"
+hadoop_pid_dir: "/var/run/hadoop"
+hdfs_ha: True
+hdfs_root: hdfs://{{ nameservice_id }}
+journal_quorum: "{% for host in groups['journal_node'] %}{{ hostvars[host]['dataprofiler_fqdn'] }}:8485{% if not loop.last %};{% endif %}{% endfor %}"
+nameservice_id: dataprofilerFS
+
+#
+# Java vars
+#
+java_home: "/usr/lib/jvm/java-8-openjdk-amd64"
+jre_home: "/usr/lib/jvm/java-8-openjdk-amd64/jre"
+
+#
+# Accumulo vars
+#
+accumulo_checksum:
+accumulo_major_version: "1"
+accumulo_version: 1.9.3
+accumulo_version_name: "accumulo-{{ accumulo_version }}"
+accumulo_tarball: "{{ accumulo_version_name }}-bin.tar.gz"
+accumulo_base_path: "{{ install_dir }}/accumulo"
+accumulo_home: "{{ accumulo_base_path }}/current"
+accumulo_instance: "dataprofiler"
+accumulo_user: "accumulo"
+accumulo_password: ""
+num_tservers: 1
+accumulo_dcache_size: 12G
+accumulo_icache_size: 6G
+accumulo_imap_size: 1G
+use_systemd: True
+
+#
+# ZooKeeper dirs
+#
+zookeeper_checksum:
+zookeeper_version: 3.6.1
+
+zookeeper_data_path: "{{ data_dir }}/zookeeper"
+zookeeper_log_path: "{{ data_dir }}/logs/zookeeper"
+zookeeper_basename: "{% if zookeeper_version is version('3.5', '>=') %}apache-zookeeper-{{ zookeeper_version }}-bin{% else %}zookeeper-{{ zookeeper_version }}{% endif %}"
+zookeeper_client_port: "2181"
+zookeeper_connect: "{% for host in groups['zookeepers'] %}{{ hostvars[host]['dataprofiler_fqdn'] }}:2181{% if not loop.last %},{% endif %}{% endfor %}"
+zookeeper_tarball: "{{ zookeeper_basename }}.tar.gz"
+zookeeper_base_path: "{{ install_dir }}/zookeeper"
+zookeeper_home: "{{ zookeeper_base_path }}/current"

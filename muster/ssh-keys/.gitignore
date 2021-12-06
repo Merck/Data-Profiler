@@ -1,0 +1,4 @@
+*
+!*.pub
+!*.crt
+!.gitignore

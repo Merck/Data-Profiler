@@ -1,0 +1,95 @@
+#
+# Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+#
+#	Licensed to the Apache Software Foundation (ASF) under one
+#	or more contributor license agreements. See the NOTICE file
+#	distributed with this work for additional information
+#	regarding copyright ownership. The ASF licenses this file
+#	to you under the Apache License, Version 2.0 (the
+#	"License"); you may not use this file except in compliance
+#	with the License. You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+#
+#	Unless required by applicable law or agreed to in writing,
+#	software distributed under the License is distributed on an
+#	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#	KIND, either express or implied. See the License for the
+#	specific language governing permissions and limitations
+#	under the License.
+#
+- hosts: accumulo
+  become: yes
+  roles:
+    - accumulo
+
+- hosts: accumulo_master
+  become: yes
+  become_user: hdfs
+  tasks:
+    - import_tasks: roles/accumulo/tasks/create-accumulo-dir.yml
+
+- hosts: accumulo_master
+  become: yes
+  become_user: accumulo
+  tasks:
+    - import_tasks: roles/accumulo/tasks/init-accumulo.yml
+  handlers:
+    - import_tasks: roles/accumulo/handlers/init-accumulo.yml
+
+- hosts: accumulo
+  become: yes
+  become_user: accumulo
+  tasks:
+    - name: "start accumulo 1.0"
+      command: "{{ accumulo_home }}/bin/start-here.sh"
+      register: start_result
+      changed_when: "'Starting' in start_result.stdout"
+      when: accumulo_major_version == '1' and use_systemd == False
+
+- hosts: accumulo_workers
+  tasks:
+    - name: "start accumulo 2.0 tablet servers"
+      command: "nohup {{ accumulo_home }}/bin/accumulo-service tserver start"
+      register: start_result
+      changed_when: "'Starting' in start_result.stdout"
+      when: accumulo_major_version == '2' and use_systemd == False
+
+- hosts: accumulo_masters
+  tasks:
+    - name: "start accumulo 2.0 master, monitor, gc & tracer"
+      command: "nohup {{ accumulo_home }}/bin/accumulo-service {{ item }} start"
+      register: start_result
+      changed_when: "'Starting' in start_result.stdout"
+      with_items:
+        - master
+        - monitor
+        - gc
+        - tracer
+      when: accumulo_major_version == '2' and use_systemd == False
+
+- hosts: accumulo_masters
+  become: yes
+  tasks:
+    - name: "install and start all the accumulo services using systemd"
+      block:
+        - import_tasks: roles/accumulo/tasks/start-master.yml
+        - import_tasks: roles/accumulo/tasks/start-gc.yml
+        - import_tasks: roles/accumulo/tasks/start-monitor.yml
+        - import_tasks: roles/accumulo/tasks/start-tracer.yml
+      when: use_systemd == True
+      become: yes
+
+- hosts: accumulo_workers
+  become: yes
+  gather_facts: false
+  tasks:
+    - import_tasks: roles/accumulo/tasks/start-tserver.yml
+      when: use_systemd == True
+      become: yes
+
+- hosts: accumulo_master
+  become: yes
+  tasks:
+    - import_tasks: roles/accumulo/tasks/add-auths.yml

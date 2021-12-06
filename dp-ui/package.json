@@ -1,0 +1,27 @@
+{
+  "name": "dp-ui",
+  "author": "DataProfiler",
+  "private": true,
+  "scripts": {
+    "lint": "lerna run lint",
+    "start": "bin/start",
+    "nuke": "lerna clean --yes && rm yarn.lock &&  rm -r node_modules && \"$npm_execpath\" install && \"$npm_execpath\" run bootstrap",
+    "bootstrap": "lerna bootstrap",
+    "build": "bin/deploy",
+    "add-package": "scaffold/copy.sh"
+  },
+  "devDependencies": {
+    "lerna": "^3.22.0",
+    "prettier": "^2.0.5",
+    "query-string": "6.13.7",
+    "react": "16.13.1",
+    "react-dom": "16.13.1"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "version": "0.0.0",
+  "description": "This project uses a lerna \"monorepo\" setup. The goal is to have loosely coupled \"applications\" that are wrapped by a parent react application. Each application has it's own dependencies, but they are wrapped by lerna.",
+  "main": "jest.config.js",
+  "license": "ISC"
+}

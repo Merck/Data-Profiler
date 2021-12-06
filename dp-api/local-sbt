@@ -1,0 +1,69 @@
+#! /usr/bin/env python3
+
+import subprocess
+import os
+import sys
+import textwrap
+
+DATAPROFILER_NAMESERVERS = []
+PORTS = [9000,9999]
+CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
+RESOLV_CONF = '/etc/resolv.conf'
+DNSMASQ_CONF = CURRENT_PATH + '/local-docker.dns'
+COMPOSE_CONF = CURRENT_PATH + '/local-docker.yml'
+API_SERVICE_NAME = 'api'
+DNSMASQ_SERVICE_NAME = 'dnsmasq'
+LB = '\n'
+DOCKER_COMPOSE = ['docker-compose','-f',COMPOSE_CONF]
+
+
+def get_local_dns():
+  nameservers = []
+  with open(RESOLV_CONF, 'r') as resolv:
+    lines = resolv.readlines()
+    for line in lines:
+      if line.startswith('nameserver'):
+        nameservers.append(line.replace("nameserver","").strip())
+  return nameservers
+
+
+def write_dnsmasq_config():
+  template = textwrap.dedent( """
+    interface=eth0
+    cache-size=0
+    except-interface=lo
+    all-servers
+  """)
+  dataprofiler_ns = LB.join(list(map(lambda ns: "server={}{}server=/xxx/{}".format(ns,LB,ns) ,DATAPROFILER_NAMESERVERS)))
+  local_ns = LB.join(list(map(lambda ns: "server={}".format(ns) ,get_local_dns())))
+
+  with open(DNSMASQ_CONF, 'w') as dnsmasq:
+    dnsmasq.write(template+LB+dataprofiler_ns+LB+local_ns)
+
+def port_fwds():
+  ports = []
+  for port in PORTS:
+    ports.append("-p")
+    ports.append("{}:{}".format(str(port),str(port)))
+  return ports
+
+if __name__ == '__main__':
+  write_dnsmasq_config()
+
+  if len(sys.argv) < 2:
+    cmd = ['sbt']
+  else:
+    cmd = ['sbt', *sys.argv[1:]] if sys.argv[1] != 'sbt' else sys.argv[1:]
+
+  print('\n--')
+  print("Running the following command in a DNS-friendly container: {}".format(" ".join(cmd)))
+  print('--\n')
+
+  up = [*DOCKER_COMPOSE, 'run','--rm',*port_fwds(),API_SERVICE_NAME,*cmd]
+  stop_dns = [*DOCKER_COMPOSE, 'rm','--stop','-f', DNSMASQ_SERVICE_NAME]
+  down = [*DOCKER_COMPOSE,'down','--remove-orphans']
+
+  # Wrapping the up command in the stop_dns will just make sure we get a fresh dns container every time
+  subprocess.run(stop_dns)
+  subprocess.run(up)
+  subprocess.run(down)

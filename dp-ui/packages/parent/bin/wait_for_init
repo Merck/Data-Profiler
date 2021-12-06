@@ -1,0 +1,68 @@
+#!/usr/bin/env node
+
+const fs = require('fs')
+const path = require('path')
+
+const getDirectories = source =>
+  fs
+    .readdirSync(source, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name)
+
+const sleep = time => new Promise(r => setTimeout(r, time))
+
+const checkExists = filePath => {
+  const timeout = 45000
+  return new Promise(function(resolve) {
+    var timer = setTimeout(function() {
+      watcher.close()
+      resolve(
+        `${filePath} did not exists and was not created during the timeout`
+      )
+    }, timeout)
+
+    fs.access(filePath, fs.constants.R_OK, function(err) {
+      if (!err) {
+        clearTimeout(timer)
+        watcher.close()
+        resolve()
+      }
+    })
+
+    var dir = path.dirname(filePath)
+    var basename = path.basename(filePath)
+
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir)
+    }
+
+    var watcher = fs.watch(dir, function(eventType, filename) {
+      if (eventType === 'rename' && filename === basename) {
+        clearTimeout(timer)
+        watcher.close()
+        resolve()
+      }
+    })
+  })
+}
+
+async function wait() {
+  console.log(`Allowing all subprojects to finish their initial build`)
+  await sleep(1500) // Wait a little to let the rimrafs delete
+  const thisDirectory = path
+    .basename(path.join(__dirname, '../'))
+    .split(path.sep)
+    .pop()
+  const packagesPath = path.join(__dirname, '../..')
+  const allOtherPackages = getDirectories(packagesPath).filter(
+    dir => dir !== thisDirectory
+  )
+  const packagesToWaitFor = allOtherPackages.map(dir =>
+    checkExists(`${packagesPath}/${dir}/dist/index.js`)
+  )
+  await Promise.all(packagesToWaitFor)
+  console.log(`All subprojects built`)
+  process.exit(0)
+}
+
+wait()

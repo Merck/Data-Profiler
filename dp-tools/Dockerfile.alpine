@@ -1,0 +1,13 @@
+FROM alpine
+
+RUN apk update && \
+    apk upgrade
+RUN apk add --no-cache gcc python3-dev musl-dev linux-headers \
+  libffi-dev make libevent-dev build-base bash
+RUN ln -s /usr/libexec/gcc/x86_64-alpine-linux-musl/10.2.1/cc1 /usr/local/bin/cc1plus
+RUN apk add --no-cache python3 py3-pip
+RUN apk add --no-cache openjdk8
+
+RUN pip3 install --no-cache-dir --upgrade pip
+
+#CMD ["/bin/bash"]

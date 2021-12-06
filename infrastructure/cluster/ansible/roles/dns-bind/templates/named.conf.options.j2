@@ -1,0 +1,39 @@
+// named.conf.options
+
+{{ ansible_managed | comment('c') }}
+
+options {
+    directory "{{ bind_cache_directory }}";
+    recursion yes;                 # enables recursive queries
+    allow-recursion { trusted; };  # allows recursive queries from "trusted" clients
+    listen-on port 53 {
+        {{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }};
+    };   # ns1 private IP address - listen on private network only
+
+    {% if 'dns_primary' in group_names %}
+    allow-transfer {
+    {% for host in groups['dns_secondary'] %}
+        {{ hostvars[host]['ansible_facts']['default_ipv4']['address'] }};
+    {% endfor %}
+    };
+    {% elif 'dns_secondary' in group_names %}
+    allow-transfer {
+        none;
+    };
+    {% endif %}
+
+    forwarders {
+    {% for match in bind_forwarders %}
+        {{ match }};
+    {% endfor %}
+    };
+
+    {% if bind_dnssec_enabled == 'yes' %}
+    dnssec-validation yes;
+    {% else %}
+    dnssec-validation no;
+    {% endif %}
+
+    auth-nxdomain no;
+    querylog yes;
+};
