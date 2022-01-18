@@ -33,13 +33,13 @@ ADD blank_file ./conf/swagger.yml
 ADD project/build.properties ./project/build.properties
 ADD project/plugins.sbt ./project/plugins.sbt
 
-# Build the cached version of build.sbt
-ADD build.sbt.cached ./build.sbt
 RUN sbt update
 
 # Add data_profiler core jars
 ADD data_profiler_core_jars /opt/api/data_profiler_core_jars
-RUN for filename in /opt/api/data_profiler_core_jars/*.jar; do mvn install:install-file -Dfile="$filename" || continue; done
+# install file plugin version 2.5.2+ required, will use jar metadata to generate groupId, etc
+RUN for filename in /opt/api/data_profiler_core_jars/*.jar; do \
+      mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile="$filename" || continue; done
 
 # Build everything
 ADD build.sbt /opt/api/

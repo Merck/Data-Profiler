@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
 """
   Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
- 
+
  	Licensed to the Apache Software Foundation (ASF) under one
  	or more contributor license agreements. See the NOTICE file
  	distributed with this work for additional information
@@ -8,10 +9,10 @@
  	to you under the Apache License, Version 2.0 (the
  	"License"); you may not use this file except in compliance
  	with the License. You may obtain a copy of the License at
- 
+
  	http://www.apache.org/licenses/LICENSE-2.0
- 
- 
+
+
  	Unless required by applicable law or agreed to in writing,
  	software distributed under the License is distributed on an
  	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,7 +20,6 @@
  	specific language governing permissions and limitations
  	under the License.
 """
-#!/usr/bin/env python3
 
 import subprocess
 import os
@@ -66,10 +66,10 @@ components = backend_components + frontend_components
 docker_build_dir_dict = {
     'dp-accumulo': f'{_root_path}/conf/dp-accumulo',
     'dp-postgres': f'{_root_path}/conf/dp-postgres',
-    'dp-api': f'{_dataprofiler_path}/web/api',
+    'dp-api': f'{_dataprofiler_path}/../dp-api',
     'dp-rou': f'{_dataprofiler_path}/rules-of-use-api',
-    'dp-data-loading-daemon': f'{_dataprofiler_path}/data-loading-daemon',
-    'dp-jobs-api': f'{_dataprofiler_path}/jobs-api',
+    'dp-data-loading-daemon': f'{_dataprofiler_path}/services/data-loading-daemon',
+    'dp-jobs-api': f'{_dataprofiler_path}/services/jobs-api',
     'dp-spark-sql-controller': f'{_dataprofiler_path}/spark-sql/controller',
     'dp-ui': f'{_dataprofiler_path}/dp-ui'
 }

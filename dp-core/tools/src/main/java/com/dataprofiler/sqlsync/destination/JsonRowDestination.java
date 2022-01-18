@@ -27,16 +27,20 @@ package com.dataprofiler.sqlsync.destination;
  */
 
 import static java.lang.String.format;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 import static java.util.Objects.isNull;
 
-import com.google.common.base.Stopwatch;
-import org.apache.log4j.Logger;
+import java.time.Duration;
+import java.time.Instant;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JsonRowDestination implements RowDestination {
-  private static final Logger logger = Logger.getLogger(JsonRowDestination.class);
+  private static final Logger logger = LoggerFactory.getLogger(JsonRowDestination.class);
   private static final String EXPORT_SYMBOL = "\u2192";
 
   SaveMode saveMode = DEFAULT_SAVE_MODE;
@@ -70,16 +74,17 @@ public class JsonRowDestination implements RowDestination {
       return;
     }
 
-    Stopwatch stopwatch = new Stopwatch();
-    stopwatch.start();
+    Instant start = now();
     if (repartition > 0) {
       rows = rows.repartition(repartition);
     }
     logger.info(format("writing json to: %s%n", outputPath));
     rows.write().format("json").save(outputPath);
 
+    Instant end = now();
+    Duration duration = between(start, end);
     if (logger.isInfoEnabled()) {
-      logger.info(format("%s finished writing export time: %", EXPORT_SYMBOL, stopwatch));
+      logger.info(format("%s finished writing export time: %", EXPORT_SYMBOL, duration));
     }
   }
 }

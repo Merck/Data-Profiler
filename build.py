@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 """
   Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
  
@@ -19,7 +20,6 @@
  	specific language governing permissions and limitations
  	under the License.
 """
-#! /usr/bin/env python3
 
 # This parses the pom files to get the version numbers that we need and then spits out the names of the
 # jar files that we need
@@ -36,19 +36,19 @@ import getpass
 import fnmatch
 
 DEP_PROJECTS = [
-    'data_profiler_core'
+    'dp-core'
 ]
 
 TOOL_PROJECTS = [
-    ('data_profiler_core/tools', 'data_profiler_core')
+    ('dp-core/tools', 'dp-core')
 ]
 
 ITERATOR_PROJECTS = [
-    ('data_profiler_core/iterators', 'data_profiler_core')
+    ('dp-core/iterators', 'dp-core')
 ]
 
 LASTMILE_PROJECTS = [
-    ('data_profiler_core/lastmile', 'data_profiler_core')
+    ('dp-core/lastmile', 'dp-core')
 ]
 
 PYTHON_PROJRECTS = [
@@ -62,13 +62,13 @@ LASTMILE_JAR_DIR = ROOT_JAR_DIR + 'lastmile'
 PYTHON_PACKAGE_DIR = ROOT_JAR_DIR + 'python_packages'
 
 JAR_OUTPUT_DIRS = [
-    "web/api",
-    "data-loading-daemon",
-    "download",
-    "sqlsync",
-    "dataset-performance",
-    "dataset-delta",
-    "dataset-quality"
+    "dp-api",
+    "services/data-loading-daemon",
+    "tekton-jobs/download",
+    "tekton-jobs/sqlsync",
+    "tekton-jobs/dataset-performance",
+    "tekton-jobs/dataset-delta",
+    "tekton-jobs/dataset-quality"
 ]
 
 def clean_output():
@@ -76,7 +76,7 @@ def clean_output():
 
 def build_project(project_dir):
     subprocess.run(['mvn', 'clean', 'install', '-B',
-    '-DskipTests', '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'], 
+    '-DskipTests', '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'],
     cwd=project_dir, check=True)
 
 def get_output(cmd):
@@ -190,11 +190,11 @@ if __name__ == '__main__':
                 new_path = os.path.dirname(os.path.dirname(ROOT_JAR_DIR)) + output_path + "/data_profiler_core_jars/" + \
                     inputFilename.split("/")[-1]
                 shutil.copyfile(inputFilename, new_path)
-        shutil.copy(wheel, 'data-loading-daemon/python_packages')
-        shutil.copy(wheel, 'download/python_packages')
-        shutil.copy(wheel, 'sqlsync/python_packages')
-        shutil.copy(wheel, 'dataset-performance/python_packages')
-        shutil.copy(wheel, 'dataset-delta/python_packages')
-        shutil.copy(wheel, 'dataset-quality/python_packages')
+        shutil.copy(wheel, 'services/data-loading-daemon/python_packages')
+        shutil.copy(wheel, 'tekton-jobs/download/python_packages')
+        shutil.copy(wheel, 'tekton-jobs/sqlsync/python_packages')
+        shutil.copy(wheel, 'tekton-jobs/dataset-performance/python_packages')
+        shutil.copy(wheel, 'tekton-jobs/dataset-delta/python_packages')
+        shutil.copy(wheel, 'tekton-jobs/dataset-quality/python_packages')
 
     sys.exit(0)
