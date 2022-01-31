@@ -27,6 +27,8 @@ package com.dataprofiler.sqlsync.destination;
  */
 
 import static java.lang.String.format;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -34,9 +36,9 @@ import com.dataprofiler.sqlsync.provider.conversion.SparkToPostgresTypeConversio
 import com.dataprofiler.sqlsync.provider.conversion.SparkToRedshiftTypeConversionProvider;
 import com.dataprofiler.sqlsync.provider.validation.PostgresValidationRulesProvider;
 import com.dataprofiler.sqlsync.provider.validation.ValidatonRulesProvider;
-import com.google.common.base.Stopwatch;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Properties;
-import org.apache.log4j.Logger;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -44,10 +46,12 @@ import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.collection.Iterator;
 
 public class JdbcRowDestination implements RowDestination {
-  private static final Logger logger = Logger.getLogger(JdbcRowDestination.class);
+  private static final Logger logger = LoggerFactory.getLogger(JdbcRowDestination.class);
   private static final String EXPORT_SYMBOL = "\u2192";
 
   protected SaveMode saveMode = DEFAULT_SAVE_MODE;
@@ -92,12 +96,12 @@ public class JdbcRowDestination implements RowDestination {
   }
 
   public void write(Dataset<Row> rows) {
-    Stopwatch stopwatch = new Stopwatch();
-    stopwatch.start();
+    Instant start = now();
     if (isNull(rows) || rows.isEmpty()) {
-      stopwatch.stop();
+      Instant end = now();
+      Duration duration = between(start, end);
       if (logger.isInfoEnabled()) {
-        logger.info(format("%s no rows to write! time: %s", EXPORT_SYMBOL, stopwatch));
+        logger.info(format("%s no rows to write! time: %s", EXPORT_SYMBOL, duration));
       }
       return;
     }
@@ -164,9 +168,10 @@ public class JdbcRowDestination implements RowDestination {
         .option("createTableColumnTypes", schema)
         .jdbc(url, quoteEscapedTable, props);
 
-    stopwatch.stop();
+    Instant end = now();
+    Duration duration = between(start, end);
     if (logger.isInfoEnabled()) {
-      logger.info(format("%s finished writing export time: %s", EXPORT_SYMBOL, stopwatch));
+      logger.info(format("%s finished writing export time: %s", EXPORT_SYMBOL, duration));
     }
   }
 

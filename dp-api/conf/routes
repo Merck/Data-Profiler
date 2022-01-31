@@ -376,21 +376,6 @@ GET /treemap controllers.accumulo.AccumuloControllerTreemap.treemap(request: Req
 #   '500':
 #     $ref: '#/components/responses/InternalServerError'
 ###
-GET /transforms controllers.TransformsController.get(request: Request)
-
-###
-# tags:
-#   - private_api
-# responses:
-#   '200':
-#     $ref: '#/components/responses/Undocumented'
-#   '401':
-#     $ref: '#/components/responses/Unauthorized'
-#   '403':
-#     $ref: '#/components/responses/Forbidden'
-#   '500':
-#     $ref: '#/components/responses/InternalServerError'
-###
 POST  /colcounts  controllers.accumulo.AccumuloControllerV1.colCounts(request: Request)
 
 ###

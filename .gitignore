@@ -23,7 +23,6 @@ dependency-reduced-pom.xml
 *.classpath
 *http-client.private.env.json
 settings.json
-build.properties
 pc.stdout.log
 *.vsls.json
 
@@ -49,3 +48,7 @@ __pycache__
 .factorypath
 
 .sentryclirc
+
+
+**/data_profiler_core_jars/*
+**/python_packages/*

@@ -19,20 +19,33 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM ubuntu:xenial
+FROM ubuntu:focal
 
-ENV BUILD_DEPS="apt-transport-https"
+# https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html#Ubuntu+and+other+Debian-based+distributions
 
-RUN apt-get update && apt-get install ${BUILD_DEPS} -y
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/New_York
+ENV BUILD_DEPS="apt-transport-https curl gnupg"
 
-ADD sbt.gpg .
+RUN apt-get update && \
+         apt-get upgrade -y && \
+         apt-get install apt-transport-https \
+                curl \
+                gnupg -y && \
+	 apt-get install openjdk-8-jdk maven -y
 
-RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list && \
-  apt-key add sbt.gpg && \
-  apt-get update && \
-  apt-get install netcat default-jdk maven sbt=1.2.8 dnsutils bc -y && \
-  rm sbt.gpg
+RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list && \
+        echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list && \
+        curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import && \
+        chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
+RUN apt-get update
+RUN apt-get install sbt=1.6.1 -y && cd /root && sbt --version
 
-RUN apt-get remove --purge -y ${BUILD_DEPS} && \
-    apt-get autoremove -y && \
-    rm -R /var/lib/apt/lists/*
+RUN update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/bin/java 1 && \
+        update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/java-8-openjdk-amd64/bin/javac 1 && \
+        update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/bin/javac && \
+        update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
+
+RUN apt-get remove --purge -y apt-transport-https curl gnupg && \
+        apt-get autoremove -y && \
+        rm -R /var/lib/apt/lists/*
