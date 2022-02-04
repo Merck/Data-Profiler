@@ -1,4 +1,6 @@
+#!/usr/bin/env bash
 #
+
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
 #	Licensed to the Apache Software Foundation (ASF) under one
@@ -19,5 +21,5 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#!/bin/sh
+
 /home/kubectl patch pipelinerun $(/home/kubectl get pipelinerun -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.params[0].value}{"\n"}{end}' | grep ${1} | awk '{print $1}') --type merge -p '{"spec":{"status":"PipelineRunCancelled"}}'

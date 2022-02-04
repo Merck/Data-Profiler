@@ -45,4 +45,22 @@ spec:
         - containerPort: 7999
         stdin: true
         tty: true
-
+        env:
+          - name: RULES_OF_USE_API_PATH
+            value: http://dp-rou:8081/
+          - name: USER_FACING_API_HTTP_PATH
+            value: http://dp-api:9000/api
+          - name: SPARK_SQL_API_KEY
+            value:
+          - name: SPARK_SQL_ADMIN_USERNAME
+            value:
+          - name: SPARK_SQL_ADMIN_PASSWORD
+            value:
+          - name: SPARK_SQL_API_USERNAME
+            value:
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark
+  namespace: default

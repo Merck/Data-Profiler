@@ -22,6 +22,7 @@
 import React from 'react'
 import LocalDeveloperAuthentication from './LocalDeveloperAuthentication'
 import { DPContext, DPLoginPrep } from '@dp-ui/lib'
+import OAuth from './OAuth'
 
 const message =
   "The Data Profiler isn't connected to the API. Please refresh the page or contact the data profiler team for assistance"

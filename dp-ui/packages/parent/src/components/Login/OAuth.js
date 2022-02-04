@@ -40,4 +40,4 @@ class OAuth extends React.Component {
   }
 }
 
-export default DPContext(oAuth)
+export default DPContext(OAuth)

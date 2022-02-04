@@ -27,4 +27,4 @@ set -x
 # try passing csv path like; src/test/resources/basic_test_data.csv
 # Or pass blank args to get some "reasonable default" data as defined in MiniAccumuloWithData#startAndLoadReasonableDefaults
 
-java -cp "/opt/spark/jars/*:/dataprofiler-tools-1.jar" com..dataprofiler.MiniAccumuloWithData "${@}"
+java -cp "/opt/spark/jars/*:/dataprofiler-tools-1.jar" com.dataprofiler.MiniAccumuloWithData "${@}"

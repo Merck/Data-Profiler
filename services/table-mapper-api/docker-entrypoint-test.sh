@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,7 +20,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#! /bin/bash
+
 set -e
 cd /opt/app
 

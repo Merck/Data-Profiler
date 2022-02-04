@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,7 +20,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#!/usr/bin/env bash
+
 
 while ! nc -z -v -w30 backend 2181; do
   echo "Waiting for accumulo to stand up..."

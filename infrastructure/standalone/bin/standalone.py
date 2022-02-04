@@ -67,11 +67,11 @@ docker_build_dir_dict = {
     'dp-accumulo': f'{_root_path}/conf/dp-accumulo',
     'dp-postgres': f'{_root_path}/conf/dp-postgres',
     'dp-api': f'{_dataprofiler_path}/../dp-api',
-    'dp-rou': f'{_dataprofiler_path}/rules-of-use-api',
-    'dp-data-loading-daemon': f'{_dataprofiler_path}/services/data-loading-daemon',
-    'dp-jobs-api': f'{_dataprofiler_path}/services/jobs-api',
-    'dp-spark-sql-controller': f'{_dataprofiler_path}/spark-sql/controller',
-    'dp-ui': f'{_dataprofiler_path}/dp-ui'
+    'dp-rou': f'{_dataprofiler_path}/../services/rules-of-use-api',
+    'dp-data-loading-daemon': f'{_dataprofiler_path}/../services/data-loading-daemon',
+    'dp-jobs-api': f'{_dataprofiler_path}/../services/jobs-api',
+    'dp-spark-sql-controller': f'{_dataprofiler_path}/../spark-sql/spark-sql-controller',
+    'dp-ui': f'{_dataprofiler_path}/../dp-ui'
 }
 
 logger = logging.getLogger("standalone")
@@ -393,7 +393,7 @@ def check_minikube_status():
 
 
 def check_pod_status(app):
-    process = exec_cmd(['./util/check_pod_status.sh', app])
+    process = exec_cmd([f'{_root_path}/util/check_pod_status.sh', app])
     return process
 
 

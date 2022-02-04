@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,7 +20,6 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#!/bin/bash
 
 # Activate ROU attributes
 curl localhost:8081/graphql -H 'Authorization: dp-rou-key' -H 'Content-Type: application/json' -XPOST --data '{"query":"mutation {markAttributeActive(value:\"system.admin\"){id value is_active}}"}'

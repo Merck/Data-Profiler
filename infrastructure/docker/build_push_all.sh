@@ -24,7 +24,7 @@
 tag_and_push() { 
     COMPONENT=$(echo $1 | awk -F "/" '{print $2}')
     BUILD_PATH=$(dirname $1)
-    docker build --no-cache --pull -t "container-registry.com/$COMPONENT:latest" $BUILD_PATH
+    docker build --no-cache --pull -t "container-registry.dataprofiler.com/$COMPONENT:latest" $BUILD_PATH
     docker push "container-registry..com/$COMPONENT:latest"
 };
 export -f tag_and_push; 

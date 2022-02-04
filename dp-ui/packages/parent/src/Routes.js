@@ -30,13 +30,11 @@ import Tutorial from './components/Tutorial'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { ensureFirstLoginSet } from './provider.js'
 import { once } from 'lodash'
-import { MMD_QUALITY_FEATURE_FLAG } from './features'
 
 const Settings = lazy(() => import('@dp-ui/settings'))
 const Treemap = lazy(() => import('@dp-ui/treemap'))
 const DownloadTest = lazy(() => import('@dp-ui/download-test'))
 const JobStatus = lazy(() => import('@dp-ui/job-status'))
-const LandingPage = lazy(() => import('@dp-ui/landing-page'))
 const Office365Callback = lazy(() => import('@dp-ui/row-viewer/dist/Callback'))
 const ApplicationsDisplayGrid = lazy(() =>
   import('./components/ApplicationsDisplayGrid')
@@ -66,15 +64,6 @@ function Routes(props) {
       <Route path="/download" component={DownloadTest} />
       <Route path="/settings" component={Settings} />
       <Route path="/job_status" component={JobStatus} />
-      <Route
-        path="/landing"
-        render={(match) => (
-          <LandingPage
-            {...match}
-            completedHandler={once(ensureFirstLoginSet)}
-          />
-        )}
-      />
       <Route path="/tutorial" component={Tutorial} />
       <Route exact path="/login" component={Login} />
       <Route exact path="/logout" component={Logout} />
