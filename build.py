@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 """
   Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
- 
+
  	Licensed to the Apache Software Foundation (ASF) under one
  	or more contributor license agreements. See the NOTICE file
  	distributed with this work for additional information
@@ -9,10 +9,10 @@
  	to you under the Apache License, Version 2.0 (the
  	"License"); you may not use this file except in compliance
  	with the License. You may obtain a copy of the License at
- 
+
  	http://www.apache.org/licenses/LICENSE-2.0
- 
- 
+
+
  	Unless required by applicable law or agreed to in writing,
  	software distributed under the License is distributed on an
  	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -55,14 +55,13 @@ PYTHON_PROJECTS = [
     'python_client'
 ]
 
-ROOT_JAR_DIR = 'lib/'
-TOOL_JAR_DIR = ROOT_JAR_DIR + 'tools'
-ITERATOR_JAR_DIR = ROOT_JAR_DIR + 'iterators'
-LASTMILE_JAR_DIR = ROOT_JAR_DIR + 'lastmile'
-PYTHON_PACKAGE_DIR = ROOT_JAR_DIR + 'python_packages'
+ROOT_JAR_DIR = 'lib'
+TOOL_JAR_DIR = os.path.join(ROOT_JAR_DIR, 'tools')
+ITERATOR_JAR_DIR = os.path.join(ROOT_JAR_DIR, 'iterators')
+LASTMILE_JAR_DIR = os.path.join(ROOT_JAR_DIR, 'lastmile')
+PYTHON_PACKAGE_DIR = os.path.join(ROOT_JAR_DIR, 'python_packages')
 
-JAR_OUTPUT_DIRS = [
-    "dp-api",
+PYTHON_OUTPUT_DIRS = [
     "services/data-loading-daemon",
     "tekton-jobs/download",
     "tekton-jobs/sqlsync",
@@ -71,16 +70,24 @@ JAR_OUTPUT_DIRS = [
     "tekton-jobs/dataset-quality"
 ]
 
+
+JAR_OUTPUT_DIRS = ["dp-api"]
+JAR_OUTPUT_DIRS.extend(PYTHON_OUTPUT_DIRS)
+
+
 def clean_output():
     shutil.rmtree(ROOT_JAR_DIR, ignore_errors=True)
 
+
 def build_project(project_dir):
     subprocess.run(['mvn', 'clean', 'install', '-B',
-    '-DskipTests', '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'],
-    cwd=project_dir, check=True)
+                    '-DskipTests', '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'],
+                   cwd=project_dir, check=True)
+
 
 def get_output(cmd):
     return subprocess.run(cmd, shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8').strip()
+
 
 def get_git_info():
     branch = get_output('git rev-parse --abbrev-ref HEAD')
@@ -92,6 +99,7 @@ def get_git_info():
 
     return "%s (%s)%s" % (branch, hash, dirty)
 
+
 def copy_output(project_dir, output_dir):
     pom_fname = project_dir + '/pom.xml'
     artiface_name, version, src_jar_fname = pom2jar(project_dir, pom_fname)
@@ -101,10 +109,13 @@ def copy_output(project_dir, output_dir):
     shutil.copy(src_jar_fname, target_jar_fname)
 
     with open(output_dir + '/versions.txt', 'a') as fd:
-        fd.write('%s (%s) - %s/%s - %s@%s - %s\n' % (target_jar_name, artiface_name, version, datetime.datetime.now().isoformat(), getpass.getuser(), platform.node(), get_git_info()))
+        fd.write('%s (%s) - %s/%s - %s@%s - %s\n' % (target_jar_name, artiface_name, version,
+                 datetime.datetime.now().isoformat(), getpass.getuser(), platform.node(), get_git_info()))
+
 
 def copy_directory(src_dir, dest_dir):
     shutil.copytree(src_dir, dest_dir)
+
 
 def pom2jar(project, pom_fname):
     ns = {'pom': 'http://maven.apache.org/POM/4.0.0'}
@@ -117,20 +128,25 @@ def pom2jar(project, pom_fname):
     else:
         version = root.find('pom:parent/pom:version', ns).text
 
-    plugins = [x.text for x in root.findall('pom:build/pom:plugins/pom:plugin/pom:artifactId', ns)]
+    plugins = [x.text for x in root.findall(
+        'pom:build/pom:plugins/pom:plugin/pom:artifactId', ns)]
 
     if 'maven-assembly-plugin' in plugins:
-        jar_fname = "%s/target/%s-%s-jar-with-dependencies.jar" % (project, artifact_name, version)
+        jar_fname = "%s/target/%s-%s-jar-with-dependencies.jar" % (
+            project, artifact_name, version)
     else:
         jar_fname = "%s/target/%s-%s.jar" % (project, artifact_name, version)
 
     return artifact_name, version, jar_fname
 
+
 def expand_projects(jar_dir, projects):
     return [(x, jar_dir) for x in projects]
 
+
 def list_files_in_dir(dirname):
     return [os.path.join(dirname, f) for f in os.listdir(dirname) if os.path.isfile(os.path.join(dirname, f))]
+
 
 def build_python_project(project_dir):
     subprocess.run(['./setup.py', 'clean', '-a'], cwd=project_dir)
@@ -139,7 +155,8 @@ def build_python_project(project_dir):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='DataProfiler uber build tool')
+    parser = argparse.ArgumentParser(
+        description='DataProfiler uber build tool')
     parser.add_argument('--just-copy', default=False, action='store_true')
     parser.add_argument('--just-python', default=False, action='store_true')
     parser.add_argument('--api-copy', default=False, action='store_true')
@@ -160,7 +177,8 @@ if __name__ == '__main__':
                 build_project(d)
                 already_built_dirs.add(d)
 
-    commands = expand_projects(TOOL_JAR_DIR, TOOL_PROJECTS) + expand_projects(ITERATOR_JAR_DIR, ITERATOR_PROJECTS) + expand_projects(LASTMILE_JAR_DIR, LASTMILE_PROJECTS)
+    commands = expand_projects(TOOL_JAR_DIR, TOOL_PROJECTS) + expand_projects(
+        ITERATOR_JAR_DIR, ITERATOR_PROJECTS) + expand_projects(LASTMILE_JAR_DIR, LASTMILE_PROJECTS)
 
     for project, output_dir in commands:
         if isinstance(project, tuple):
@@ -180,21 +198,27 @@ if __name__ == '__main__':
         wheel = build_python_project(project_dir)
         shutil.copy(wheel, PYTHON_PACKAGE_DIR)
 
-    if (args.api_copy == True):
+    if args.api_copy:
         matches = []
         for root, dirnames, filenames in os.walk(ROOT_JAR_DIR):
-            for inputFilename in fnmatch.filter(filenames, 'dataprofiler*.jar'):
-                matches.append(os.path.join(root, inputFilename))
-        for inputFilename in matches:
-            for output_path in JAR_OUTPUT_DIRS:
-                new_path = os.path.dirname(os.path.dirname(ROOT_JAR_DIR)) + output_path + "/data_profiler_core_jars/" + \
-                    inputFilename.split("/")[-1]
-                shutil.copyfile(inputFilename, new_path)
-        shutil.copy(wheel, 'services/data-loading-daemon/python_packages/')
-        shutil.copy(wheel, 'tekton-jobs/download/python_packages/')
-        shutil.copy(wheel, 'tekton-jobs/sqlsync/python_packages/')
-        shutil.copy(wheel, 'tekton-jobs/dataset-performance/python_packages/')
-        shutil.copy(wheel, 'tekton-jobs/dataset-delta/python_packages/')
-        shutil.copy(wheel, 'tekton-jobs/dataset-quality/python_packages/')
+            for input_filename in fnmatch.filter(filenames, 'dataprofiler*.jar'):
+                matches.append(os.path.join(root, input_filename))
+        for input_filename in matches:
+            for output_dir in JAR_OUTPUT_DIRS:
+                output_path = os.path.join(
+                    output_dir, 'data_profiler_core_jars')
+                if not os.path.exists(output_path):
+                    os.mkdir(output_path)
+
+                output_filename = os.path.join(
+                    output_path, input_filename.split("/")[-1])
+
+                shutil.copyfile(input_filename, output_filename)
+
+        for output_dir in PYTHON_OUTPUT_DIRS:
+            output_path = os.path.join(output_dir, 'python_packages')
+            if not os.path.exists(output_path):
+                os.mkdir(output_path)
+            shutil.copy(wheel, output_path)
 
     sys.exit(0)
