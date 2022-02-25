@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,7 +20,6 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#!/bin/sh
 
 app="$1"
 

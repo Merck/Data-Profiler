@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,11 +20,14 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#!/usr/bin/env bash
+
 
 while ! nc -z -v -w30 dp-accumulo 2181; do
   echo "Waiting for accumulo to stand up..."
   sleep 5
 done
 
-/opt/api/target/universal/stage/bin/dataprofiler-api-launcher.sh
+$APPLICATION_SECRET=${1:-testingxyz123}
+
+/opt/api/target/universal/stage/bin/dataprofiler-api-launcher.sh \
+  -Dplay.http.secret.key=$APPLICATION_SECRET

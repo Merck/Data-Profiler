@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,7 +20,6 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#! /bin/bash
 
 # The real purpose of this beautiful shell script is just to finish setting
 # up the environment so that when download.py runs spark-submit all of the

@@ -1,24 +1,24 @@
 /**
-*  Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
-* 
-* 	Licensed to the Apache Software Foundation (ASF) under one
-* 	or more contributor license agreements. See the NOTICE file
-* 	distributed with this work for additional information
-* 	regarding copyright ownership. The ASF licenses this file
-* 	to you under the Apache License, Version 2.0 (the
-* 	"License"); you may not use this file except in compliance
-* 	with the License. You may obtain a copy of the License at
-* 
-* 	http://www.apache.org/licenses/LICENSE-2.0
-* 
-* 
-* 	Unless required by applicable law or agreed to in writing,
-* 	software distributed under the License is distributed on an
-* 	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* 	KIND, either express or implied. See the License for the
-* 	specific language governing permissions and limitations
-* 	under the License.
-**/
+ *  Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+ *
+ * 	Licensed to the Apache Software Foundation (ASF) under one
+ * 	or more contributor license agreements. See the NOTICE file
+ * 	distributed with this work for additional information
+ * 	regarding copyright ownership. The ASF licenses this file
+ * 	to you under the Apache License, Version 2.0 (the
+ * 	"License"); you may not use this file except in compliance
+ * 	with the License. You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *
+ * 	Unless required by applicable law or agreed to in writing,
+ * 	software distributed under the License is distributed on an
+ * 	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * 	KIND, either express or implied. See the License for the
+ * 	specific language governing permissions and limitations
+ * 	under the License.
+ **/
 package controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,12 +49,6 @@ public class InfoController extends Controller {
 
   public Result info(Request req) {
     ObjectNode ret = mapper.createObjectNode();
-    Boolean isAlt = false;
-    String altParam = req.getQueryString("alt");
-    if (altParam != null && altParam.equals("true")) {
-      isAlt = true;
-      ret.put("altAuth", true);
-    }
 
     ret.put("authenticationType", this.config.getString("auth.method"));
     ret.put("clusterName", this.config.getString("cluster.name"));
@@ -70,16 +64,10 @@ public class InfoController extends Controller {
     }
 
     String oAuthServer = this.config.getString("oAuthServer");
-    String altOAuthServer = this.config.getString("oAuthServerAlt");
-    if (oAuthServer != null && !oAuthServer.isEmpty()) {
-      ret.put("oAuthServer", isAlt ? altOAuthServer : oAuthServer);
-    }
+    ret.put("oAuthServer", oAuthServer);
 
     String oAuthConsumerId = this.config.getString("oAuthConsumerId");
-    String altOAuthConsumerId = this.config.getString("oAuthConsumerIdAlt");
-    if (oAuthConsumerId != null && !oAuthConsumerId.isEmpty()) {
-      ret.put("oAuthConsumerId", isAlt ? altOAuthConsumerId : oAuthConsumerId);
-    }
+    ret.put("oAuthConsumerId", oAuthConsumerId);
     return ok(Json.toJson(ret));
   }
 

@@ -51,7 +51,7 @@ LASTMILE_PROJECTS = [
     ('dp-core/lastmile', 'dp-core')
 ]
 
-PYTHON_PROJRECTS = [
+PYTHON_PROJECTS = [
     'python_client'
 ]
 
@@ -176,7 +176,7 @@ if __name__ == '__main__':
         copy_output(project_dir, output_dir)
 
     wheel = None
-    for project_dir in PYTHON_PROJRECTS:
+    for project_dir in PYTHON_PROJECTS:
         wheel = build_python_project(project_dir)
         shutil.copy(wheel, PYTHON_PACKAGE_DIR)
 
@@ -190,11 +190,11 @@ if __name__ == '__main__':
                 new_path = os.path.dirname(os.path.dirname(ROOT_JAR_DIR)) + output_path + "/data_profiler_core_jars/" + \
                     inputFilename.split("/")[-1]
                 shutil.copyfile(inputFilename, new_path)
-        shutil.copy(wheel, 'services/data-loading-daemon/python_packages')
-        shutil.copy(wheel, 'tekton-jobs/download/python_packages')
-        shutil.copy(wheel, 'tekton-jobs/sqlsync/python_packages')
-        shutil.copy(wheel, 'tekton-jobs/dataset-performance/python_packages')
-        shutil.copy(wheel, 'tekton-jobs/dataset-delta/python_packages')
-        shutil.copy(wheel, 'tekton-jobs/dataset-quality/python_packages')
+        shutil.copy(wheel, 'services/data-loading-daemon/python_packages/')
+        shutil.copy(wheel, 'tekton-jobs/download/python_packages/')
+        shutil.copy(wheel, 'tekton-jobs/sqlsync/python_packages/')
+        shutil.copy(wheel, 'tekton-jobs/dataset-performance/python_packages/')
+        shutil.copy(wheel, 'tekton-jobs/dataset-delta/python_packages/')
+        shutil.copy(wheel, 'tekton-jobs/dataset-quality/python_packages/')
 
     sys.exit(0)

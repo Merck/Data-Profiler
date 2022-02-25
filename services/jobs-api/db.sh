@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,6 +20,5 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#! /bin/bash
 
 docker exec -it jobs-api_db_1 psql -U postgres

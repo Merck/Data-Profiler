@@ -1,4 +1,6 @@
+#!/usr/bin/env bash
 #
+
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
 #	Licensed to the Apache Software Foundation (ASF) under one
@@ -19,6 +21,5 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#!/usr/bin/env bash
 
 while true; do sleep 60; done &

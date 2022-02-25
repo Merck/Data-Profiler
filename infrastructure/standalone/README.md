@@ -19,6 +19,35 @@ The following containerized deployments are currently supported:
 * Minikube
 * Helm
 
+### Prerequirements for opensource branch
+
+The opensource branch does not have certain base images in a shared container registry. You will need to build the images manually with the following steps.
+```bash
+git clone https://github.com/apache/spark.git
+git checkout tags/v2.4.5 -b v2.4.5-branch
+dev/make-distribution.sh --name k8s-spark --tgz -Phadoop-2.7 -Phive -Phive-thriftserver -Pkubernetes
+cd dist
+docker build -t container-registry.dataprofiler.com/spark-hive-k8s:2.4.5 -f kubernetes/dockerfiles/spark/Dockerfile .
+
+cd docker/java
+docker build -t container-registry.dataprofiler.com/java .
+
+cd docker/playframework_base
+docker build -t container-registry.dataprofiler.com/playframework_base .
+
+cd docker/hadoop
+docker build -t container-registry.dataprofiler.com/hadoop .
+
+cd docker/nodepg
+docker build -t container-registry.dataprofiler.com/nodepg .
+
+cd docker/nodeyarn
+docker build -t container-registry.dataprofiler.com/nodeyarn .
+
+./build.py --api-copy
+cp dp-core/tools/target/dataprofiler-tools-1.jar infrastructure/standalone/conf/dp-accumulo/jars/.
+```
+
 ### Quick Start / Notes
 
 Starting Minikube:

@@ -19,13 +19,16 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM ubuntu:bionic
+FROM ubuntu:focal
 
 ENV HADOOP_VER hadoop-2.9.2
 ENV HADOOP_TARBALL ${HADOOP_VER}.tar.gz
 
 ENV SPARK_VER spark-2.4.7
 ENV SPARK_TARBALL ${SPARK_VER}-bin-without-hadoop.tgz
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/New_York
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 
@@ -41,11 +44,9 @@ WORKDIR /opt/spark
 RUN tar xfvz /tmp/${SPARK_TARBALL}
 RUN ln -s ${SPARK_VER}-bin-without-hadoop current
 
-RUN apt-get update && apt-get install openjdk-8-jdk python3.7 python3-pip curl htop -y
-RUN update-java-alternatives -s java-1.8.0-openjdk-amd64
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
+RUN apt-get update && apt-get install openjdk-8-jdk python3 python3-pip curl htop -y
+
 RUN pip3 install --upgrade pip
-RUN ln -s /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/default-java 
 
 RUN groupadd --gid 1000 hdfs \
     && useradd --uid 1000 --gid hdfs --shell /bin/bash --create-home hdfs \

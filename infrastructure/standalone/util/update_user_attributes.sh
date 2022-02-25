@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,6 +20,5 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#!/bin/bash
 
 kubectl exec -it $(kubectl get pods | grep dp-postgres | awk '{print $1;}') -c dp-postgres -- psql -U postgres -d rules_of_use -a -f /scripts/script.sql

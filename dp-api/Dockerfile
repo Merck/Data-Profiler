@@ -19,7 +19,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM container-registry/playframework_base:latest AS builder
+FROM container-registry.dataprofiler.com/playframework_base:latest AS builder
 
 MAINTAINER dataprofiler
 
@@ -54,7 +54,7 @@ ADD dataprofiler-api-launcher.sh /opt/api/target/universal/stage/bin/dataprofile
 ADD set-env.sh /opt/api/target/universal/stage/bin/set-env.sh
 
 # Copy to runner
-FROM container-registry/java
+FROM container-registry.dataprofiler.com/java
 COPY --from=builder /opt/api/target/universal /opt/api/target/universal
 EXPOSE 9000
 WORKDIR /opt/api/target/universal/stage

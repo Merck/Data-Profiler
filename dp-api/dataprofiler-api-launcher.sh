@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,11 +20,14 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#!/usr/bin/env bash
+
 
 # We want to run with almost all of the memory allocated to the container, but it's really not
 # easy to get the amount of memory inside of the container. So we are just going to take the memory
 # for the whole system and subtract a little
 MEM=$(expr $(awk '/MemTotal/ { printf "%.f \n", $2/1024/1024 }' /proc/meminfo) - 2)
 
-/opt/api/target/universal/stage/bin/dataprofiler-api -J-Xms${MEM}G -J-Xmx${MEM}G -Dplay.crypto.secret=$PLAY_FRAMEWORK_SECRET -Dpidfile.path=/dev/null "$@"
+/opt/api/target/universal/stage/bin/dataprofiler-api -J-Xms${MEM}G -J-Xmx${MEM}G \
+  -Dplay.http.secret.key=$PLAY_FRAMEWORK_SECRET \
+  -Dpidfile.path=/dev/null \
+  "$@"

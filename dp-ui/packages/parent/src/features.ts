@@ -68,7 +68,7 @@ const shouldDisplayCardActions = (session: Readonly<Record<string, any>>) =>
 
 const DP_SESSION_INFO = fetchSessionInfo()
 const TITLE_CLICK_FEATURE_FLAG = true
-const LISTVIEW_TABS_FEATURE_FLAG = true
+const LISTVIEW_TABS_FEATURE_FLAG = false
 const PERFORMANCE_PLACEHOLDERS_FEATURE_FLAG =
   shouldDisplayPerformancePlaceholders(DP_SESSION_INFO)
 const DATASET_DELTA_TAB_FEATURE_FLAG = shouldDisplayDeltaTab(DP_SESSION_INFO)

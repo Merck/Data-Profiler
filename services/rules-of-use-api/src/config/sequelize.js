@@ -21,7 +21,7 @@
 */
 module.exports = {
   username:  process.env.ROU_DB_USERNAME || 'postgres',
-  password:  process.env.ROU_DB_PASSWORD || '',
+  password:  process.env.ROU_DB_PASSWORD || 'postgres',
   database:  process.env.ROU_DB_DATABASE || 'rules_of_use',
   host: process.env.ROU_DB_HOST || "db", // if this is 'localhost' on kubernetes, it will actually communicate across containers https://kubernetes.io/docs/concepts/workloads/pods/#pod-networking
   dialect: 'postgres',

@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
 #
@@ -19,7 +20,6 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#!/bin/sh
 
 # check that the db-postgres is up
 is_running="false"
