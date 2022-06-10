@@ -27,6 +27,7 @@ import sys
 import argparse
 import logging
 import time
+import socket
 
 from custom_formatter import CustomFormatter
 
@@ -36,10 +37,12 @@ _root_path, _ = os.path.split(os.path.dirname(os.path.realpath(__file__)))
 _dataprofiler_path = os.path.dirname(_root_path)
 _username = 'developer'
 _rou_host = 'dp-rou'
+_ui_port = '8080'
 _rou_port = '8081'
 _api_port = '9000'
 _jobs_api_port = '8082'
-_data_loading_daemon_port = '8083',
+_data_loading_daemon_port = '8083'
+_data_loading_daemon_port = '8084'
 _spark_sql_controller_port = '7999'
 _spark_ui_port = '4040'
 _data_config_map_name = 'datasets'
@@ -75,7 +78,8 @@ docker_build_dir_dict = {
 }
 
 logger = logging.getLogger("standalone")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.INFO)
 
 # create console handler with a higher log level
 console_handler = logging.StreamHandler()
@@ -117,7 +121,7 @@ def build(app, _build_libs=False):
 
 
 # Deploy application(s) to Minikube cluster
-def run(app):
+def deploy(app):
     if not app == 'all':
         deploy_component(app)
         expose_component(app)
@@ -177,7 +181,11 @@ def expose_component(app, port=None):
     if port is None:
         cmd_suffix = ['--cluster-ip=None']
     else:
-        cmd_suffix = ['--target-port', f'{port}']
+        cmd_suffix = ['--target-port', 
+            f'{port}',
+            '--type',
+            'NodePort'
+        ]
 
     expose_cmd = ['kubectl', 'expose', 'deployment', f'{app}',
                   '--name', f'{app}'] + cmd_suffix
@@ -203,7 +211,8 @@ def create_local_connection_tunnel(app, port):
         'kubectl',
         'port-forward',
         f'deployment/{app}',
-        f'{port}:{port}'
+        f'{port}:{port}',
+        '--address=0.0.0.0',
     ]
     exec_daemon_cmd(tunnel_cmd, f'/tmp/{app}-port-forward.out')
     success = test_connection('localhost', port)
@@ -268,13 +277,25 @@ def build_docker_image(tag):
     image_tag = tag.replace('-', '/', 1)
     build_base = docker_build_dir_dict[tag]
     print(f'    build_base: {build_base}')
+
     docker_build_cmd = [
         'docker',
         'build',
+    ]
+
+    if image_tag == 'dp/ui':
+        hostname = socket.gethostname()
+        docker_build_cmd.extend([
+            '--build-arg',
+            f'USER_FACING_API_HTTP_PATH=http://{hostname}:{_api_port}'
+            ])
+
+    docker_build_cmd.extend([
         '-t',
         image_tag,
         '.'
-    ]
+    ])
+
     process = exec_cmd(docker_build_cmd, cwd=build_base)
     if not process.returncode == 0:
         logger.error(f'Failed to build {image_tag} image. exiting')
@@ -502,31 +523,33 @@ def check_minikube_environment():
 
 
 parser = argparse.ArgumentParser()
-subparsers = parser.add_subparsers(title='sub-commands')
+subparsers = parser.add_subparsers(title='Commands')
 
-# run
-deploy_parser = subparsers.add_parser('run')
+# deploy
+deploy_parser = subparsers.add_parser('deploy', help='Deploy to minikube')
 deploy_parser.add_argument('--branch', type=str, default='master', help='branch to build from')
 deploy_parser.add_argument('--app', type=str, default='all', help='deployment name', choices=components)
 
-# clean
-clean_parser = subparsers.add_parser('clean')
-clean_parser.add_argument('--app', type=str, default='all', help='deployment name', choices=components)
+# terminate
+terminate_parser = subparsers.add_parser('terminate', help='Terminate the application on minikube')
+terminate_parser.add_argument('--app', type=str, default='all', help='deployment name', choices=components)
 
 # build
-build_parser = subparsers.add_parser('build')
+build_parser = subparsers.add_parser('build', help='Build components')
 build_parser.add_argument('--app', type=str, default='all', help='deployment name', choices=components)
 build_parser.add_argument('--jars', action='store_true', help='build jars')
 build_parser.add_argument('--use-branch', type=str, default='master')
 
-# push
-build_parser = subparsers.add_parser('push')
-
 # restart
-restart_parser = subparsers.add_parser('restart')
+restart_parser = subparsers.add_parser('restart', help='Restart the application in minikube')
 
 # status
-status_parser = subparsers.add_parser('status')
+status_parser = subparsers.add_parser('status', help='Display the application\'s status')
+
+
+if len(sys.argv)==1:
+    parser.print_help(sys.stderr)
+    sys.exit(1)
 
 args = parse_args(parser, subparsers)
 
@@ -536,12 +559,12 @@ check_requirements()
 # check minikube status and attempt to start if possible
 check_minikube_status()
 
-if args.run:
-    arg_app = getattr(args.run, 'app')
-    run(arg_app)
+if args.deploy:
+    arg_app = getattr(args.deploy, 'app')
+    deploy(arg_app)
 
-elif args.clean:
-    arg_app = getattr(args.clean, 'app')
+elif args.terminate:
+    arg_app = getattr(args.terminate, 'app')
     if not arg_app == 'all':
         terminate_component(arg_app)
     else:

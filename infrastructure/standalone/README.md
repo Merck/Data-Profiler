@@ -20,8 +20,9 @@ The following is a list of required software to run the standalone image:
 * Docker
 * Minikube
 * Helm
-* Python 3
+* Python 3.7 or higher
 * Java 8
+* Maven 3.6.3
 
 For the rest of the guide, it is assumed that the Data profiler is loacated in `~/Data-Profiler`.
 
@@ -69,7 +70,7 @@ pip install wheel
 The Data Profiler standalone image needs some Spark specific jars. These must be build from Spark 2.4.5. To clone the spark repo and build the project, the following commands can be used. Note: Spark will be cloned into the `~/spark` directory.
 
 ```shell
-git clone https://github.com/apache/spark.git ~/.
+git clone https://github.com/apache/spark.git ~/spark
 cd ~/spark
 git checkout tags/v2.4.5 -b v2.4.5-branch
 dev/make-distribution.sh --name k8s-spark --tgz -Phadoop-2.7 -Phive -Phive-thriftserver -Pkubernetes

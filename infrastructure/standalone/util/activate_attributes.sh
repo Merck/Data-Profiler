@@ -54,7 +54,6 @@ do
   curl localhost:8081/graphql -s -XPOST \
     -H 'Authorization: dp-rou-key' \
     -H 'Content-Type: application/json' \
-    --retry-connrefused \
     --connect-timeout 5 \
     --max-time 10 \
     --retry 5 \
