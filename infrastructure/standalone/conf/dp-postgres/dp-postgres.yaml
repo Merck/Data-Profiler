@@ -37,17 +37,17 @@ spec:
     spec:
       hostname: dp-postgres
       containers:
-      - name: dp-postgres
-        image: dp/postgres
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 5432
-        stdin: true
-        tty: true
-        env:
-          - name: POSTGRES_USER 
-            value: postgres
-          - name: POSTGRES_PASSWORD
-            value: postgres
-          - name: POSTGRES_DB
-            value: rules_of_use
+        - name: dp-postgres
+          image: dp/postgres
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5432
+          stdin: true
+          tty: true
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: rules_of_use

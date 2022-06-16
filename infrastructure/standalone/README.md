@@ -31,7 +31,7 @@ For the rest of the guide, it is assumed that the Data profiler is loacated in `
 After minikube is installed a cluster can be started. The number of CPUs required for the Kubernetes cluster is 4 and roughly 16GB of memory.
 
 ```shell
-minikube start --cpus 4 --memory 16384 --driver=docker
+minikube start --cpus 4 --memory 16384 --driver=docker --mount-string="${HOME}/Data-Profiler/infrastructure/standalone/data:/dp_data" --mount
 ```
 
 Next, kubeconfig must be updated with the correct IP address of the running cluster.
@@ -168,16 +168,22 @@ cd ~/Data-Profiler/infrastructure/standalone/
 Once the service are built, the standalone instance can be deployed to the kubernetes cluster.
 
 ```shell
-./bin/standalone.py run
+./bin/standalone.py deploy
 ```
 
-Lastly, you may need to port forward the UI because of a bug within minikube with minikube.
+Lastly, you may need to port forward the UI because of a bug within minikube.
 
 ```shell
-kubectl port-forward deployment/dp-ui 8080:80
+ kubectl port-forward deployment/dp-ui 8080:80 --address='0.0.0.0'
 ```
 
-## standalone.py
+## Supplying data
+
+Data files found in the 'data' directory will be loaded by the containerized dp-accumulo deployment. Different files can be added to this folder, but the total size of all of the files in this directory must be less than 1 MiB since the files are added to a ConfigMap.
+
+Alternatively,
+
+## `standalone.py` Usage
 
 ### Usage
 
@@ -218,7 +224,7 @@ Examples:
 Deploy all available components and expose a few endpoints:
 
 ```shell
-$ ./bin/standalone.py run
+$ ./bin/standalone.py deploy
 
 * Deploying Components
     dp-accumulo........................deployed
@@ -258,7 +264,7 @@ dp-spark-sql-controller available at http://localhost:7999
 Deploy a specific component:
 
 ```shell
-$ ./bin/standalone.py run --app dp-ui
+$ ./bin/standalone.py deploy --app dp-ui
 
 Deploying:
 * dp-ui
@@ -276,30 +282,18 @@ Deploying:
   dp-spark-sql-controller available at http://localhost:7999
 ```
 
-#### API
-
-Try hitting the api with the following curl command:
-
-```shell
-curl http://localhost:9000/v1/datasets -H 'Authorization: dp-rou-key' -H 'Accept: application/json' -H 'X-Authorization-Token: local-developer' -H '\"LIST.Public_Data\",\"LIST.PUBLIC_DATA\"'
-```
-
-#### Supplying data
-
-Data files found in the root 'data' directory will be loaded by the containerized dp-accumulo deployment.
-
 ### Destroying / Terminating
 
 Delete all deployments in the local kubernetes cluster
 
 ```shell
-./bin/standalone.py deploy
+./bin/standalone.py terminate
 ```
 
 Delete the specified <APP> deployment
 
 ```shell
-./bin/standalone.py deploy --app <APP>
+./bin/standalone.py terminate --app <APP>
 ```
 
 ### Building deployments
@@ -352,6 +346,14 @@ Build libraries and docker images for a specific component:
 │   ├── postgres-shell.sh
 │   └── spark-shell.sh
 └── venv
+```
+
+## API
+
+Try hitting the api with the following curl command:
+
+```shell
+curl http://localhost:9000/v1/datasets -H 'Authorization: dp-rou-key' -H 'Accept: application/json' -H 'X-Authorization-Token: local-developer' -H '\"LIST.Public_Data\",\"LIST.PUBLIC_DATA\"'
 ```
 
 * bin - main executables

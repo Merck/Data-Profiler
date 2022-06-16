@@ -37,10 +37,10 @@ spec:
     spec:
       hostname: dp-ui
       containers:
-      - name: dp-ui
-        image: dp/ui
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 80
-        stdin: true
-        tty: true
+        - name: dp-ui
+          image: dp/ui
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          stdin: true
+          tty: true

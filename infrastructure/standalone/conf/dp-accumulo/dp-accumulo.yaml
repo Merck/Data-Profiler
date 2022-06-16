@@ -37,21 +37,19 @@ spec:
     spec:
       hostname: dp-accumulo
       containers:
-      - name: dp-accumulo
-        image: dp/accumulo
-        imagePullPolicy: Never
-        volumeMounts:
-        - name: data-volume
-          mountPath: /data
-        ports:
-        - containerPort: 2181
-        - containerPort: 9999
-        - containerPort: 9997
-        stdin: true
-        tty: true
+        - name: dp-accumulo
+          image: dp/accumulo
+          imagePullPolicy: Never
+          volumeMounts:
+            - name: data-volume
+              mountPath: /data
+          ports:
+            - containerPort: 2181
+            - containerPort: 9999
+            - containerPort: 9997
+          stdin: true
+          tty: true
       volumes:
         - name: data-volume
-          configMap:
-            name: datasets
-
-        
+          hostPath:
+            path: /dp_data
