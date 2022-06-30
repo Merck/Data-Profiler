@@ -19,7 +19,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM container-registry.dataprofiler.com/spark-sql
+FROM container-registry.dataprofiler.com/spark-sql-controller
 
 COPY jars/dataprofiler-tools-1.jar entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh /
 

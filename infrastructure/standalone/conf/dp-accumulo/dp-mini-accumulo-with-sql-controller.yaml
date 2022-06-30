@@ -37,29 +37,28 @@ spec:
     spec:
       hostname: mini-accumulo
       containers:
-      - name: mini-accumulo
-        image: dp/accumulo
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 2181
-        - containerPort: 9999
-        stdin: true
-        tty: true
-        volumeMounts:
-        - name: host-mount
-          mountPath: /accumulo-data
-      - name: spark-sql-controller
-        image: spark-sql-controller
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 10000
-        stdin: true
-        tty: true
-        volumeMounts:
-        - name: host-mount
-          mountPath: /spark-sql-controller-data
+        - name: mini-accumulo
+          image: dp/accumulo
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 2181
+            - containerPort: 9999
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: host-mount
+              mountPath: /accumulo-data
+        - name: spark-sql-controller
+          image: spark-sql-controller
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 10000
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: host-mount
+              mountPath: /spark-sql-controller-data
       volumes:
         - hostPath:
             path: /host-data
           name: host-mount
-        

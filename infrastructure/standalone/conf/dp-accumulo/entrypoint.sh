@@ -24,7 +24,7 @@
 
 data_dir=/data
 
-/miniaccumulo.sh --load-type live $(find $data_dir -type l -name "*.csv")
+/miniaccumulo.sh --load-type live $(find $data_dir -type f -name "*.csv")
 
 while true;
 do

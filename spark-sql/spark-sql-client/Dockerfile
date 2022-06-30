@@ -25,7 +25,7 @@ FROM maven:3-openjdk-8 as JARBUILDER
 ARG SPARK_CLIENT_DIR="spark-sql/spark-sql-client"
 
 WORKDIR /home
-COPY data_profiler_core .
+COPY dp-core .
 RUN mvn clean install -DskipTests -Plocal
 
 # Build the ldap jar

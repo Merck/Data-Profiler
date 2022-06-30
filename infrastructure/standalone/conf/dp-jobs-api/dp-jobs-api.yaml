@@ -37,14 +37,14 @@ spec:
     spec:
       hostname: dp-jobs-api
       containers:
-      - name: dp-jobs-api
-        image: dp/jobs-api
-        command: ["yarn", "run", "start"]
-        env:
-          - name: JOBS_DB
-            value: dp-postgres
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 8082
-        stdin: true
-        tty: true
+        - name: dp-jobs-api
+          image: dp/jobs-api
+          command: ["yarn", "run", "start"]
+          env:
+            - name: JOBS_DB
+              value: dp-postgres
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8082
+          stdin: true
+          tty: true
