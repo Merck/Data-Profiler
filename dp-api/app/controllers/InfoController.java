@@ -1,23 +1,19 @@
 /**
- *  Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+ * Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
  *
- * 	Licensed to the Apache Software Foundation (ASF) under one
- * 	or more contributor license agreements. See the NOTICE file
- * 	distributed with this work for additional information
- * 	regarding copyright ownership. The ASF licenses this file
- * 	to you under the Apache License, Version 2.0 (the
- * 	"License"); you may not use this file except in compliance
- * 	with the License. You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  *
- * 	Unless required by applicable law or agreed to in writing,
- * 	software distributed under the License is distributed on an
- * 	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * 	KIND, either express or implied. See the License for the
- * 	specific language governing permissions and limitations
- * 	under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  **/
 package controllers;
 
@@ -54,8 +50,7 @@ public class InfoController extends Controller {
     ret.put("clusterName", this.config.getString("cluster.name"));
     ret.put("oAuthCallbackUrl", req.getQueryString("uiPath") + AUTH_CALLBACK_ROUTE);
 
-    ret.put(
-        "requireLoginAttributeForAccess",
+    ret.put("requireLoginAttributeForAccess",
         Boolean.valueOf(config.getString("auth.requireLoginAttributeForAccess")));
 
     String oAuthState = this.config.getString("auth.serverState");
@@ -68,6 +63,10 @@ public class InfoController extends Controller {
 
     String oAuthConsumerId = this.config.getString("oAuthConsumerId");
     ret.put("oAuthConsumerId", oAuthConsumerId);
+
+    String oAuthScope = this.config.getString("oAuthScope");
+    ret.put("oAuthScope", oAuthScope);
+
     return ok(Json.toJson(ret));
   }
 

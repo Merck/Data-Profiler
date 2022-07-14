@@ -22,8 +22,5 @@
 FROM postgres
 
 RUN mkdir /scripts
-#ADD scripts/create_api_key.sh /scripts
 ADD scripts/script.sql /scripts
 RUN chmod a+x /scripts/*
-
-#ENTRYPOINT [ "/bin/bash", "-c", "docker-entrypoint.sh && /scripts/create_api_key.sh" ]

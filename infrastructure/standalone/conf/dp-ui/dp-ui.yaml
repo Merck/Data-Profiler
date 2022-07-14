@@ -44,3 +44,13 @@ spec:
             - containerPort: 80
           stdin: true
           tty: true
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+            limits:
+              memory: 512Mi
+              cpu: "1"
+          envFrom:
+            - configMapRef:
+                name: dp-env-vars

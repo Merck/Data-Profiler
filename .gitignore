@@ -27,6 +27,7 @@ pc.stdout.log
 *.vsls.json
 
 venv
+.venv
 
 .gradle
 build

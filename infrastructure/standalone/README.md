@@ -19,7 +19,6 @@ The following is a list of required software to run the standalone image:
 
 * Docker
 * Minikube
-* Helm
 * Python 3.7 or higher
 * Java 8
 * Maven 3.6.3
@@ -85,268 +84,31 @@ mkdir ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars
 cp ~/spark/dist/jars/spark-hive-thriftserver_2.11-2.4.5.jar ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars/
 ```
 
-### Spark Client and Controller
-
-Build the Spark client
-
-```shell
-cd ~/Data-Profiler/spark-sql/spark-sql-client
-docker build -t container-registry.dataprofiler.com/spark-sql-client -f ./Dockerfile ../..
-```
-
-Build the Spark controller
-
-```shell
-cd ~/Data-Profiler/spark-sql/spark-sql-controller
-docker build -t container-registry.dataprofiler.com/spark-sql-controller .
-```
-
-### Build Necessary Containers
-
-The following containers in `~/Data-Profiler/infrastructure/docker` must be built.
-
-#### Java
-
-```shell
-cd ~/Data-Profiler/infrastructure/docker/java
-docker build -t container-registry.dataprofiler.com/java .
-```
-
-#### Play Framework Base
-
-```shell
-cd ~/Data-Profiler/infrastructure/docker/playframework_base
-docker build -t container-registry.dataprofiler.com/playframework_base .
-```
-
-#### Hadoop
-
-```shell
-cd ~/Data-Profiler/infrastructure/docker/hadoop
-docker build -t container-registry.dataprofiler.com/hadoop .
-```
-
-#### NodePG
-
-```shell
-cd ~/Data-Profiler/infrastructure/docker/nodepg
-docker build -t container-registry.dataprofiler.com/nodepg .
-```
-
-#### NodeYarn
-
-```shell
-cd ~/Data-Profiler/infrastructure/docker/nodeyarn
-docker build -t container-registry.dataprofiler.com/nodeyarn .
-```
-
-### Build the API
-
-The API must be built and the resulting jars must be copied to the proper locations.
-
-```shell
-cd ~/Data-Profiler
-./build.py --api-copy
-```
-
-Copy the jars.
-
-```shell
-mkdir ~/Data-Profiler/infrastructure/standalone/conf/dp-accumulo/jars
-cp ~/Data-Profiler/dp-core/tools/target/dataprofiler-tools-1.jar Data-Profiler/infrastructure/standalone/conf/dp-accumulo/jars/
-```
-
 ### Build and Start the Standalone Instance
 
-The last requirements for the standalone instance is to build the services.
+The following command can be used to build all the dependencies and the standalone instance.
 
 ```shell
-cd ~/Data-Profiler/infrastructure/standalone/
-./bin/standalone.py build
+cd ~/Data-Profiler/infrastructure/standalone/bin
+./standalone.py build
 ```
 
-Once the service are built, the standalone instance can be deployed to the kubernetes cluster.
+Once the services are built, the standalone instance can be deployed to the kubernetes cluster.
 
 ```shell
-./bin/standalone.py deploy
+./standalone.py deploy
 ```
 
 Lastly, you may need to port forward the UI because of a bug within minikube.
 
 ```shell
- kubectl port-forward deployment/dp-ui 8080:80 --address='0.0.0.0'
+kubectl port-forward deployment/dp-ui 8080:80 --address='0.0.0.0'
 ```
 
 ## Supplying data
 
-Data files found in the 'data' directory will be loaded by the containerized dp-accumulo deployment. Different files can be added to this folder, but the total size of all of the files in this directory must be less than 1 MiB since the files are added to a ConfigMap.
+Data files found in the 'data' directory will be loaded by the containerized dp-accumulo deployment. Different files can be added to this folder.
 
-Alternatively,
-
-## `standalone.py` Usage
-
-### Usage
-
-```shell
-$ ./bin/standalone.py -h        
-usage: standalone.py [-h] {clean,run,build,status,push} ...
-
-optional arguments:
--h, --help            show this help message and exit
-
-sub-commands:
-{deploy,destroy,build,status,push,expose}
-```
-
-Sub-Commands
-
-* clean - delete cluster deployments
-* build - builds libraries & images used in deployments
-* run - create cluster deployments
-* status - display deployment status
-
-### Deploying / Starting Local Cluster
-
-```shell
-$ ./bin/standalone.py deploy --help
-
-usage: standalone.py deploy [-h] [--branch BRANCH] [--app {dp-accumulo,dp-postgres,dp-api,dp-rou,dp-spark-sql-controller,dp-ui}]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --branch BRANCH       branch to build from
-  --app {dp-accumulo,dp-postgres,dp-api,dp-rou,dp-ui}
-                        deployment name
-```
-
-Examples:
-
-Deploy all available components and expose a few endpoints:
-
-```shell
-$ ./bin/standalone.py deploy
-
-* Deploying Components
-    dp-accumulo........................deployed
-    dp-postgres........................deployed
-    dp-api.............................deployed
-    dp-rou.............................deployed
-    dp-spark-sql-controller............deployed
-    dp-ui..............................deployed
-* Configuring Rules Of Use
-  * Created api key as 'dp-rou-key'
-  * Activating ROU attributes
-    > activating system.admin
-    > activating system.login
-    > activating system.seen_joyride
-    > activating LIST.PUBLIC_DATA
-    > activating LIST.Public_Data
-    > activating LIST.HR
-    > activating LIST.EMPLOYEE
-    > activating LIST.TECHMANAGER
-    > activating LIST.SALESMANAGER
-  * Updating ROU attributes for 'developer'
-
-Standalone Minikube Status
-* service default/dp-ui has no node port
-* Starting tunnel for service dp-ui.
-|-----------|-------|-------------|------------------------|
-| NAMESPACE | NAME  | TARGET PORT |          URL           |
-|-----------|-------|-------------|------------------------|
-| default   | dp-ui |             | http://127.0.0.1:59209 |
-|-----------|-------|-------------|------------------------|
-http://127.0.0.1:59209
-dp-api available at http://localhost:9000
-dp-rou available at http://localhost:8081
-dp-spark-sql-controller available at http://localhost:7999
-```
-
-Deploy a specific component:
-
-```shell
-$ ./bin/standalone.py deploy --app dp-ui
-
-Deploying:
-* dp-ui
-  minikube cluster status
-* service default/dp-ui has no node port
-* Starting tunnel for service dp-ui.
-  |-----------|-------|-------------|------------------------|
-  | NAMESPACE | NAME  | TARGET PORT |          URL           |
-  |-----------|-------|-------------|------------------------|
-  | default   | dp-ui |             | http://127.0.0.1:59560 |
-  |-----------|-------|-------------|------------------------|
-  http://127.0.0.1:59560
-  dp-api available at http://localhost:9000
-  dp-rou available at http://localhost:8081
-  dp-spark-sql-controller available at http://localhost:7999
-```
-
-### Destroying / Terminating
-
-Delete all deployments in the local kubernetes cluster
-
-```shell
-./bin/standalone.py terminate
-```
-
-Delete the specified <APP> deployment
-
-```shell
-./bin/standalone.py terminate --app <APP>
-```
-
-### Building deployments
-
-Build all docker images only
-
-```shell
-./bin/standalone.py build
-```
-
-Build dataprofiler jars and all build docker images
-
-```shell
-./bin/standalone.py build --jars
-```
-
-Build libraries and docker images for a specific component:
-
-```shell
-./bin/standalone.py build --jars --app <component>
-```
-
-## Directory Structure
-
-```shell
-├── README.md
-├── bin
-│   ├── custom_formatter.py
-│   ├── lib
-│   ├── scripts
-│   └── standalone.py
-├── conf
-│   ├── dp-accumulo
-│   ├── dp-api
-│   ├── dp-data-loading-daemon
-│   ├── dp-postgres
-│   ├── dp-rou
-│   └── dp-ui
-├── data
-│   ├── basic_test_data.csv
-│   ├── cell_level_visibilities_test_data.csv
-│   └── tiny_test_data.csv
-├── lib
-│   ├── iterators
-│   ├── python_packages
-│   └── tools
-├── sbin
-│   ├── accumulo-shell.sh
-│   ├── cluster-shell.sh
-│   ├── postgres-shell.sh
-│   └── spark-shell.sh
-└── venv
-```
 
 ## API
 

@@ -42,24 +42,33 @@ spec:
           env:
             - name: APPLICATION_SECRET
               value: KrQ9CqK0oeg1
-            - name: AUTH_METHOD
-              value: local-developer
-            - name: AUTHSERVER
-              value: n/a
-            - name: UI_MAIN_OAUTH_CONSUMER_ID
-              value: n/a
-            - name: UI_MAIN_OAUTH_SERVER
-              value: n/a
-            - name: UI_MAIN_OAUTH_CONSUMER_SECRET
-              value: n/a
+            # - name: AUTH_METHOD
+            #   # value: local-developer
+            #   value: oauth
+            # - name: AUTHSERVER
+            #   value: n/a
+            # - name: UI_MAIN_OAUTH_CONSUMER_ID
+            #   value: n/a
+            # - name: UI_MAIN_OAUTH_SERVER
+            #   value: n/a
+            # - name: UI_MAIN_OAUTH_CONSUMER_SECRET
+            #   value: n/a
           command: ["/bin/bash"]
           args:
             [
               "-c",
-              "/opt/api/target/universal/stage/bin/set-env.sh && set -o allexport && source /opt/api/target/universal/stage/.env && ./bin/dataprofiler-api-launcher-minikube.sh",
+              "env > /opt/api/target/universal/stage/.env && set -o allexport && source /opt/api/target/universal/stage/.env && ./bin/dataprofiler-api-launcher-minikube.sh",
             ]
+
+            # [
+            #   "-c",
+            #   "/opt/api/target/universal/stage/bin/set-env.sh && set -o allexport && source /opt/api/target/universal/stage/.env && ./bin/dataprofiler-api-launcher-minikube.sh",
+            # ]
           imagePullPolicy: Never
           ports:
             - containerPort: 9000
           stdin: true
           tty: true
+          envFrom:
+            - configMapRef:
+                name: dp-env-vars

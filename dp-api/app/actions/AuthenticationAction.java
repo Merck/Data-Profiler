@@ -1,24 +1,20 @@
 /**
-*  Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
-* 
-* 	Licensed to the Apache Software Foundation (ASF) under one
-* 	or more contributor license agreements. See the NOTICE file
-* 	distributed with this work for additional information
-* 	regarding copyright ownership. The ASF licenses this file
-* 	to you under the Apache License, Version 2.0 (the
-* 	"License"); you may not use this file except in compliance
-* 	with the License. You may obtain a copy of the License at
-* 
-* 	http://www.apache.org/licenses/LICENSE-2.0
-* 
-* 
-* 	Unless required by applicable law or agreed to in writing,
-* 	software distributed under the License is distributed on an
-* 	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* 	KIND, either express or implied. See the License for the
-* 	specific language governing permissions and limitations
-* 	under the License.
-**/
+ * Copyright 2021 Merck & Co., Inc. Kenilworth, NJ, USA.
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ **/
 package actions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,8 +78,8 @@ public class AuthenticationAction extends Action<Authenticated> {
   }
 
   /*
-   This is the main call for every request
-  */
+   * This is the main call for every request
+   */
   public CompletionStage<Result> call(Http.Request req) {
     return prepareCall(req);
   }
@@ -99,9 +95,8 @@ public class AuthenticationAction extends Action<Authenticated> {
 
   public void initialize() {
     try {
-      dpContext =
-          new com.dataprofiler.util.Context(
-              DataprofilerConfigAdaptor.fromPlayConfigruation(config));
+      dpContext = new com.dataprofiler.util.Context(
+          DataprofilerConfigAdaptor.fromPlayConfigruation(config));
     } catch (BasicAccumuloException e) {
       logger.error(e.toString());
     }
@@ -109,20 +104,21 @@ public class AuthenticationAction extends Action<Authenticated> {
     authMethod = config.getString("auth.method");
     requireLoginAttributeForAccess =
         Boolean.valueOf(config.getString("auth.requireLoginAttributeForAccess"));
-    rulesOfUseHelper =
-        new RulesOfUseHelper(
-            config.getString("rulesOfUse.baseApi"), config.getString("rulesOfUse.apiKey"));
+    rulesOfUseHelper = new RulesOfUseHelper(config.getString("rulesOfUse.baseApi"),
+        config.getString("rulesOfUse.apiKey"));
     String oAuthServer;
     String consumerId;
     String consumerSecret;
     String callbackUrlBase;
+    String scope;
     switch (authMethod) {
+      case "okta":
       case "oauth":
         oAuthServer = config.getString("oAuthServer");
         consumerId = config.getString("oAuthConsumerId");
         consumerSecret = config.getString("oAuthConsumerSecret");
-        oAuthHelper =
-            new OAuthHelper(oAuthServer, consumerId, consumerSecret, null);
+        scope = config.getString("oAuthScope");
+        oAuthHelper = new OAuthHelper(oAuthServer, consumerId, consumerSecret, scope, null);
         break;
       case LOCAL_DEVELOPER:
         break;
@@ -135,10 +131,10 @@ public class AuthenticationAction extends Action<Authenticated> {
     requestHeaders.put(API_TOKEN_HEADER, req.header(API_TOKEN_HEADER).orElse(null));
     requestHeaders.put(AUTH_TOKEN_HEADER, req.header(AUTH_TOKEN_HEADER).orElse(null));
     requestHeaders.put(USERNAME_HEADER, req.header(USERNAME_HEADER).orElse(null));
-    requestHeaders.put(
-        SPECIAL_ATTRIBUTES_HEADER, req.header(SPECIAL_ATTRIBUTES_HEADER).orElse(null));
-    requestHeaders.put(
-        ATTRIBUTES_TO_REJECT_HEADER, req.header(ATTRIBUTES_TO_REJECT_HEADER).orElse(null));
+    requestHeaders.put(SPECIAL_ATTRIBUTES_HEADER,
+        req.header(SPECIAL_ATTRIBUTES_HEADER).orElse(null));
+    requestHeaders.put(ATTRIBUTES_TO_REJECT_HEADER,
+        req.header(ATTRIBUTES_TO_REJECT_HEADER).orElse(null));
     requestHeaders.values().removeIf(Objects::isNull);
     logger.debug("set request headers: " + requestHeaders.keySet());
     if (requestHeaders.get(API_TOKEN_HEADER) != null) {
@@ -157,9 +153,8 @@ public class AuthenticationAction extends Action<Authenticated> {
     if (requestHeaders.get(AUTH_TOKEN_HEADER) != null) {
       res = res.withHeader(AUTH_TOKEN_HEADER, requestHeaders.get(AUTH_TOKEN_HEADER));
     }
-    res =
-        res.withHeader(ASSIGNED_ATTRIBUTES_HEADER, rouAttributes.allAsJSONString())
-            .withHeader(CURRENT_ATTRIBUTES_HEADER, rouAttributes.currentAsJSONString());
+    res = res.withHeader(ASSIGNED_ATTRIBUTES_HEADER, rouAttributes.allAsJSONString())
+        .withHeader(CURRENT_ATTRIBUTES_HEADER, rouAttributes.currentAsJSONString());
 
     return res;
   }
@@ -187,18 +182,22 @@ public class AuthenticationAction extends Action<Authenticated> {
         logger.debug("Getting attributes for " + username);
         rouAttributes = rulesOfUseHelper.getUserAttributes(username);
       }
-      logger.debug("fetched user: " + username + " attributes: " + rouAttributes.getAllVisibilities());
+      logger.debug(
+          "fetched user: " + username + " attributes: " + rouAttributes.getAllVisibilities());
       rouAttributes.setSpecialVisibilitiesToAdd(requestHeaders.get(SPECIAL_ATTRIBUTES_HEADER));
       rouAttributes.setVisibilitiesToReject(requestHeaders.get(ATTRIBUTES_TO_REJECT_HEADER));
-      logger.debug("rouAttributes.setVisibilitiesToReject: " + rouAttributes.getVisibilitiesToReject());
-      logger.debug("requireLoginAttributeForAccess: " + requireLoginAttributeForAccess + " hasLoginAttribute: " + rouAttributes.hasLoginAttribute());
+      logger.debug(
+          "rouAttributes.setVisibilitiesToReject: " + rouAttributes.getVisibilitiesToReject());
+      logger.debug("requireLoginAttributeForAccess: " + requireLoginAttributeForAccess
+          + " hasLoginAttribute: " + rouAttributes.hasLoginAttribute());
       if (requireLoginAttributeForAccess && rouAttributes.hasLoginAttribute() == false) {
         logger.debug("user: " + username + " is not on the whitelist, returning forbidden");
         Result forbidden = Results.forbidden(Json.toJson(MSG_NOT_ON_WHITELIST));
         return CompletableFuture.completedFuture(forbidden);
       }
 
-      logger.debug("setting request key: " + RulesOfUseHelper.ROU_ATTRIBUTES_TYPED_KEY + " for user: " + username + " attributes: " + rouAttributes.getAllVisibilities());
+      logger.debug("setting request key: " + RulesOfUseHelper.ROU_ATTRIBUTES_TYPED_KEY
+          + " for user: " + username + " attributes: " + rouAttributes.getAllVisibilities());
       req = req.addAttr(RulesOfUseHelper.ROU_ATTRIBUTES_TYPED_KEY, rouAttributes);
       return delegate.call(req).thenApply(result -> setResponseHeaders(result));
     } else {
@@ -235,7 +234,8 @@ public class AuthenticationAction extends Action<Authenticated> {
     } else {
       Boolean positiveTokenResponse =
           rulesOfUseHelper.checkTokenAuthenticatedFromRou(this.username, token);
-      logger.debug("authenticateWebUser with user: " + username + " token: " + token + " positiveTokenResponse: " + positiveTokenResponse);
+      logger.debug("authenticateWebUser with user: " + username + " token: " + token
+          + " positiveTokenResponse: " + positiveTokenResponse);
       return (positiveTokenResponse ? username : null);
     }
   }

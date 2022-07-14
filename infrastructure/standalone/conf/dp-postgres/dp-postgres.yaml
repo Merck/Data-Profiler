@@ -44,10 +44,6 @@ spec:
             - containerPort: 5432
           stdin: true
           tty: true
-          env:
-            - name: POSTGRES_USER
-              value: postgres
-            - name: POSTGRES_PASSWORD
-              value: postgres
-            - name: POSTGRES_DB
-              value: rules_of_use
+          envFrom:
+            - configMapRef:
+                name: dp-env-vars

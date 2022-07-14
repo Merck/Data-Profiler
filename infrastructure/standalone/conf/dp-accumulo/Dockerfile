@@ -21,7 +21,7 @@
 #
 FROM container-registry.dataprofiler.com/spark-sql-controller
 
-COPY jars/dataprofiler-tools-1.jar entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh /
+COPY data_profiler_core_jars/dataprofiler-tools-current.jar entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh /
 
 ENV SPARK_HOME=/opt/spark
 

@@ -39,11 +39,11 @@ spec:
       containers:
         - name: dp-rou
           image: dp/rou
-          env:
-            - name: ROU_DB_HOST
-              value: dp-postgres
           imagePullPolicy: Never
           ports:
             - containerPort: 8081
           stdin: true
           tty: true
+          envFrom:
+            - configMapRef:
+                name: dp-env-vars
