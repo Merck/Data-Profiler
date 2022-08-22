@@ -40,9 +40,13 @@ spec:
         - name: dp-jobs-api
           image: dp/jobs-api
           command: ["yarn", "run", "start"]
-          env:
-            - name: JOBS_DB
-              value: dp-postgres
+          envFrom:
+            - configMapRef:
+                name: dp-env-vars
+
+          # env:
+          #   - name: JOBS_DB
+          #     value: dp-postgres
           imagePullPolicy: Never
           ports:
             - containerPort: 8082

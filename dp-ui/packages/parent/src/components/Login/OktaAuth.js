@@ -23,23 +23,23 @@ import React from 'react'
 import { externalRedirect } from '@dp-ui/lib/dist/helpers/uriHelpers'
 import { DPContext } from '@dp-ui/lib'
 
-class OAuth extends React.Component {
-  componentDidMount() {
-    const {
-      oAuthServer,
-      oAuthConsumerId,
-      oAuthState,
-      oAuthCallbackUrl,
-      oAuthScope,
-    } = this.props.dataprofiler.state.session
+class OktaAuth extends React.Component {
+    componentDidMount() {
+        const {
+            oAuthServer,
+            oAuthConsumerId,
+            oAuthState,
+            oAuthCallbackUrl,
+            oAuthScope,
+        } = this.props.dataprofiler.state.session
+        const loginUrl = `${oAuthServer}/authorize?response_type=code&client_id=${oAuthConsumerId}&redirect_uri=${oAuthCallbackUrl}&state=${oAuthState}&login_method=form&scope=${oAuthScope}`
 
-    const loginUrl = `${oAuthServer}/authorize?response_type=code&client_id=${oAuthConsumerId}&redirect_uri=${oAuthCallbackUrl}&state=${oAuthState}&login_method=form&scope=${oAuthScope}`
-    externalRedirect(loginUrl)
-  }
+        externalRedirect(loginUrl)
+    }
 
-  render() {
-    return <div />
-  }
+    render() {
+        return <div />
+    }
 }
 
-export default DPContext(OAuth)
+export default DPContext(OktaAuth)
