@@ -23,7 +23,7 @@ The following is a list of required software to run the standalone image:
 * Java 8
 * Maven 3.6.3
 
-For the rest of the guide, it is assumed that the Data profiler is loacated in `~/Data-Profiler`.
+For the rest of the guide, it is assumed that the Data profiler is located in `~/Data-Profiler`.
 
 ### Minikube Configuration
 
@@ -39,7 +39,7 @@ Next, kubeconfig must be updated with the correct IP address of the running clus
 minikube update-context
 ```
 
-Lastly, the enviroment must be configured to use minikube's Docker daemon. Please note, you will need to run this command in any newly opened shell.
+Lastly, the environment must be configured to use minikube's Docker daemon. Please note, you will need to run this command in any newly opened shell.
 
 ```shell
 eval $(minikube docker-env)
@@ -47,7 +47,7 @@ eval $(minikube docker-env)
 
 ### Python Virtual Environment
 
-While not stricly necessary, it can be very helpful to create a virtual environment for python to help isolate packages needed for the Data Profiler.
+While not strictly necessary, it can be very helpful to create a virtual environment for python to help isolate packages needed for the Data Profiler.
 
 The following commands can be used to create and activate a virtual environment for the Data Profiler.
 
@@ -77,7 +77,7 @@ cd dist
 docker build -t container-registry.dataprofiler.com/spark-hive-k8s:2.4.5 -f kubernetes/dockerfiles/spark/Dockerfile .
 ```
 
-After Spark has been built, the `spark-hive-thriftserver` jar needs to be coppied to the Data Profiler `spark-sql-client`.
+After Spark has been built, the `spark-hive-thriftserver` jar needs to be copied to the Data Profiler `spark-sql-client`.
 
 ```shell
 mkdir ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars
@@ -108,7 +108,6 @@ kubectl port-forward deployment/dp-ui 8080:80 --address='0.0.0.0'
 ## Supplying data
 
 Data files found in the 'data' directory will be loaded by the containerized dp-accumulo deployment. Different files can be added to this folder.
-
 
 ## API
 

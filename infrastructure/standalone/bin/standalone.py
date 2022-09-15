@@ -639,11 +639,9 @@ def terminate(args):
         terminate_component(args.app)
 
 
-def restart(args=None):
-    terminate_component('all')
-    close_tunnel_connections()
-    deploy_components()
-    expose_components()
+def restart(args):
+    terminate(args)
+    deploy(args)
 
 
 def status(args=None):
@@ -735,6 +733,12 @@ def main():
     parser_restart = subparsers.add_parser(
         'restart',
         help='Restart the application in minikube')
+    parser_restart.add_argument(
+        '--app',
+        type=str,
+        default='all',
+        help='deployment name',
+        choices=component_names())
     parser_restart.set_defaults(func=restart)
 
     # status
