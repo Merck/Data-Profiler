@@ -112,6 +112,7 @@ public class AuthenticationAction extends Action<Authenticated> {
     String callbackUrlBase;
     String scope;
     switch (authMethod) {
+      case "pingid":
       case "okta":
       case "oauth":
         oAuthServer = config.getString("oAuthServer");

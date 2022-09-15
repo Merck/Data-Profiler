@@ -52,7 +52,7 @@ data:
   ANALYTICS_API_SITE_ID: "2"
   ANALYTICS_UI_SITE_ID: "5"
 
-  # Auth Method: local-developer, oauth, or okta
+  # Auth Method: local-developer, oauth, pingid, or okta
   AUTH_METHOD: local-developer
 
   # AWS credentials

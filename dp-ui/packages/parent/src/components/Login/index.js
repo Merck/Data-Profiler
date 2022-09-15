@@ -23,6 +23,7 @@ import React from 'react'
 import LocalDeveloperAuthentication from './LocalDeveloperAuthentication'
 import { DPContext, DPLoginPrep } from '@dp-ui/lib'
 import OAuth from './OAuth'
+import PingIdAuth from './PingIdAuth'
 import OktaAuth from './OktaAuth'
 
 const message =
@@ -32,6 +33,8 @@ const Login = (props) => {
 	switch (props.dataprofiler.state.session.authenticationType) {
 		case 'oauth':
 			return <OAuth />
+		case 'pingid':
+			return <PingIdAuth />
 		case 'okta':
 			return <OktaAuth />
 		case 'local-developer':
