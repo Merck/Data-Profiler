@@ -53,13 +53,13 @@ public class OAuthController extends Controller {
     String uiPath = json.findPath("uiPath").textValue();
 
     // Check to ensure we're not getting MITM'ed
-    if (!state.equals(this.config.getString("auth.serverState"))) {
+    if (!state.equals(this.config.getString("auth.state"))) {
       return forbidden();
     }
 
     OAuthHelper oAuthHelper;
-    oAuthHelper = new OAuthHelper(this.config.getString("oAuthServer"),
-        this.config.getString("oAuthConsumerId"), this.config.getString("oAuthConsumerSecret"),
+    oAuthHelper = new OAuthHelper(this.config.getString("oAuthAuthUrl"),
+        this.config.getString("oAuthClientId"), this.config.getString("oAuthClientSecret"),
         this.config.getString("oAuthScope"), uiPath);
 
     ObjectNode ret = (ObjectNode) oAuthHelper.tokenRequest(code);

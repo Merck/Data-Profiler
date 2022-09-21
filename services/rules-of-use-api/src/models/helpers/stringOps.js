@@ -31,9 +31,6 @@ export const normalize = str => {
 const apiHost = process.env.DP_API_SERVICE_PORT ?
   `http://dp-api:${process.env.DP_API_SERVICE_PORT}` : 'http://frontend-docker:7001'
 
-// console.log(`api host: ${apiHost}`)
-// console.log(`service port: ${process.env.DP_API_SERVICE_PORT}`)
-// TODO: remove the catch statement
 export const escapeAccumulo = inputArray =>
   new Promise(async resolve => {
     const res = await Promise.all(

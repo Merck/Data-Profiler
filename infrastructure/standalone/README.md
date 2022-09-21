@@ -86,6 +86,12 @@ cp ~/spark/dist/jars/spark-hive-thriftserver_2.11-2.4.5.jar ~/Data-Profiler/spar
 
 ### Build and Start the Standalone Instance
 
+Before building the standalone instance you must create the configuration file for the instance. The easiest way to start is to create a copy the existing example.
+
+```shell
+cp ~/Data-Profiler/infrastructure/standalone/conf/env/env-vars.yaml.example ~/Data-Profiler/infrastructure/standalone/conf/env/env-vars.yaml
+```
+
 The following command can be used to build all the dependencies and the standalone instance.
 
 ```shell

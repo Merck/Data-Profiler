@@ -106,20 +106,19 @@ public class AuthenticationAction extends Action<Authenticated> {
         Boolean.valueOf(config.getString("auth.requireLoginAttributeForAccess"));
     rulesOfUseHelper = new RulesOfUseHelper(config.getString("rulesOfUse.baseApi"),
         config.getString("rulesOfUse.apiKey"));
-    String oAuthServer;
-    String consumerId;
-    String consumerSecret;
+    String oAuthAuthUrl;
+    String oAuthClientId;
+    String oAuthClientSecret;
     String callbackUrlBase;
-    String scope;
+    String oAuthScope;
     switch (authMethod) {
-      case "pingid":
-      case "okta":
       case "oauth":
-        oAuthServer = config.getString("oAuthServer");
-        consumerId = config.getString("oAuthConsumerId");
-        consumerSecret = config.getString("oAuthConsumerSecret");
-        scope = config.getString("oAuthScope");
-        oAuthHelper = new OAuthHelper(oAuthServer, consumerId, consumerSecret, scope, null);
+        oAuthAuthUrl = config.getString("oAuthAuthUrl");
+        oAuthClientId = config.getString("oAuthClientId");
+        oAuthClientSecret = config.getString("oAuthClientSecret");
+        oAuthScope = config.getString("oAuthScope");
+        oAuthHelper =
+            new OAuthHelper(oAuthAuthUrl, oAuthClientId, oAuthClientSecret, oAuthScope, null);
         break;
       case LOCAL_DEVELOPER:
         break;

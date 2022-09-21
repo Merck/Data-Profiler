@@ -52,7 +52,7 @@ data:
   ANALYTICS_API_SITE_ID: "2"
   ANALYTICS_UI_SITE_ID: "5"
 
-  # Auth Method: local-developer, oauth, pingid, or okta
+  # Auth Method: local-developer or oauth
   AUTH_METHOD: local-developer
 
   # AWS credentials
@@ -107,11 +107,11 @@ data:
   SQLSYNC_USER: postgres
 
   # Oauth settings
-  OAUTH_CONSUMER_ID: xxx
-  OAUTH_CONSUMER_SECRET: xxx
-  OAUTH_SERVER: https://iapi/authentication
+  OAUTH_CLIENT_ID: xxx
+  OAUTH_CLIENT_SECRET: xxx
+  OAUTH_AUTH_URL: https://iapi/authentication
   OAUTH_SCOPE: openid%20profile%20email
-  OAUTH_SERVER_STATE: xyzABC123
+  OAUTH_STATE: xyzABC123
 
   UI_MAIN_USER_FACING_HTTP_PATH: https://dataprofiler
   USER_FACING_UI_HTTP_PATH: http://localhost

@@ -31,23 +31,23 @@ public class OAuthConfig {
   private static final String AUTH_CALLBACK_ROUTE = "/authcallback";
   public String baseOAuthRequestUrl;
   public String oAuthCallbackUrl;
-  public String consumerId;
+  public String clientId;
   public String scope;
-  private String consumerSecret;
+  private String clientSecret;
 
 
   @Inject
   public OAuthConfig(String baseOAuthRequestUrl, String consumerId, String consumerSecret,
       String scope, String oAuthCallbackUrl) {
     this.baseOAuthRequestUrl = baseOAuthRequestUrl;
-    this.consumerId = consumerId;
-    this.consumerSecret = consumerSecret;
+    this.clientId = consumerId;
+    this.clientSecret = consumerSecret;
     this.scope = scope;
     this.oAuthCallbackUrl = oAuthCallbackUrl + AUTH_CALLBACK_ROUTE;
   }
 
   private String bearerHeader() {
-    String authHeader = this.consumerId + ":" + this.consumerSecret;
+    String authHeader = this.clientId + ":" + this.clientSecret;
     String encodedAuthHeader = new String(Base64.encodeBase64(authHeader.getBytes()));
     return "Basic " + encodedAuthHeader;
   }

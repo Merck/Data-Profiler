@@ -30,7 +30,6 @@ const FIRST_NAME_ATTRIBUTE = 'hr.prmry_first_nm'
 const POSITION_ATTRIBUTE = 'hr.prmry_job_typ_desc'
 const like = str => `${str}%`
 const getAttributeContents = data => {
-  console.log(JSON.stringify(data))
   if (data && data.length > 0 && data[0] && data[0].value) {
     const record = data[0].value
     const rawValue = record
@@ -51,7 +50,6 @@ async function removeUser(_, args, context) {
   const user = await User.findOne({ where: { username: normalize(username) } })
   await UserAttribute.destroy({ where: [{ user_id: user.id }] })
   await user.destroy()
-  console.log(`Removed user ${user.id}`)
 }
 
 export const resolvers = {
@@ -101,17 +99,13 @@ export const resolvers = {
   Mutation: {
     createUpdateUser(_, args, context) {
       const { username, attributes } = args
-      // console.log(`Add attributes: "${attributes}" to user: "${username}"`)
       return User.findOrCreate({ where: { username: normalize(username) } })
         .spread(async user => {
           const escapedAttributes = await escapeAccumulo(attributes)
-          // console.log(`escaped attrs: ${escapedAttributes}`)
           await Promise.all(
             escapedAttributes.map(attribute =>
               Attribute.findOrCreate({ where: { value: attribute } }).spread(
                 dbAttr => {
-                  // console.log(`dbAttr: ${dbAttr.id}`)
-                  // console.log(`dbAttr: ${dbAttr}`)
                   UserAttribute.findOrCreate({
                     where: { user_id: user.id, attribute_id: dbAttr.id },
                     action_performed_by_id: context.currentUserId,
