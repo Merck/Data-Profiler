@@ -22,6 +22,7 @@ const RouOAuthCallback = (props) => {
                 props.dataprofiler.bulkSetDPState('session', {
                     username: res.body.username,
                     authToken: res.body.access_token,
+                    idToken: res.body.id_token
                 })
             })
             .then(() => {

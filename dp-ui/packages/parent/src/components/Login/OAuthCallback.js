@@ -26,7 +26,6 @@ import RouOAuthCallback from './RouOAuthCallback'
 
 const OAuthCallback = (props) => {
 	switch (get(props, 'dataprofiler.state.session.authenticationType')) {
-		case 'okta':
 		case 'oauth':
 			return <RouOAuthCallback />
 		default:

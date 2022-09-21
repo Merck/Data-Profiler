@@ -53,16 +53,16 @@ public class InfoController extends Controller {
     ret.put("requireLoginAttributeForAccess",
         Boolean.valueOf(config.getString("auth.requireLoginAttributeForAccess")));
 
-    String oAuthState = this.config.getString("auth.serverState");
+    String oAuthState = this.config.getString("auth.state");
     if (oAuthState != null && !oAuthState.isEmpty()) {
       ret.put("oAuthState", oAuthState);
     }
 
-    String oAuthServer = this.config.getString("oAuthServer");
-    ret.put("oAuthServer", oAuthServer);
+    String oAuthAuthUrl = this.config.getString("oAuthAuthUrl");
+    ret.put("oAuthAuthUrl", oAuthAuthUrl);
 
-    String oAuthConsumerId = this.config.getString("oAuthConsumerId");
-    ret.put("oAuthConsumerId", oAuthConsumerId);
+    String oAuthClientId = this.config.getString("oAuthClientId");
+    ret.put("oAuthClientId", oAuthClientId);
 
     String oAuthScope = this.config.getString("oAuthScope");
     ret.put("oAuthScope", oAuthScope);

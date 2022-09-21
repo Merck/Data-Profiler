@@ -23,7 +23,6 @@ import React from 'react'
 import LocalDeveloperAuthentication from './LocalDeveloperAuthentication'
 import { DPContext, DPLoginPrep } from '@dp-ui/lib'
 import OAuth from './OAuth'
-import OktaAuth from './OktaAuth'
 
 const message =
 	"The Data Profiler isn't connected to the API. Please refresh the page or contact the data profiler team for assistance"
@@ -32,8 +31,6 @@ const Login = (props) => {
 	switch (props.dataprofiler.state.session.authenticationType) {
 		case 'oauth':
 			return <OAuth />
-		case 'okta':
-			return <OktaAuth />
 		case 'local-developer':
 			return <LocalDeveloperAuthentication />
 		default:

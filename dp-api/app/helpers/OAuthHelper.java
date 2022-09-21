@@ -27,9 +27,9 @@ import javax.inject.Inject;
 public class OAuthHelper extends OAuthConfig {
 
   @Inject
-  public OAuthHelper(String baseOAuthRequestUrl, String consumerId, String consumerSecret,
-      String scope, String oAuthCallbackUrl) {
-    super(baseOAuthRequestUrl, consumerId, consumerSecret, scope, oAuthCallbackUrl);
+  public OAuthHelper(String baseOAuthRequestUrl, String clientId, String clientSecret, String scope,
+      String oAuthCallbackUrl) {
+    super(baseOAuthRequestUrl, clientId, clientSecret, scope, oAuthCallbackUrl);
   }
 
   public String getUsername(String authToken) {
