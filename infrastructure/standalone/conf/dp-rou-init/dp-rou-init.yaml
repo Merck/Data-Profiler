@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rou-init
+spec:
+  template:
+    spec:
+      containers:
+        - name: rou-init
+          image: dp/rou-init
+          imagePullPolicy: Never
+          command: ["python", "activate_attributes.py"]
+      restartPolicy: Never
+  backoffLimit: 1

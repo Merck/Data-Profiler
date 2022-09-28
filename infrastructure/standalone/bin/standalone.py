@@ -21,40 +21,33 @@
  	under the License.
 """
 
+import shutil
 import subprocess
 import sys
 import argparse
 import logging
 import time
+import tempfile
 
-
+from typing import List, Tuple
 from custom_formatter import CustomFormatter
 from pathlib import Path
 
-CPUS = 4
-MEMORY = '8096'
-
-
+# Location of files
 PATH_SCRIPT = Path(__file__).absolute()
 PATH_STANDALONE = PATH_SCRIPT.parent.parent
 PATH_INFRASTRUCTURE = PATH_SCRIPT.parent.parent.parent
 PATH_DATA_PROFILER = PATH_SCRIPT.parent.parent.parent.parent
 
-
-USERNAME = 'developer'
-ROU_HOST = 'dp-rou'
-
 # Port Mapping Definitions
-UI_PORT = '8080'
-ROU_PORT = '8081'
-API_PORT = '9000'
-JOBS_API_PORT = '8082'
-DATA_LOADING_DAEMON_PORT = '8084'
-SPARK_SQL_CONTROLLER_PORT = '7999'
-SPARK_UI_PORT = '4040'
+DEFAULT_PORT = '8080'
+DEFAULT_URL = 'http://localhost'
 
+NGINX_INGRESS_APP_NAME = 'ingress-nginx-controller'
 
 CONFIGMAP_FILE = PATH_STANDALONE / 'conf/env/env-vars.yaml'
+
+TMP_DIR_BASE = 'dataprofiler'
 
 
 class SubcommandHelpFormatter(argparse.RawDescriptionHelpFormatter):
@@ -73,7 +66,41 @@ class SubcommandHelpFormatter(argparse.RawDescriptionHelpFormatter):
         return parts
 
 
-class DockerImage:
+class TempDir:
+    def __init__(self):
+        self.name = self._find()
+
+    def _find(self):
+        dirs = sorted(Path(tempfile.gettempdir()).glob(
+            f'{TMP_DIR_BASE}-*'), reverse=True)
+        if not dirs:
+            return None
+
+        logger.debug(f'Found temp directory: {dirs[0]}')
+        return dirs[0]
+
+    def create(self):
+        dir = Path(tempfile.gettempdir()) / \
+            f'{TMP_DIR_BASE}-{time.time_ns()}'
+        logger.debug(f'Creating temp directory: {dir}')
+        self.name = dir
+        dir.mkdir()
+        return dir
+
+    def _exists(self) -> bool:
+        if self._find():
+            return True
+        return False
+
+    def delete(self):
+        if self.name:
+            logger.debug(f'Removing temp directory: {self.name}')
+            shutil.rmtree(self.name, ignore_errors=True)
+        else:
+            logger.debug('No temp directory to remove')
+
+
+class ContainerImage:
     def __init__(self, name: str, tag: str, path: str, options=[], port=-1):
         self.name = name
         self.tag = tag
@@ -84,117 +111,268 @@ class DockerImage:
     def __str__(self):
         return f'name: {self.name}, tag: {self.tag}, path: {self.path}, options: {self.options}, port{self.port}'
 
+    def is_running(self) -> bool:
+        cmd = ['kubectl',
+               'get',
+               'pods',
+               '-l',
+               f'app={self.name}',
+               '-o',
+               'jsonpath="{.items[0].status.phase}"']
+        proc, _, _ = exec_cmd(cmd)
+
+        if proc.returncode != 0:
+            return False
+
+        return True
+
+    def wait_for_pod_ready(self):
+        # get the pod name
+        cmd = ['kubectl',
+               'get',
+               'pods',
+               '-l',
+               f'app={self.name}',
+               '-o',
+               'jsonpath="{.items[0].metadata.name}"']
+        _, stdout, _ = exec_cmd(cmd)
+        pod = stdout.strip('"')
+
+        # Wait for the pod to be ready
+        cmd = ['kubectl',
+               'wait',
+               f'pod/{pod}',
+               '--for=condition=Ready',
+               '--timeout=-1s']
+        exec_cmd(cmd)
+        logger.debug(f'Pod "{pod}" is ready')
+
+    def build(self) -> bool:
+        build_cmd = [
+            'docker',
+            'build',
+        ]
+
+        build_cmd.extend(self.options)
+
+        build_cmd.extend([
+            '-t',
+            self.tag,
+            self.path
+        ])
+
+        (proc, _, _) = exec_cmd(build_cmd)
+
+        if proc.returncode == 0:
+            logger.info(4*' ' + f'{self.name:.<70}' + 'success')
+            return True
+
+        logger.error(4*' ' + f'{self.name:.<70}' + 'failed')
+        return False
+
+    def deploy(self) -> bool:
+        logger.debug(f'Deploying: {self.name}')
+        # Enumerate all config files in a directory
+        conf_files = list(
+            Path(f'{PATH_STANDALONE}/conf/{self.name}').glob('*.yaml'))
+
+        # Create deployment for each config
+        for file in conf_files:
+            file_wo_ext = file.with_suffix('').name
+            deploy_cmd = [
+                'kubectl',
+                'create',
+                '-f',
+                str(file)
+            ]
+            (proc, _, _) = exec_cmd(deploy_cmd)
+
+            if proc.returncode == 0:
+                logger.info(4*' ' + f'{file_wo_ext:.<70}' + 'success')
+            else:
+                logger.error(4*' ' + f'{file_wo_ext:.<70}' + 'failed')
+                return False
+
+        self.wait_for_pod_ready()
+
+        self.create_service()
+        return True
+
+    def create_service(self):
+        logger.debug(f'Exposing component {self.name}')
+        if self.port == -1:
+            cmd_suffix = ['--cluster-ip=None']
+        else:
+            cmd_suffix = [
+                '--target-port',
+                f'{self.port}',
+                '--type',
+                'NodePort'
+            ]
+
+        expose_cmd = [
+            'kubectl',
+            'expose',
+            'deployment',
+            f'{self.name}',
+            '--name',
+            f'{self.name}'
+        ] + cmd_suffix
+
+        (proc, _, _) = exec_cmd(expose_cmd)
+        return proc
+
+    def terminate(self) -> bool:
+        logger.debug(f'Deleting: {self.name}')
+        success = True
+
+        # Enumerate all config files in a directory
+        conf_files = list(
+            Path(f'{PATH_STANDALONE}/conf/{self.name}').glob('*.yaml'))
+
+        # Delete each config
+        for file in conf_files:
+            file_wo_ext = file.with_suffix('').name
+            delete_deploy_cmd = [
+                'kubectl',
+                'delete',
+                '-f',
+                str(file)
+            ]
+            (proc, _, _) = exec_cmd(delete_deploy_cmd)
+
+            if proc.returncode == 0:
+                logger.info(4*' ' + f'{file_wo_ext:.<70}' + 'success')
+                if success:
+                    success = True
+            else:
+                logger.error(4*' ' + f'{file_wo_ext:.<70}' + 'failed')
+                success = False
+
+        # delete service
+        self.delete_service()
+
+        return success
+
+    def delete_service(self):
+        # delete service
+        delete_svc_cmd = [
+            'kubectl',
+            'delete',
+            'svc',
+            f'{self.name}'
+        ]
+        exec_cmd(delete_svc_cmd)
+
 
 # Dependencies
-docker_java = DockerImage(
+container_java = ContainerImage(
     'java',
     'container-registry.dataprofiler.com/java',
     f'{PATH_INFRASTRUCTURE}/docker/java')
 
-docker_playframework = DockerImage(
+container_playframework = ContainerImage(
     'playframework-base',
     'container-registry.dataprofiler.com/playframework_base',
     f'{PATH_INFRASTRUCTURE}/docker/playframework_base')
 
-docker_hadoop = DockerImage(
+container_hadoop = ContainerImage(
     'hadoop',
     'container-registry.dataprofiler.com/hadoop',
     f'{PATH_INFRASTRUCTURE}/docker/hadoop')
 
-docker_nodepg = DockerImage(
+container_nodepg = ContainerImage(
     'nodepg',
     'container-registry.dataprofiler.com/nodepg',
     f'{PATH_INFRASTRUCTURE}/docker/nodepg')
 
-docker_nodeyarn = DockerImage(
+container_nodeyarn = ContainerImage(
     'nodeyarn',
     'container-registry.dataprofiler.com/nodeyarn',
     f'{PATH_INFRASTRUCTURE}/docker/nodeyarn')
 
-docker_dp_spark_sql_controller = DockerImage(
+container_dp_spark_sql_controller = ContainerImage(
     'dp-spark-sql-controller',
     'container-registry.dataprofiler.com/spark-sql-controller',
-    f'{PATH_DATA_PROFILER}/spark-sql/spark-sql-controller',
-    port=SPARK_SQL_CONTROLLER_PORT)
+    f'{PATH_DATA_PROFILER}/spark-sql/spark-sql-controller')
 
 
-# Backend images
-docker_dp_accumulo = DockerImage(
+# Data Profiler components
+container_dp_accumulo = ContainerImage(
     'dp-accumulo',
     'dp/accumulo',
     f'{PATH_STANDALONE}/conf/dp-accumulo')
 
-docker_dp_postgres = DockerImage(
+container_dp_postgres = ContainerImage(
     'dp-postgres',
     'dp/postgres',
     f'{PATH_STANDALONE}/conf/dp-postgres')
 
-docker_dp_api = DockerImage(
+container_dp_api = ContainerImage(
     'dp-api',
     'dp/api',
-    f'{PATH_DATA_PROFILER}/dp-api',
-    port=API_PORT)
+    f'{PATH_DATA_PROFILER}/dp-api')
 
-docker_dp_rou = DockerImage(
+container_dp_rou = ContainerImage(
     'dp-rou',
     'dp/rou',
-    f'{PATH_DATA_PROFILER}/services/rules-of-use-api',
-    port=ROU_PORT)
+    f'{PATH_DATA_PROFILER}/services/rules-of-use-api')
 
-docker_dp_data_loading = DockerImage(
+container_dp_data_loading = ContainerImage(
     'dp-data-loading-daemon',
     'dp/data-loading-daemon',
-    f'{PATH_DATA_PROFILER}/services/data-loading-daemon',
-    port=DATA_LOADING_DAEMON_PORT)
+    f'{PATH_DATA_PROFILER}/services/data-loading-daemon')
 
-docker_dp_jobs_api = DockerImage(
+container_dp_jobs_api = ContainerImage(
     'dp-jobs-api',
     'dp/jobs-api',
-    f'{PATH_DATA_PROFILER}/services/jobs-api',
-    port=JOBS_API_PORT)
+    f'{PATH_DATA_PROFILER}/services/jobs-api')
 
-docker_dp_ui = DockerImage(
+container_dp_ui = ContainerImage(
     'dp-ui',
     'dp/ui',
-    f'{PATH_DATA_PROFILER}/dp-ui',
-    ['--build-arg',
-     f'USER_FACING_API_HTTP_PATH=http://localhost:{API_PORT}',
-     '--build-arg',
-     f'USER_FACING_UI_HTTP_PATH=http://localhost:{UI_PORT}', ])
+    f'{PATH_DATA_PROFILER}/dp-ui')
+
+# Jobs
+container_dp_rou_init = ContainerImage(
+    'dp-rou-init',
+    'dp/rou-init',
+    f'{PATH_STANDALONE}/conf/dp-rou-init')
 
 
 # Images that must be built before Data Profiler specific images can be built
-components_deps = {
-    docker_java.name: docker_java,
-    docker_playframework.name: docker_playframework,
-    docker_hadoop.name: docker_hadoop,
-    docker_nodepg.name: docker_nodepg,
-    docker_nodeyarn.name: docker_nodeyarn,
-    docker_dp_spark_sql_controller.name: docker_dp_spark_sql_controller,
+dependencies = {
+    container_java.name: container_java,
+    container_playframework.name: container_playframework,
+    container_hadoop.name: container_hadoop,
+    container_nodepg.name: container_nodepg,
+    container_nodeyarn.name: container_nodeyarn,
+    container_dp_spark_sql_controller.name: container_dp_spark_sql_controller,
 }
 
-
-# Backend components for the data profiler
-components_backend = {
-    docker_dp_accumulo.name: docker_dp_accumulo,
-    docker_dp_postgres.name: docker_dp_postgres,
-    docker_dp_api.name: docker_dp_api,
-    docker_dp_rou.name: docker_dp_rou,
-    docker_dp_data_loading.name: docker_dp_data_loading,
-    docker_dp_jobs_api.name: docker_dp_jobs_api,
+external_apps = {
+    container_dp_postgres.name: container_dp_postgres
 }
 
-# Front end components for the data profiler
-components_frontend = {
-    docker_dp_ui.name: docker_dp_ui
+# Images specific for the Data Profiler
+deployable_apps = {
+    container_dp_accumulo.name: container_dp_accumulo,
+    container_dp_api.name: container_dp_api,
+    container_dp_rou.name: container_dp_rou,
+    container_dp_data_loading.name: container_dp_data_loading,
+    container_dp_jobs_api.name: container_dp_jobs_api,
+    container_dp_ui.name: container_dp_ui,
 }
 
-components_all = {**components_backend, **components_frontend}
+deployable_apps = {**external_apps, **deployable_apps}
+
+# Jobs required for the Data Profiler
+jobs = {
+    container_dp_rou_init.name: container_dp_rou_init,
+}
 
 
 logger = logging.getLogger("standalone")
-logger.setLevel(logging.DEBUG)
-# logger.setLevel(logging.INFO)
 
 # create console handler with a higher log level
 console_handler = logging.StreamHandler()
@@ -203,342 +381,62 @@ console_handler.setFormatter(CustomFormatter())
 logger.addHandler(console_handler)
 
 
-def component_names():
-    components = [c for c in components_all.keys()]
+def buildable_app_names() -> List[str]:
+    components = [c for c in deployable_apps.keys()]
     components.append('all')
     return components
 
 
-def configure_rou_db():
-    logger.info('* Configuring Rules Of Use')
-
-    # Create ROU key
-    logger.info('  * Created api key as \'dp-rou-key\'')
-    p = exec_cmd([f'{PATH_STANDALONE}/util/create_api_key.sh'])
-    if not p.returncode == 0:
-        logger.error('Failed to create api key')
-
-    # Activate ROU attributes
-    logger.info('  * Activating ROU attributes')
-    p = exec_cmd([f'{PATH_STANDALONE}/util/activate_attributes.sh'],
-                 cwd=f'{PATH_STANDALONE}/util/')
-    if not p.returncode == 0:
-        logger.error('Failed to activate attributes')
-
-    # Update user ROU attributes
-    logger.info('  * Updating ROU attributes for \'developer\'')
-    p = exec_cmd(
-        [f'{PATH_STANDALONE}/util/update_user_attributes.sh'], show_output=False)
-    if not p.returncode == 0:
-        logger.error('Failed to update user attributes for \'developer\'')
+def deployable_app_names() -> List[str]:
+    components = [c for c in deployable_apps.keys()]
+    components.append('all')
+    return components
 
 
-def display_status(component, port):
-    if not test_connection('localhost', f'{port}'):
-        expose_component(component)
-    else:
-        print(f'{component} available at http://localhost:{port}')
+def job_names() -> List[str]:
+    components = [c for c in jobs.keys()]
+    components.append('all')
+    return components
 
 
-def expose_components():
+def expose_components(port):
     close_tunnel_connections()
 
-    # backend
-    for c in components_backend:
-        expose_component(c)
-
     # port forwards
-    create_local_connection_tunnel('dp-ui', f'{UI_PORT}', 80)
-    create_local_connection_tunnel('dp-api', f'{API_PORT}', f'{API_PORT}')
-    create_local_connection_tunnel('dp-rou', f'{ROU_PORT}', f'{ROU_PORT}')
     create_local_connection_tunnel(
-        'dp-jobs-api', f'{JOBS_API_PORT}', f'{JOBS_API_PORT}')
-    create_local_connection_tunnel(
-        'dp-data-loading-daemon', f'{DATA_LOADING_DAEMON_PORT}', f'{DATA_LOADING_DAEMON_PORT}')
+        NGINX_INGRESS_APP_NAME,
+        port,
+        '80',
+        namespace='ingress-nginx',
+        type='service')
 
 
-def expose_component(app, port=None):
-    logger.debug(f'Exposing component {app}')
-    prefix = 4*' ' + '> '
-    if port is None:
-        cmd_suffix = ['--cluster-ip=None']
-    else:
-        cmd_suffix = [
-            '--target-port',
-            f'{port}',
-            '--type',
-            'NodePort'
-        ]
-
-    expose_cmd = [
-        'kubectl',
-        'expose',
-        'deployment',
-        f'{app}',
-        '--name',
-        f'{app}'
-    ] + cmd_suffix
-
-    process = exec_cmd(expose_cmd, prefix=prefix)
-    return process
-
-
-def expose_ui(ui_app='dp-ui'):
-    logger.debug(f'Exposing ui')
-    service_cmd = [
-        'minikube',
-        'service',
-        '--url',
-        ui_app
-    ]
-    exec_daemon_cmd(service_cmd, '/tmp/dp-ui-port-forward')
-    logger.debug(ui_app)
-
-
-def create_local_connection_tunnel(app, host_port, container_port):
+def create_local_connection_tunnel(app, host_port, container_port, namespace='default', type='deployment'):
     max_tries = 10
     tunnel_cmd = [
         'kubectl',
         'port-forward',
-        f'deployment/{app}',
+        '-n',
+        f'{namespace}',
+        f'{type}/{app}',
         f'{host_port}:{container_port}',
         '--address=0.0.0.0',
     ]
 
-    exec_daemon_cmd(tunnel_cmd, f'/tmp/{app}-port-forward')
+    dir = TempDir()
+    if not dir.name:
+        dir.create()
+
+    output_dir = dir.name / f'{app}-port-forward'
+
+    exec_daemon_cmd(tunnel_cmd, output_dir)
     success = test_connection('localhost', host_port)
     while not success and max_tries > 0:
         max_tries -= 1
         logger.debug(f'Waiting for {app} to report as \'RUNNING\'')
         time.sleep(2)
-        exec_daemon_cmd(tunnel_cmd, f'/tmp/{app}-port-forward')
+        exec_daemon_cmd(tunnel_cmd, output_dir)
         success = test_connection('localhost', host_port)
-
-
-def build_jars():
-    logger.info('Building libraries')
-
-    build_cmd = [
-        './build.py',
-        'local',
-    ]
-
-    process = exec_cmd(build_cmd, cwd=PATH_DATA_PROFILER)
-    return process
-
-
-def build_deps():
-    logger.info('Building docker dependencies')
-    for docker in components_deps.values():
-        logger.debug(f'Building docker image: {docker.name}')
-        build_docker_image(docker)
-
-
-def build_images(app='all'):
-    if app is None or app == 'all':
-        logger.info('Building docker images')
-        for image in components_all.values():
-            build_docker_image(image)
-
-    else:
-        logger.info(f'Building docker image for {app}')
-        build_docker_image(components_all.get(app))
-
-
-def build_docker_image(docker: DockerImage):
-
-    logger.info(f'{docker.tag} image')
-
-    docker_build_cmd = [
-        'docker',
-        'build',
-    ]
-
-    docker_build_cmd.extend(docker.options)
-
-    docker_build_cmd.extend([
-        '-t',
-        docker.tag,
-        docker.path
-    ])
-
-    process = exec_cmd(docker_build_cmd)
-    # process = exec_cmd(docker_build_cmd, cwd=build_base)
-    if not process.returncode == 0:
-        logger.error(f'Failed to build {docker.tag} image. exiting')
-        exit(1)
-
-
-def deploy_components():
-    logger.info('* Deploying Components')
-    for component in components_all:
-        deploy_component(component)
-
-
-def deploy_component(app):
-    print(4*' ' + '> deploying ' + app, end='\r')
-
-    # indent prefix for following output
-    prefix = 4*' ' + '> '
-
-    # create deployment
-    deploy_cmd = [
-        'kubectl',
-        'create',
-        '-f',
-        f'{PATH_STANDALONE}/conf/{app}/{app}.yaml'
-    ]
-    logger.debug(deploy_cmd)
-    exec_cmd(deploy_cmd, prefix=prefix)
-
-    if app == 'dp-ui':
-        expose_component(app, 80)
-    else:
-        expose_component(app)
-
-    # wait for component to report as 'RUNNING'
-    app_status = check_pod_status(app)
-    while not app_status.returncode == 0:
-        logger.debug(f'Waiting for {app} to report as \'RUNNING\'')
-        time.sleep(2)
-        app_status = check_pod_status(app)
-
-    print(' '*100, end='\r')
-    logger.info(4*' ' + f'{app:.<35}' + 'deployed')
-
-
-def terminate_component(app):
-    logger.debug(4*' Deleting ' + app)
-
-    # indent prefix for following output
-    prefix = 6*' ' + ' '
-
-    # delete deployment
-    delete_deploy_cmd = [
-        'kubectl',
-        'delete',
-        '-f',
-        f'{PATH_STANDALONE}/conf/{app}/{app}.yaml'
-    ]
-    logger.debug(delete_deploy_cmd)
-    exec_cmd(delete_deploy_cmd, prefix=prefix)
-
-    # delete service
-    delete_svc_cmd = [
-        'kubectl',
-        'delete',
-        'svc',
-        f'{app}'
-    ]
-    logger.debug(delete_svc_cmd)
-    exec_cmd(delete_svc_cmd, prefix=prefix)
-
-    print(' '*100, end='\r')
-    logger.info(4*' ' + f'{app:.<35}' + 'deleted')
-
-
-def check_minikube_status():
-    process = exec_cmd(['minikube', 'status'], show_output=False)
-    if not process.returncode == 0:
-        logger.debug(f'Minikube is not running. attempting to start...')
-
-        restart_cmd = [
-            'minikube',
-            'start',
-            '--cpus',
-            f'{CPUS}',
-            '--memory',
-            f'{MEMORY}']
-
-        process = exec_cmd(restart_cmd)
-    if not process.returncode == 0:
-        logger.error('Failed to start minikube - exiting')
-        exit(1)
-    else:
-        logger.debug(f'Minikube is running')
-    return process
-
-
-def check_pod_status(app):
-    process = exec_cmd([f'{PATH_STANDALONE}/util/check_pod_status.sh', app])
-    return process
-
-
-def check_requirements():
-    required = ['minikube', 'kubectl']
-    for req in required:
-        if not is_available(req):
-            logger.info(f'Missing requirement -- please install \'{req}\'')
-            exit(1)
-
-
-def exec_cmd(cmd, cwd=PATH_STANDALONE, prefix='', show_output=True):
-    logger.debug(f'Executing command: {" ".join(cmd)}')
-    try:
-
-        with subprocess.Popen(
-                cmd,
-                cwd=cwd,
-                text=True,
-                close_fds=True,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE) as process:
-
-            while process.poll() is None:
-                for line in process.stdout:
-                    logger.debug(line.strip())
-
-                for line in process.stderr:
-                    logger.debug(line.strip())
-
-            rc = process.poll()
-
-            if rc == 0:
-                logger.debug(f'Command executed successful: {" ".join(cmd)}')
-            else:
-                logger.error(
-                    f'Command exited with return code {rc}: {" ".join(cmd)}')
-
-    except subprocess.CalledProcessError as e:
-        logger.error(f'Fatal error: {e}')
-        sys.exit(1)
-
-    return process
-
-
-def exec_daemon_cmd(cmd, file):
-    logger.debug(f'Executing daemon command: {" ".join(cmd)}')
-    f = open(file + '.out', 'w')
-    fe = open(file + '.err', 'w')
-    process = subprocess.Popen(cmd, stdout=f, stderr=fe)
-    return process
-
-
-def is_available(name):
-    process = exec_cmd(['which', name], show_output=False)
-    return process.returncode == 0
-
-
-def parse_args(parser, commands):
-    # Divide argv by commands
-    split_argv = [[]]
-    for c in sys.argv[1:]:
-        if c in commands.choices:
-            split_argv.append([c])
-        else:
-            split_argv[-1].append(c)
-    # Initialize namespace
-    args = argparse.Namespace()
-    for c in commands.choices:
-        setattr(args, c, None)
-        # Parse each command
-        parser.parse_args(split_argv[0], namespace=args)  # Without command
-        for argv in split_argv[1:]:  # Commands
-            n = argparse.Namespace()
-            setattr(args, argv[0], n)
-            parser.parse_args(argv, namespace=n)
-    return args
 
 
 def close_tunnel_connections():
@@ -556,27 +454,178 @@ def test_connection(host, port):
     test_conn_cmd = [
         'nc', '-v', '-z', host, f'{port}'
     ]
-    process = exec_cmd(test_conn_cmd)
-    if process.returncode == 0:
+    proc, _, _ = exec_cmd(test_conn_cmd)
+    if proc.returncode == 0:
         return True
     else:
         return False
 
 
-def check_error(process, msg=None):
-    if not process.returncode == 0:
-        if msg:
-            logger.error(msg)
-        raise Exception(f'Command failed with {process.returncode}')
+def build_jars() -> bool:
+    logger.info('Building libraries')
+    app = 'libraries'
+
+    build_cmd = [
+        './build.py',
+        'local',
+    ]
+
+    (proc, _, _) = exec_cmd(build_cmd, cwd=PATH_DATA_PROFILER)
+    if proc.returncode == 0:
+        logger.info(4*' ' + f'{app:.<70}' + 'success')
+        return True
+
+    logger.error(4*' ' + f'{app:.<70}' + 'failed')
+    return False
 
 
-def check_minikube_environment():
-    p = exec_cmd(['minikube', 'docker-env'])
-    if not p.returncode == 0:
-        print('Minikube environment not set. Please run: eval `minikube docker-env`')
+def build_deps() -> bool:
+    logger.info('Building Dependencies')
+    success = True
+    for dep in dependencies.values():
+        if not dep.build():
+            success = False
+    return success
+
+
+def build_images(app, url, port) -> bool:
+
+    # Set the UI URL and PORT
+    container_dp_ui.options.extend(['--build-arg',
+                                    f'USER_FACING_API_HTTP_PATH={url}:{port}/api',
+                                    '--build-arg',
+                                    f'USER_FACING_UI_HTTP_PATH={url}:{port}'])
+
+    logger.info('Building Applications')
+    if app is None or app == 'all':
+        success = True
+        for app in deployable_apps.values():
+            if not app.build():
+                success = False
+        return success
+
+    else:
+        return deployable_apps.get(app).build()
+
+
+def deploy_configmap() -> bool:
+    logger.info('Deploying ConfigMap')
+    configmap_cmd = [
+        'kubectl',
+        'apply',
+        '-f',
+        str(CONFIGMAP_FILE),
+    ]
+
+    configmap = 'configmap'
+    (proc, _, _) = exec_cmd(configmap_cmd)
+    if proc.returncode == 0:
+        logger.info(4*' ' + f'{configmap:.<70}' + 'success')
+        return True
+
+    logger.error(4*' ' + f'{configmap:.<70}' + 'failed')
+    return False
+
+
+def deploy_apps(app) -> bool:
+    if app is None or app == 'all':
+        success = True
+        for app in deployable_apps.values():
+            if not app.deploy():
+                success = False
+        return success
+    else:
+        return deployable_apps.get(app).deploy()
+
+
+def execute_jobs(job) -> bool:
+    if job is None or job == 'all':
+        success = True
+        for job in jobs.values():
+            if not job.deploy():
+                success = False
+            return success
+    else:
+        return jobs.get(job).deploy()
+
+
+def terminate_apps(app) -> bool:
+    if app is None or app == 'all':
+        success = True
+        for app in deployable_apps.values():
+            if not app.terminate():
+                success = False
+
+        close_tunnel_connections()
+        TempDir().delete()
+
+        return success
+    else:
+        return deployable_apps.get(app).terminate()
+
+
+def terminate_jobs(job) -> bool:
+    success = True
+    if job is None or job == 'all':
+        for job in jobs.values():
+            if not job.terminate():
+                success = False
+
+        return success
+    else:
+        return jobs.get(job).terminate()
+
+
+def exec_cmd(cmd, cwd=PATH_STANDALONE, show_output=True) -> Tuple[subprocess.Popen, str, str]:
+    logger.debug(f'Executing command: {" ".join(cmd)}')
+    try:
+
+        stdout = ''
+        stderr = ''
+        with subprocess.Popen(
+                cmd,
+                cwd=cwd,
+                text=True,
+                close_fds=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE) as process:
+
+            while process.poll() is None:
+                for line in process.stdout:
+                    stdout += line
+                    logger.debug(line.strip())
+
+                for line in process.stderr:
+                    stderr += line
+                    logger.debug(line.strip())
+
+            rc = process.poll()
+
+            if rc == 0:
+                logger.debug(f'Command executed successful: {" ".join(cmd)}')
+            else:
+                logger.debug(
+                    f'Command exited with return code {rc}: {" ".join(cmd)}')
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f'Fatal error: {e}')
+        sys.exit(1)
+
+    return (process, stdout, stderr)
+
+
+def exec_daemon_cmd(cmd, file):
+    logger.debug(f'Executing daemon command: {" ".join(cmd)}')
+    f = open(file + '.out', 'w')
+    fe = open(file + '.err', 'w')
+    proc = subprocess.Popen(cmd, stdout=f, stderr=fe)
+    return proc
 
 
 def build(args):
+    """Build application(s) for the Minikube cluster
+    """
 
     if args.app is None and not args.deps and not args.jars:
         args.deps = True
@@ -584,59 +633,74 @@ def build(args):
         args.app = 'all'
 
     if args.jars:
-        build_jars()
+        if not build_jars():
+            logger.error(
+                "Failed building libraries. Re-run with --debug flag for more information")
+            sys.exit(1)
 
     if args.deps:
-        print('build deps')
-        build_deps()
+        if not build_deps():
+            logger.error(
+                "Failed building container dependencies. Re-run with --debug flag for more information")
+            sys.exit(1)
 
     if args.app is not None:
-        print('build apps')
-        build_images(args.app)
+        if not build_images(args.app, args.url, args.port):
+            logger.error(
+                "Failed building data profiler images. Re-run with --debug flag for more information")
+            sys.exit(1)
 
 
-# Deploy application(s) to Minikube cluster
 def deploy(args):
+    """Deploy application(s) to Minikube cluster
+    """
 
-    # indent prefix for following output
-    prefix = 4*' ' + '> '
-    # create configmap containing cluster data
-    configmap_cmd = [
-        'kubectl',
-        'apply',
-        '-f',
-        str(CONFIGMAP_FILE),
-    ]
-    logger.debug(configmap_cmd)
-    exec_cmd(configmap_cmd, prefix=prefix)
+    if args.app is None and args.job is None:
+        args.app = 'all'
+        args.job = 'all'
 
-    app = args.app
-    if not app == 'all':
-        deploy_component(app)
-        expose_component(app)
-        expose_components()
-    else:
-        # Deploy all components
-        deploy_components()
-        expose_components()
-        time.sleep(1)
-        configure_rou_db()
+    if not deploy_configmap():
+        logger.error(
+            "Failed to deploy ConfigMap. Re-run with --debug flag for more information")
+        sys.exit(1)
 
-    # Display status of deployments and exposed endpoints
-    status()
+    if args.app is not None:
+        logger.info('Deploying Applications')
+        if not deploy_apps(args.app):
+            logger.error(
+                "Failed to deploy apps. Re-run with --debug flag for more information")
+            sys.exit(1)
+
+    if args.job is not None:
+        logger.info('Executing Jobs')
+        if not execute_jobs(args.job):
+            logger.error(
+                "Failed to execute jobs. Re-run with --debug flag for more information")
+            sys.exit(1)
+
+    # Create tunnel connection
+    expose_components(args.port)
 
 
 def terminate(args):
-    if args.app == 'all':
+    """Terminate application(s) on the Minikube cluster
+    """
+    logger.info(f'Terminating')
 
-        logger.info('* Terminating Deployments')
-        for component in components_all:
-            terminate_component(component)
+    if args.app is None and args.job is None:
+        args.app = 'all'
+        args.job = 'all'
 
-        close_tunnel_connections()
-
-    else:
-        terminate_component(args.app)
+    if args.app is not None:
+        logger.info('Terminating Applications')
+        if not terminate_apps(args.app):
+            logger.error(
+                "Failed to terminate apps. Re-run with --debug flag for more information")
+    if args.job is not None:
+        logger.info('Terminating Jobs')
+        if not terminate_jobs(args.job):
+            logger.error(
+                "Failed to terminate jobs. Re-run with --debug flag for more information")
 
 
 def restart(args):
@@ -645,16 +709,31 @@ def restart(args):
 
 
 def status(args=None):
-    logger.info('\nStandalone Minikube Status')
+    logger.info('Status')
 
-    ui_status_file = open('/tmp/dp-ui-port-forward.out', 'r')
-    for line in ui_status_file:
-        print(line, end='')
+    app = NGINX_INGRESS_APP_NAME
+    dir = TempDir()
 
-    display_status('dp-api', API_PORT)
-    display_status('dp-jobs-api', JOBS_API_PORT)
-    display_status('dp-rou', ROU_PORT)
-    # display_status('dp-spark-sql-controller', _spark_sql_controller_port)
+    if not dir.name:
+        logger.debug('Temp directory does not exist')
+        logger.info(4*' ' + f'{app:.<70}unavailable')
+    else:
+        output_dir = dir.name / f'{app}-port-forward.out'
+        with open(output_dir, 'r') as ui_status_file:
+            for line in ui_status_file:
+                logger.info(line.strip())
+
+    logger.info('Applications')
+
+    for app in deployable_apps.values():
+        status = 'up' if app.is_running() else 'down'
+        logger.info(4*' ' + f'{app.name:.<70}{status}')
+
+    logger.info('Jobs')
+
+    for job in jobs.values():
+        status = 'up' if job.is_running() else 'down'
+        logger.info(4*' ' + f'{job.name:.<70}{status}')
 
 
 def main():
@@ -685,7 +764,7 @@ def main():
         type=str,
         default=None,
         help='deployment name',
-        choices=component_names())
+        choices=buildable_app_names())
     parser_build.add_argument(
         '--deps',
         action='store_true',
@@ -695,9 +774,15 @@ def main():
         action='store_true',
         help='build jars')
     parser_build.add_argument(
-        '--use-branch',
+        '--url',
         type=str,
-        default='master')
+        default=DEFAULT_URL,
+        help=f'URL to access UI (Default: {DEFAULT_URL})')
+    parser_build.add_argument(
+        '--port',
+        type=int,
+        default=DEFAULT_PORT,
+        help=f'External port to access UI (Default: {DEFAULT_PORT})')
     parser_build.set_defaults(func=build)
 
     # deploy
@@ -705,16 +790,22 @@ def main():
         'deploy',
         help='Deploy to minikube')
     parser_deploy.add_argument(
-        '--branch',
-        type=str,
-        default='master',
-        help='branch to build from')
-    parser_deploy.add_argument(
         '--app',
         type=str,
-        default='all',
+        default=None,
         help='deployment name',
-        choices=component_names())
+        choices=deployable_app_names())
+    parser_deploy.add_argument(
+        '--job',
+        type=str,
+        default=None,
+        help='job name',
+        choices=job_names())
+    parser_deploy.add_argument(
+        '--port',
+        type=int,
+        default=DEFAULT_PORT,
+        help=f'External port to access UI (Default: {DEFAULT_PORT})')
     parser_deploy.set_defaults(func=deploy)
 
     # terminate
@@ -724,9 +815,15 @@ def main():
     parser_terminate.add_argument(
         '--app',
         type=str,
-        default='all',
+        default=None,
         help='deployment name',
-        choices=component_names())
+        choices=deployable_app_names())
+    parser_terminate.add_argument(
+        '--job',
+        type=str,
+        default=None,
+        help='job name',
+        choices=job_names())
     parser_terminate.set_defaults(func=terminate)
 
     # restart
@@ -738,7 +835,13 @@ def main():
         type=str,
         default='all',
         help='deployment name',
-        choices=component_names())
+        choices=deployable_app_names())
+    parser_restart.add_argument(
+        '--job',
+        type=str,
+        default=None,
+        help='job name',
+        choices=job_names())
     parser_restart.set_defaults(func=restart)
 
     # status
@@ -748,10 +851,15 @@ def main():
     parser_status.set_defaults(func=status)
 
     args = parser.parse_args()
-    print(args)
     if args.command is None:
         parser.print_help(sys.stderr)
         sys.exit(1)
+
+    # Default log level is INFO
+    logger.setLevel(logging.INFO)
+
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
 
     args.func(args)
 

@@ -27,16 +27,17 @@ For the rest of the guide, it is assumed that the Data profiler is located in `~
 
 ### Minikube Configuration
 
-After minikube is installed a cluster can be started. The number of CPUs required for the Kubernetes cluster is 4 and roughly 16GB of memory.
+After minikube is installed a cluster can be started. The number of CPUs required for the Kubernetes cluster is 4 and roughly 8GB of memory.
 
 ```shell
-minikube start --cpus 4 --memory 16384 --driver=docker --mount-string="${HOME}/Data-Profiler/infrastructure/standalone/data:/dp_data" --mount
+minikube start --cpus 4 --memory 8096 --driver=docker --mount-string="${HOME}/Data-Profiler/infrastructure/standalone/data:/dp_data" --mount
 ```
 
-Next, kubeconfig must be updated with the correct IP address of the running cluster.
+Next, kubeconfig must be updated with the correct IP address of the running cluster and ingress should be installed.
 
 ```shell
 minikube update-context
+minikube addons enable ingress
 ```
 
 Lastly, the environment must be configured to use minikube's Docker daemon. Please note, you will need to run this command in any newly opened shell.

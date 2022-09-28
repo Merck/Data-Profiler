@@ -38,8 +38,7 @@ spec:
       hostname: dp-postgres
       containers:
         - name: dp-postgres
-          image: dp/postgres
-          imagePullPolicy: Never
+          image: postgres
           ports:
             - containerPort: 5432
           stdin: true
