@@ -355,7 +355,7 @@ external_apps = {
 }
 
 # Images specific for the Data Profiler
-deployable_apps = {
+buildable_apps = {
     container_dp_accumulo.name: container_dp_accumulo,
     container_dp_api.name: container_dp_api,
     container_dp_rou.name: container_dp_rou,
@@ -364,7 +364,7 @@ deployable_apps = {
     container_dp_ui.name: container_dp_ui,
 }
 
-deployable_apps = {**external_apps, **deployable_apps}
+deployable_apps = {**external_apps, **buildable_apps}
 
 # Jobs required for the Data Profiler
 jobs = {
@@ -382,7 +382,7 @@ logger.addHandler(console_handler)
 
 
 def buildable_app_names() -> List[str]:
-    components = [c for c in deployable_apps.keys()]
+    components = [c for c in buildable_apps.keys()]
     components.append('all')
     return components
 
@@ -429,13 +429,13 @@ def create_local_connection_tunnel(app, host_port, container_port, namespace='de
 
     output_dir = dir.name / f'{app}-port-forward'
 
-    exec_daemon_cmd(tunnel_cmd, output_dir)
+    exec_daemon_cmd(tunnel_cmd, str(output_dir))
     success = test_connection('localhost', host_port)
     while not success and max_tries > 0:
         max_tries -= 1
         logger.debug(f'Waiting for {app} to report as \'RUNNING\'')
         time.sleep(2)
-        exec_daemon_cmd(tunnel_cmd, output_dir)
+        exec_daemon_cmd(tunnel_cmd, str(output_dir))
         success = test_connection('localhost', host_port)
 
 
@@ -499,13 +499,13 @@ def build_images(app, url, port) -> bool:
     logger.info('Building Applications')
     if app is None or app == 'all':
         success = True
-        for app in deployable_apps.values():
+        for app in buildable_apps.values():
             if not app.build():
                 success = False
         return success
 
     else:
-        return deployable_apps.get(app).build()
+        return buildable_apps.get(app).build()
 
 
 def deploy_configmap() -> bool:
