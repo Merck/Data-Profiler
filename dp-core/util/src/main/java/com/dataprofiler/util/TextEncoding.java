@@ -27,8 +27,7 @@ package com.dataprofiler.util;
  */
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-
-import org.apache.accumulo.core.util.Base64;
+import java.util.Base64;
 import org.apache.accumulo.core.util.TextUtil;
 import org.apache.hadoop.io.Text;
 
@@ -42,7 +41,7 @@ public class TextEncoding {
   public static String encodeStrings(Text[] values) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < values.length; i++) {
-      sb.append(Base64.encodeBase64String(TextUtil.getBytes(values[i])));
+      sb.append(Base64.getEncoder().encodeToString(TextUtil.getBytes(values[i])));
       sb.append('\n');
     }
     return sb.toString();
@@ -58,7 +57,7 @@ public class TextEncoding {
     String[] columnStrings = values.split("\n", -1);
     Text[] columnTexts = new Text[columnStrings.length - 1];
     for (int i = 0; i < columnStrings.length - 1; i++) {
-      columnTexts[i] = new Text(Base64.decodeBase64(columnStrings[i].getBytes(UTF_8)));
+      columnTexts[i] = new Text(Base64.getDecoder().decode(columnStrings[i].getBytes(UTF_8)));
     }
     return columnTexts;
   }

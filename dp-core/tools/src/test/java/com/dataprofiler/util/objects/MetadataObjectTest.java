@@ -82,7 +82,7 @@ public class MetadataObjectTest {
 
   @Test
   public void sanity() throws BasicAccumuloException {
-    Set<String> tables = mad.getContext().getConnector().tableOperations().list();
+    Set<String> tables = mad.getContext().getClient().tableOperations().list();
     logger.info(tables);
     assertTrue(tables.size() > 0);
   }

@@ -289,7 +289,7 @@ public class MiniAccumuloWithData implements AutoCloseable {
   }
 
   public String fullCsvPath(String filename) {
-    return "./tools/src/test/resources/" + filename + ".csv";
+    return "./dp-core/tools/src/test/resources/" + filename + ".csv";
   }
 
   public static Function<String, String> friendlyDatasetNameFromPath() {

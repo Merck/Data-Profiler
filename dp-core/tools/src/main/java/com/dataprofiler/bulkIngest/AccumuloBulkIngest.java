@@ -97,7 +97,7 @@ public class AccumuloBulkIngest {
       throws IOException, BasicAccumuloException, URISyntaxException {
     final String dir = config.inputDir;
 
-    TableOperations tops = context.getConnector().tableOperations();
+    TableOperations tops = context.getClient().tableOperations();
 
     if (context.getConfig().runSparkLocally) {
       fs = FileSystem.get(context.createHadoopConfigurationForLocal());

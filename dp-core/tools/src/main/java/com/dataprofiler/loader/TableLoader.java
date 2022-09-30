@@ -1176,7 +1176,7 @@ public class TableLoader {
       return;
     }
 
-    TableOperations tops = context.getConnector().tableOperations();
+    TableOperations tops = context.getClient().tableOperations();
 
     // Create the table if it doesn't exist
     if (!tops.exists(table)) {
@@ -1184,7 +1184,7 @@ public class TableLoader {
         if (logger.isInfoEnabled()) {
           logger.info("table does not exist - creating table " + table);
         }
-        context.getConnector().tableOperations().create(table);
+        context.getClient().tableOperations().create(table);
       } catch (Exception e) {
         throw new BasicAccumuloException(e.toString());
       }

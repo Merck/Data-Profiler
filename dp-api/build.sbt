@@ -30,7 +30,7 @@ libraryDependencies += "org.postgresql" % "postgresql" % "42.2.18"
 
 libraryDependencies += "com.univocity" % "univocity-parsers" % "2.9.0"
 
-libraryDependencies += "org.apache.accumulo" % "accumulo-core" % "1.9.3"
+libraryDependencies += "org.apache.accumulo" % "accumulo-core" % "2.0.1"
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "3.3.1"
 

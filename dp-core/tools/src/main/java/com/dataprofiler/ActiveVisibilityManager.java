@@ -61,12 +61,12 @@ public class ActiveVisibilityManager implements Closeable {
   private UnirestInstance unirest;
 
   public ActiveVisibilityManager() throws IOException, BasicAccumuloException {
-    context = new Context();
+    this.context = new Context();
     init();
   }
 
   public ActiveVisibilityManager(String[] argv) throws IOException, BasicAccumuloException {
-    context = new Context(argv);
+    this.context = new Context(argv);
     init();
   }
 
@@ -82,18 +82,18 @@ public class ActiveVisibilityManager implements Closeable {
         .automaticRetries(true)
         .addDefaultHeader("Accept", "application/json")
         .addDefaultHeader("Content-Type", "application/json")
-        .addDefaultHeader("Authorization", context.getConfig().rulesOfUseApiKey);
+        .addDefaultHeader("Authorization", this.context.getConfig().rulesOfUseApiKey);
   }
 
   public String rouCall(String query) throws JsonProcessingException, UnirestException {
     log.info("Executing query: " + query);
-    String requestPath = context.getConfig().rulesOfUseApiPath + "/graphql";
+    String requestPath = this.context.getConfig().rulesOfUseApiPath + "/graphql";
 
-    ObjectNode payload = mapper.createObjectNode();
+    ObjectNode payload = this.mapper.createObjectNode();
     payload.put("query", query);
 
     HttpResponse<String> response =
-        this.unirest.post(requestPath).body(mapper.writeValueAsString(payload)).asString();
+        this.unirest.post(requestPath).body(this.mapper.writeValueAsString(payload)).asString();
 
     if (response.getStatus() != 200) {
       log.warn(
@@ -144,7 +144,7 @@ public class ActiveVisibilityManager implements Closeable {
 
     String responseJSONString = rouCall(query);
     com.fasterxml.jackson.databind.JsonNode node =
-        mapper.readValue(responseJSONString, com.fasterxml.jackson.databind.JsonNode.class);
+        this.mapper.readValue(responseJSONString, com.fasterxml.jackson.databind.JsonNode.class);
     HashSet<String> visibilities = new HashSet<>();
     try {
       ArrayNode array = (ArrayNode) node.get("data").get("attributesActive");
@@ -164,7 +164,10 @@ public class ActiveVisibilityManager implements Closeable {
     Authorizations authorizations =
         new Authorizations(visibilities.toArray(new String[visibilities.size()]));
 
-    context.getConnector().securityOperations().changeUserAuthorizations("root", authorizations);
+    this.context
+        .getClient()
+        .securityOperations()
+        .changeUserAuthorizations("root", authorizations);
   }
 
   public void setVisibilitiesFromExpressionAsActive(String expression)
@@ -172,7 +175,10 @@ public class ActiveVisibilityManager implements Closeable {
           BasicAccumuloException {
     Set<String> visibilities = extractVisibilitiesFromExpression(expression);
 
-    SecurityOperations securityOps = this.context.getConnector().securityOperations();
+    SecurityOperations securityOps = 
+        this.context
+            .getClient()
+            .securityOperations();
     Set<String> auths =
         securityOps
             .getUserAuthorizations(this.context.getConfig().accumuloUser)

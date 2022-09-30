@@ -171,7 +171,7 @@ public class ColumnSampleObject extends VersionedPurgableDatasetObject<ColumnSam
     String currTable = getTable(context);
 
     try {
-      TableOperations tops = context.getConnector().tableOperations();
+      TableOperations tops = context.getClient().tableOperations();
 
       // Delete all iterators applied to this table
       Map<String, EnumSet<IteratorUtil.IteratorScope>> iterators = tops.listIterators(currTable);

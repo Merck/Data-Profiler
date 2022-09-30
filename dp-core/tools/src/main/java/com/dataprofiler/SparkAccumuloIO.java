@@ -29,19 +29,24 @@ package com.dataprofiler;
 import static java.lang.String.format;
 
 import com.dataprofiler.util.BasicAccumuloException;
+import com.dataprofiler.util.Config;
 import com.dataprofiler.util.Const.LoadType;
 import com.dataprofiler.util.objects.AccumuloObject;
 import com.dataprofiler.util.objects.ObjectScannerIterable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 import java.util.TreeSet;
 import java.util.UUID;
+import org.apache.accumulo.core.client.Accumulo;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.admin.TableOperations;
 import org.apache.accumulo.core.client.lexicoder.LongLexicoder;
-import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
-import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
+import org.apache.accumulo.hadoop.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.hadoop.mapreduce.AccumuloOutputFormat;
+import org.apache.accumulo.hadoop.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
@@ -141,7 +146,7 @@ public class SparkAccumuloIO {
 
   private Collection<Text> getSplits(String accumuloTable) throws BasicAccumuloException {
     try {
-      return dpSparkContext.getConnector().tableOperations().listSplits(accumuloTable);
+      return dpSparkContext.getClient().tableOperations().listSplits(accumuloTable);
     } catch (Exception e) {
       throw new BasicAccumuloException(e.toString());
     }
@@ -157,7 +162,24 @@ public class SparkAccumuloIO {
       if (logger.isInfoEnabled()) {
         logger.info(format("using scan auths: %s", auths));
       }
-      AccumuloInputFormat.setScanAuthorizations(job, auths);
+      Config conf = dpSparkContext.getConfig();
+
+      Properties props = Accumulo.newClientProperties()
+          .to(conf.accumuloInstance, conf.zookeepers)
+          .as(conf.accumuloUser,conf.accumuloPassword)
+          .build();
+
+      try {
+        AccumuloInputFormat
+          .configure()
+          .clientProperties(props)
+          .table(scanner.getTable())
+          .auths(auths)
+          .store(job);
+      } catch (AccumuloException | AccumuloSecurityException e) {
+        throw new BasicAccumuloException("Failed to get pair from RDD " + e);
+      }
+
     }
     return dpSparkContext
         .getSparkContext()
@@ -326,7 +348,7 @@ public class SparkAccumuloIO {
    */
   private void createSplits(Collection<Text> splits, String accumuloTable)
       throws BasicAccumuloException {
-    TableOperations tops = dpSparkContext.getConnector().tableOperations();
+    TableOperations tops = dpSparkContext.getClient().tableOperations();
     TreeSet<Text> sortedSplits = new TreeSet<>(splits);
 
     try {
@@ -380,10 +402,12 @@ public class SparkAccumuloIO {
 
     // Import data into HDFS
     try {
-      dpSparkContext
-          .getConnector()
+      this.dpSparkContext
+          .getClient()
           .tableOperations()
-          .importDirectory(accumuloTable, dataDir.toString(), failDir.toString(), true);
+          .importDirectory(dataDir.toString())
+          .to(accumuloTable)
+          .load();
     } catch (Exception e) {
       throw new BasicAccumuloException(e.toString());
     }

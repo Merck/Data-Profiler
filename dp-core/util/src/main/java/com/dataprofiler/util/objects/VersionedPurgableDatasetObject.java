@@ -84,7 +84,7 @@ public abstract class VersionedPurgableDatasetObject<T extends AccumuloObject>
     logger.warn(
         String.format("Deleting range ('%s', '%s'] from table %s", start, end, accumuloTable));
     try {
-      context.getConnector().tableOperations().deleteRows(accumuloTable, start, end);
+      context.getClient().tableOperations().deleteRows(accumuloTable, start, end);
     } catch (Exception e) {
       throw new BasicAccumuloException(e.getMessage());
     }

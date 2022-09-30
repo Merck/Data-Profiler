@@ -334,7 +334,7 @@ public class ColumnCountIndexObject extends VersionedPurgableDatasetObject<Colum
     String currTable = getTable(context);
 
     try {
-      TableOperations tops = context.getConnector().tableOperations();
+      TableOperations tops = context.getClient().tableOperations();
 
       Map<String, Set<Text>> groups = new HashedMap();
 
