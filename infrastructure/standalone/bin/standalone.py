@@ -496,7 +496,6 @@ def build_images(app, url, port) -> bool:
                                     '--build-arg',
                                     f'USER_FACING_UI_HTTP_PATH={url}:{port}'])
 
-    logger.info('Building Applications')
     if app is None or app == 'all':
         success = True
         for app in buildable_apps.values():
@@ -506,6 +505,19 @@ def build_images(app, url, port) -> bool:
 
     else:
         return buildable_apps.get(app).build()
+
+
+def build_jobs(app) -> bool:
+
+    if app is None or app == 'all':
+        success = True
+        for app in jobs.values():
+            if not app.build():
+                success = False
+        return success
+
+    else:
+        return jobs.get(app).build()
 
 
 def deploy_configmap() -> bool:
@@ -627,10 +639,11 @@ def build(args):
     """Build application(s) for the Minikube cluster
     """
 
-    if args.app is None and not args.deps and not args.jars:
+    if args.app is None and args.job is None and not args.deps and not args.jars:
         args.deps = True
         args.jars = True
         args.app = 'all'
+        args.job = 'all'
 
     if args.jars:
         if not build_jars():
@@ -645,9 +658,17 @@ def build(args):
             sys.exit(1)
 
     if args.app is not None:
+        logger.info('Building Applications')
         if not build_images(args.app, args.url, args.port):
             logger.error(
                 "Failed building data profiler images. Re-run with --debug flag for more information")
+            sys.exit(1)
+
+    if args.job is not None:
+        logger.info('Building Jobs')
+        if not build_jobs(args.job):
+            logger.error(
+                "Failed building data profiler jobs. Re-run with --debug flag for more information")
             sys.exit(1)
 
 
@@ -704,6 +725,7 @@ def terminate(args):
 
 
 def restart(args):
+    args.port = DEFAULT_PORT
     terminate(args)
     deploy(args)
 
@@ -769,6 +791,12 @@ def main():
         '--deps',
         action='store_true',
         help='build dependencies')
+    parser_build.add_argument(
+        '--job',
+        type=str,
+        default=None,
+        help='job name',
+        choices=job_names())
     parser_build.add_argument(
         '--jars',
         action='store_true',

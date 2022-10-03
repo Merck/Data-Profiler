@@ -27,3 +27,6 @@ dataprofiler.db*
 
 *.csv
 local-docker.dns
+
+cs
+.bsp
