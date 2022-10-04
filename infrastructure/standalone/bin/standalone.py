@@ -101,11 +101,14 @@ class TempDir:
 
 
 class ContainerImage:
-    def __init__(self, name: str, tag: str, path: str, options=[], port=-1):
+    def __init__(self, name: str, tag: str, path: str, options=None, port=-1):
         self.name = name
         self.tag = tag
         self.path = path
-        self.options = options
+        if options is None:
+            self.options = []
+        else:
+            self.options = options
         self.port = port
 
     def __str__(self):
@@ -462,7 +465,6 @@ def test_connection(host, port):
 
 
 def build_jars() -> bool:
-    logger.info('Building libraries')
     app = 'libraries'
 
     build_cmd = [
@@ -480,7 +482,6 @@ def build_jars() -> bool:
 
 
 def build_deps() -> bool:
-    logger.info('Building Dependencies')
     success = True
     for dep in dependencies.values():
         if not dep.build():
@@ -638,7 +639,6 @@ def exec_daemon_cmd(cmd, file):
 def build(args):
     """Build application(s) for the Minikube cluster
     """
-
     if args.app is None and args.job is None and not args.deps and not args.jars:
         args.deps = True
         args.jars = True
@@ -646,12 +646,14 @@ def build(args):
         args.job = 'all'
 
     if args.jars:
+        logger.info('Building libraries')
         if not build_jars():
             logger.error(
                 "Failed building libraries. Re-run with --debug flag for more information")
             sys.exit(1)
 
     if args.deps:
+        logger.info('Building Dependencies')
         if not build_deps():
             logger.error(
                 "Failed building container dependencies. Re-run with --debug flag for more information")
@@ -675,7 +677,6 @@ def build(args):
 def deploy(args):
     """Deploy application(s) to Minikube cluster
     """
-
     if args.app is None and args.job is None:
         args.app = 'all'
         args.job = 'all'
@@ -693,7 +694,7 @@ def deploy(args):
             sys.exit(1)
 
     if args.job is not None:
-        logger.info('Executing Jobs')
+        logger.info('Deploying Jobs')
         if not execute_jobs(args.job):
             logger.error(
                 "Failed to execute jobs. Re-run with --debug flag for more information")
@@ -706,8 +707,6 @@ def deploy(args):
 def terminate(args):
     """Terminate application(s) on the Minikube cluster
     """
-    logger.info(f'Terminating')
-
     if args.app is None and args.job is None:
         args.app = 'all'
         args.job = 'all'
@@ -724,7 +723,7 @@ def terminate(args):
                 "Failed to terminate jobs. Re-run with --debug flag for more information")
 
 
-def restart(args):
+def reload(args):
     args.port = DEFAULT_PORT
     terminate(args)
     deploy(args)
@@ -854,23 +853,23 @@ def main():
         choices=job_names())
     parser_terminate.set_defaults(func=terminate)
 
-    # restart
-    parser_restart = subparsers.add_parser(
-        'restart',
-        help='Restart the application in minikube')
-    parser_restart.add_argument(
+    # reload
+    parser_reload = subparsers.add_parser(
+        'reload',
+        help='Reload the application in minikube')
+    parser_reload.add_argument(
         '--app',
         type=str,
-        default='all',
+        default=None,
         help='deployment name',
         choices=deployable_app_names())
-    parser_restart.add_argument(
+    parser_reload.add_argument(
         '--job',
         type=str,
         default=None,
         help='job name',
         choices=job_names())
-    parser_restart.set_defaults(func=restart)
+    parser_reload.set_defaults(func=reload)
 
     # status
     parser_status = subparsers.add_parser(
