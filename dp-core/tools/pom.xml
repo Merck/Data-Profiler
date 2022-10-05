@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>dataprofiler-parent</artifactId>
     <groupId>com.dataprofiler</groupId>
@@ -18,12 +16,12 @@
     <dataprofiler-util.version>1</dataprofiler-util.version>
     <httpclient.version>4.5</httpclient.version>
     <snappy-java.version>1.1.7.1</snappy-java.version>
-    <spark.hive.version>2.4.5</spark.hive.version>
+    <spark.hive.version>3.3.0</spark.hive.version>
     <statsd-client.version>3.0.1</statsd-client.version>
     <kong.unirest.version>3.11.11</kong.unirest.version>
     <unirest.version>1.4.9</unirest.version>
     <httpclient.version>4.5</httpclient.version>
-    <hadoop.version>2.9.2</hadoop.version>
+    <hadoop.version>3.3.4</hadoop.version>
     <awssdk.version>2.17.39</awssdk.version>
   </properties>
 
@@ -74,6 +72,10 @@
         <exclusion>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.zookeeper</groupId>
+          <artifactId>zookeeper</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

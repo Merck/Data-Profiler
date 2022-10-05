@@ -19,7 +19,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM container-registry.dataprofiler.com/spark-sql-controller
+FROM ghcr.io/big-wave-tech/spark-hive-k8s:3.3.0
 
 COPY data_profiler_core_jars/dataprofiler-tools-current.jar entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh /
 

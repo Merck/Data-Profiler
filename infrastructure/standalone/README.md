@@ -65,26 +65,6 @@ pip install -r python_requirements.txt
 pip install wheel
 ```
 
-### Spark
-
-The Data Profiler standalone image needs some Spark specific jars. These must be build from Spark 2.4.5. To clone the spark repo and build the project, the following commands can be used. Note: Spark will be cloned into the `~/spark` directory.
-
-```shell
-git clone https://github.com/apache/spark.git ~/spark
-cd ~/spark
-git checkout tags/v2.4.5 -b v2.4.5-branch
-dev/make-distribution.sh --name k8s-spark --tgz -Phadoop-2.7 -Phive -Phive-thriftserver -Pkubernetes
-cd dist
-docker build -t container-registry.dataprofiler.com/spark-hive-k8s:2.4.5 -f kubernetes/dockerfiles/spark/Dockerfile .
-```
-
-After Spark has been built, the `spark-hive-thriftserver` jar needs to be copied to the Data Profiler `spark-sql-client`.
-
-```shell
-mkdir ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars
-cp ~/spark/dist/jars/spark-hive-thriftserver_2.11-2.4.5.jar ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars/
-```
-
 ### Build and Start the Standalone Instance
 
 Before building the standalone instance you must create the configuration file for the instance. The easiest way to start is to create a copy the existing example.
@@ -157,4 +137,25 @@ Run the following to free up space:
 
 ```shell
 minikube ssh -- docker system prune
+```
+
+### Building Spark (Optional)
+
+Spark is automatically pulled in for the dp-accumulo container, but if you would like to build a spark image, you can do so with the following instructions.
+
+The Data Profiler standalone image needs some Spark specific jars. These must be build from Spark 3.3.0. To clone the spark repo and build the project, the following commands can be used. Note: Spark will be cloned into the `~/spark` directory.
+
+```shell
+git clone https://github.com/apache/spark.git ~/spark
+cd ~/spark
+git checkout tags/v3.3.0 -b v3.3.0-branch
+./dev/make-distribution.sh --name k8s-spark --tgz -Dhadoop.version=3.3.4 -Dzookeeper.version=3.4.14 -Phive -Phive-thriftserver -Pkubernetes
+./bin/docker-image-tool.sh -u 0 -r big-wave-tech -t 3.3.0 -f ./dist/kubernetes/dockerfiles/spark/Dockerfile build.
+```
+
+After Spark has been built, the `spark-hive-thriftserver` jar needs to be copied to the Data Profiler `spark-sql-client`.
+
+```shell
+mkdir ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars
+cp ~/spark/dist/jars/spark-hive-thriftserver_2.12-3.3.0.jar ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars/
 ```

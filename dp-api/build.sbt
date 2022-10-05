@@ -32,7 +32,7 @@ libraryDependencies += "com.univocity" % "univocity-parsers" % "2.9.0"
 
 libraryDependencies += "org.apache.accumulo" % "accumulo-core" % "2.0.1"
 
-libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "3.3.1"
+libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "3.3.4"
 
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.0"
 

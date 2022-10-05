@@ -350,7 +350,7 @@ dependencies = {
     container_hadoop.name: container_hadoop,
     container_nodepg.name: container_nodepg,
     container_nodeyarn.name: container_nodeyarn,
-    container_dp_spark_sql_controller.name: container_dp_spark_sql_controller,
+    # container_dp_spark_sql_controller.name: container_dp_spark_sql_controller,
 }
 
 external_apps = {
@@ -362,8 +362,8 @@ buildable_apps = {
     container_dp_accumulo.name: container_dp_accumulo,
     container_dp_api.name: container_dp_api,
     container_dp_rou.name: container_dp_rou,
-    container_dp_data_loading.name: container_dp_data_loading,
-    container_dp_jobs_api.name: container_dp_jobs_api,
+    # container_dp_data_loading.name: container_dp_data_loading,
+    # container_dp_jobs_api.name: container_dp_jobs_api,
     container_dp_ui.name: container_dp_ui,
 }
 

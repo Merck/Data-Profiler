@@ -58,8 +58,8 @@
     <accumulo.version>2.0.1</accumulo.version>
     <postgres.version>42.2.18</postgres.version>
     <redshift.version>2.0.0.4</redshift.version>
-    <spark.version>2.4.5</spark.version>
-    <spark.scala>2.11</spark.scala>
+    <spark.version>3.3.0</spark.version>
+    <spark.scala>2.12</spark.scala>
     <!-- Tests are skipped by default because they depend on a particular Accumulo cluster -->
     <skipTests>false</skipTests>
   </properties>
