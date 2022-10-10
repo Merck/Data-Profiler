@@ -22,5 +22,11 @@
 #
 
 eval $(minikube docker-env)
-
-kubectl run cluster-shell --restart=Never --rm -i --tty --image=dp/accumulo --image-pull-policy=Never --command tini -- /bin/bash
+kubectl delete pod cluster-shell
+kubectl run cluster-shell --restart=Never \
+                          --rm \
+                          -i \
+                          --tty \
+                          --image=dp/accumulo \
+                          --image-pull-policy=Never \
+                          --command tini -- /bin/bash

@@ -28,4 +28,4 @@ set -x
 # Or pass blank args to get some "reasonable default" data as defined in MiniAccumuloWithData#startAndLoadReasonableDefaults
 
 # java -cp "/opt/spark/jars/*:/dataprofiler-tools-1.jar" com.dataprofiler.MiniAccumuloWithData "${@}"
-java -cp "/dataprofiler-tools-current.jar" com.dataprofiler.MiniAccumuloWithData "${@}"
+java -cp "/dataprofiler-tools-0.1.0.jar" com.dataprofiler.MiniAccumuloWithData "${@}"

@@ -1,28 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>dataprofiler-parent</artifactId>
     <groupId>com.dataprofiler</groupId>
-    <version>1</version>
+    <version>0.1.0</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
 
   <artifactId>dataprofiler-tools</artifactId>
   <packaging>jar</packaging>
+  <name>Data Profiler Tools</name>
 
   <properties>
-    <commons-csv.version>1.6</commons-csv.version>
-    <dataprofiler-iterators.version>1</dataprofiler-iterators.version>
-    <dataprofiler-util.version>1</dataprofiler-util.version>
-    <httpclient.version>4.5</httpclient.version>
-    <snappy-java.version>1.1.7.1</snappy-java.version>
+    <dataprofiler-iterators.version>0.1.0</dataprofiler-iterators.version>
+    <dataprofiler-util.version>0.1.0</dataprofiler-util.version>
+    <commons-csv.version>1.9.0</commons-csv.version>
+    <commons-text.version>1.10.0</commons-text.version>
+    <httpclient.version>4.5.13</httpclient.version>
     <spark.hive.version>3.3.0</spark.hive.version>
-    <statsd-client.version>3.0.1</statsd-client.version>
+    <statsd-client.version>3.1.0</statsd-client.version>
     <kong.unirest.version>3.11.11</kong.unirest.version>
     <unirest.version>1.4.9</unirest.version>
-    <httpclient.version>4.5</httpclient.version>
     <hadoop.version>3.3.4</hadoop.version>
-    <awssdk.version>2.17.39</awssdk.version>
+    <awssdk.version>2.17.287</awssdk.version>
+    <jsoup.version>1.15.3</jsoup.version>
+    <output-directory>${project.basedir}/../../lib/tools</output-directory>
   </properties>
 
   <dependencies>
@@ -35,11 +55,6 @@
       <groupId>com.dataprofiler</groupId>
       <artifactId>dataprofiler-iterators</artifactId>
       <version>${dataprofiler-iterators.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xerial.snappy</groupId>
-      <artifactId>snappy-java</artifactId>
-      <version>${snappy-java.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
@@ -57,11 +72,6 @@
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-avro_${spark.scala}</artifactId>
       <version>${spark.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
-      <version>${hadoop.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
@@ -105,7 +115,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>1.9</version>
+      <version>${commons-text.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -172,7 +182,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.13.1</version>
+      <version>${jsoup.version}</version>
     </dependency>
     <!-- test dependencies -->
     <dependency>
@@ -188,10 +198,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
+        <version>3.10.1</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
         </configuration>
       </plugin>
       <plugin>
@@ -220,7 +230,31 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                  <type>${project.packaging}</type>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${output-directory}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-
 </project>

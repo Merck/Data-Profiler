@@ -19,8 +19,8 @@ BASE_CONFIG_DIR=${1:-$CONFIG}
 ZOOKEEPER_PORT=${2:-2181}
 ZOOKEEPERS="localhost:${ZOOKEEPER_PORT}"
 CONFIG="${BASE_CONFIG_DIR}/conf/client.conf"
-java -cp target/dataprofiler-tools-1.jar com.dataprofiler.shell.MiniAccumuloShell \
+java -cp target/dataprofiler-tools-0.1.0.jar com.dataprofiler.shell.MiniAccumuloShell \
         -u root \
-        -p "" \
+        -p password \
         -z miniInstance "${ZOOKEEPERS}" \
         --config-file "${CONFIG}"

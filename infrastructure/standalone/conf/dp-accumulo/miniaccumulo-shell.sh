@@ -26,7 +26,7 @@ set -x
 zookeeper1_port=${2:-2181}
 zookeepers="dp-accumulo:${zookeeper1_port}"
 config="${config_dir}/conf/client.conf"
-java -cp "/opt/spark/jars/*:./dataprofiler-tools-current.jar" com.dataprofiler.shell.MiniAccumuloShell \
+java -cp "./dataprofiler-tools-0.1.0.jar" com.dataprofiler.shell.MiniAccumuloShell \
         -u root \
-        -p "" \
+        -p password \
         -z miniInstance "${zookeepers}"

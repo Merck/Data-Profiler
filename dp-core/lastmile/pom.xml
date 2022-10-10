@@ -1,26 +1,37 @@
 <?xml version="1.0"?>
-<project
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.dataprofiler</groupId>
     <artifactId>dataprofiler-parent</artifactId>
-    <version>1</version>
+    <version>0.1.0</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <groupId>com.dataprofiler</groupId>
+
   <artifactId>dataprofiler-lastmile</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <url>http://maven.apache.org</url>
+  <name>Data Profiler Last Mile Applications</name>
+
   <properties>
     <commons.lang.version>3.12.0</commons.lang.version>
-    <hibernate.version>5.5.3.Final</hibernate.version>
-    <h2.version>1.4.200</h2.version>
-    <javax.persistence-api.version>2.2</javax.persistence-api.version>
+    <hibernate.version>6.1.4.Final</hibernate.version>
+    <h2.version>2.1.214</h2.version>
+    <hibernate-jpa.version>1.0.2.Final</hibernate-jpa.version>
+    <output-directory>${project.basedir}/../../lib/lastmile</output-directory>
   </properties>
 
   <dependencies>
+    <!-- API, java.xml.bind module -->
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>4.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>4.0.0</version>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
@@ -36,26 +47,11 @@
       <artifactId>hibernate-jpamodelgen</artifactId>
       <version>${hibernate.version}</version>
     </dependency>
-    <!--Compile time JPA API -->
-    <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->
     <dependency>
       <groupId>org.hibernate.javax.persistence</groupId>
       <artifactId>hibernate-jpa-2.1-api</artifactId>
-      <version>1.0.2.Final</version>
+      <version>${hibernate-jpa.version}</version>
     </dependency>
-    <!-- using old jpa because our playframework does not support the new 2.2 persistence jar -->
-    <!--    <dependency>-->
-<!--      <groupId>javax.persistence</groupId>-->
-<!--      <artifactId>javax.persistence-api</artifactId>-->
-<!--      <version>${javax.persistence-api.version}</version>-->
-<!--    </dependency>-->
-    <!--Runtime JPA implementation -->
-    <!--    <dependency>-->
-    <!--      <groupId>org.eclipse.persistence</groupId>-->
-    <!--      <artifactId>eclipselink</artifactId>-->
-    <!--      <version>${eclipselink.version}</version>-->
-    <!--      <scope>runtime</scope>-->
-    <!--    </dependency>-->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
@@ -75,4 +71,33 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                  <type>${project.packaging}</type>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${output-directory}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -21,7 +21,7 @@
 #
 FROM ghcr.io/big-wave-tech/spark-hive-k8s:3.3.0
 
-COPY data_profiler_core_jars/dataprofiler-tools-current.jar entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh /
+COPY data_profiler_core_jars/dataprofiler-tools-0.1.0.jar entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh /
 
 ENV SPARK_HOME=/opt/spark
 

@@ -1,12 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>com.dataprofiler</groupId>
   <artifactId>dataprofiler-parent</artifactId>
-  <version>1</version>
+  <version>0.1.0</version>
   <packaging>pom</packaging>
-  <name>Data Profiler Maven Parent</name>
+  <name>Data Profiler Parent POM</name>
+  <licenses>
+    <license>
+      <name>Apache 2.0 License</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:git@github.com:big-wave-tech/Data-Profiler.git</connection>
+    <developerConnection>scm:git:https://github.com/big-wave-tech/Data-Profiler.git</developerConnection>
+    <url>scm:git:git@github.com:big-wave-tech/Data-Profiler.git</url>
+    <tag>HEAD</tag>
+  </scm>
 
   <modules>
     <module>query-lang</module>
@@ -42,24 +70,26 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <httpclient.version>4.5.6</httpclient.version>
-    <lucene-core.version>6.3.0</lucene-core.version>
+    <java.version>11</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.version>3.8.4</maven.version>
+    <httpclient.version>4.5.13</httpclient.version>
+    <lucene-core.version>9.4.0</lucene-core.version>
     <log4j.version>1.2.17</log4j.version>
-    <slf4j.version>1.7.31</slf4j.version>
-    <cli.version>1.4</cli.version>
-    <gson.version>2.8.2</gson.version>
+    <slf4j.version>2.0.3</slf4j.version>
+    <cli.version>1.5.0</cli.version>
+    <gson.version>2.9.1</gson.version>
     <guava.version>31.0.1-jre</guava.version>
-    <junit.version>4.12</junit.version>
-    <jackson.version>2.12.2</jackson.version>
-    <jcommander.version>1.72</jcommander.version>
-    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+    <junit.version>4.13.2</junit.version>
+    <jackson.version>2.13.4</jackson.version>
+    <jcommander.version>1.82</jcommander.version>
     <accumulo.version>2.0.1</accumulo.version>
-    <postgres.version>42.2.18</postgres.version>
+    <postgres.version>42.5.0</postgres.version>
     <redshift.version>2.0.0.4</redshift.version>
     <spark.version>3.3.0</spark.version>
     <spark.scala>2.12</spark.scala>
+    <mockito.version>1.10.19</mockito.version>
     <!-- Tests are skipped by default because they depend on a particular Accumulo cluster -->
     <skipTests>false</skipTests>
   </properties>
@@ -130,17 +160,6 @@
       <version>${slf4j.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>${gson.version}</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
       <version>${jackson.version}</version>
@@ -184,45 +203,94 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
-      <version>1.10.19</version>
+      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.0.0-M2</version>
+          <executions>
+            <execution>
+              <id>enforce-versions</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireMavenVersion>
+                    <version>${maven.version}</version>
+                  </requireMavenVersion>
+                  <requireJavaVersion>
+                    <version>${java.version}</version>
+                  </requireJavaVersion>
+                  <!-- <bannedDependencies>
+                    <excludes>
+                      <exclude>org.jboss.netty</exclude>
+                      <exclude>org.codehaus.groovy</exclude>
+                      <exclude>*:*_2.11</exclude>
+                      <exclude>*:*_2.10</exclude>
+                    </excludes>
+                    <searchTransitive>true</searchTransitive>
+                  </bannedDependencies> -->
+                </rules>
+              </configuration>
+            </execution>
+            <execution>
+              <id>enforce-no-duplicate-dependencies</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <banDuplicatePomDependencyVersions />
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.10.1</version>
+          <configuration>
+            <source>${java.version}</source>
+            <target>${java.version}</target>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.0.0-M7</version>
+          <configuration>
+            <skipTests>${skipTests}</skipTests>
+            <groups>com.dataprofiler.test.IntegrationTest</groups>
+            <forkCount>1</forkCount>
+            <reuseForks>false</reuseForks>
+            <trimStackTrace>false</trimStackTrace>
+            <forkedProcessExitTimeoutInSeconds>2</forkedProcessExitTimeoutInSeconds>
+            <environmentVariables>
+              <ACCUMULO_USER>root</ACCUMULO_USER>
+            </environmentVariables>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.surefire</groupId>
+              <artifactId>surefire-junit47</artifactId>
+              <version>3.0.0-M7</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M4</version>
-        <configuration>
-          <skipTests>${skipTests}</skipTests>
-          <groups>com.dataprofiler.test.IntegrationTest</groups>
-          <forkCount>1</forkCount>
-          <reuseForks>false</reuseForks>
-          <trimStackTrace>false</trimStackTrace>
-          <forkedProcessExitTimeoutInSeconds>2</forkedProcessExitTimeoutInSeconds>
-          <environmentVariables>
-            <ACCUMULO_USER>root</ACCUMULO_USER>
-          </environmentVariables>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-junit47</artifactId>
-            <version>3.0.0-M4</version>
-          </dependency>
-        </dependencies>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
@@ -264,6 +332,17 @@
           </execution>
         </executions>
       </plugin>
+
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+      </plugin>
+
     </plugins>
   </build>
 

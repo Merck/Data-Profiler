@@ -78,13 +78,13 @@ libraryDependencies += "com.graphql-java" % "graphql-java-extended-scalars" % "1
 // CACHE LINE
 // Place dependencies below this line that change a lot. We can cache the dependencies above this line for faster docker builds
 
-libraryDependencies += "com.dataprofiler" % "dataprofiler-iterators" % "1" exclude("org.slf4j", "slf4j") exclude("org.apache.spark", "spark-core_2.12") exclude("org.apache.spark", "spark-core_2.11") exclude("org.scala-lang.modules", "scala-parser-combinators_2.11") exclude("com.fasterxml.jackson.module", "jackson-module-scala_2.11")
+libraryDependencies += "com.dataprofiler" % "dataprofiler-iterators" % "0.1.0" exclude("org.slf4j", "slf4j") exclude("org.apache.spark", "spark-core_2.12") exclude("org.apache.spark", "spark-core_2.11") exclude("org.scala-lang.modules", "scala-parser-combinators_2.11") exclude("com.fasterxml.jackson.module", "jackson-module-scala_2.11")
 
-libraryDependencies += "com.dataprofiler" % "dataprofiler-tools" % "1" exclude("org.slf4j", "slf4j") exclude("org.apache.spark", "spark-core_2.12") exclude("org.apache.spark", "spark-core_2.11") exclude("org.scala-lang.modules", "scala-parser-combinators_2.11") exclude("com.fasterxml.jackson.module", "jackson-module-scala_2.11")
+libraryDependencies += "com.dataprofiler" % "dataprofiler-tools" % "0.1.0" exclude("org.slf4j", "slf4j") exclude("org.apache.spark", "spark-core_2.12") exclude("org.apache.spark", "spark-core_2.11") exclude("org.scala-lang.modules", "scala-parser-combinators_2.11") exclude("com.fasterxml.jackson.module", "jackson-module-scala_2.11")
 
-libraryDependencies += "com.dataprofiler" % "dataprofiler-util" % "1" exclude("org.slf4j", "slf4j") exclude("org.apache.spark", "spark-core_2.12") exclude("org.apache.spark", "spark-core_2.11") exclude("org.scala-lang.modules", "scala-parser-combinators_2.11") exclude("com.fasterxml.jackson.module", "jackson-module-scala_2.11")
+libraryDependencies += "com.dataprofiler" % "dataprofiler-util" % "0.1.0" exclude("org.slf4j", "slf4j") exclude("org.apache.spark", "spark-core_2.12") exclude("org.apache.spark", "spark-core_2.11") exclude("org.scala-lang.modules", "scala-parser-combinators_2.11") exclude("com.fasterxml.jackson.module", "jackson-module-scala_2.11")
 
-libraryDependencies += "com.dataprofiler" % "dataprofiler-lastmile" % "1.0-SNAPSHOT" exclude("org.slf4j", "slf4j") exclude("org.scala-lang.modules", "scala-xml_2.11")  exclude("org.scala-lang.modules", "scala-parser-combinators_2.11") exclude("com.fasterxml.jackson.module", "jackson-module-scala_2.11")
+libraryDependencies += "com.dataprofiler" % "dataprofiler-lastmile" % "0.1.0" exclude("org.slf4j", "slf4j") exclude("org.scala-lang.modules", "scala-xml_2.11")  exclude("org.scala-lang.modules", "scala-parser-combinators_2.11") exclude("com.fasterxml.jackson.module", "jackson-module-scala_2.11")
 
 Test / javaOptions += "-Dlogger.resource=logback-test.xml"
 

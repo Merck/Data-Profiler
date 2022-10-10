@@ -21,8 +21,6 @@
 #
 FROM container-registry.dataprofiler.com/playframework_base:latest AS builder
 
-MAINTAINER dataprofiler
-
 # Get Deps (don't bring in the app folder to help with Docker Cache)
 WORKDIR /opt/api/app
 WORKDIR /opt/api
