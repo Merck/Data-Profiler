@@ -22,11 +22,6 @@
 #
 
 eval $(minikube docker-env)
-kubectl delete pod cluster-shell
-kubectl run cluster-shell --restart=Never \
-                          --rm \
-                          -i \
-                          --tty \
-                          --image=dp/accumulo \
-                          --image-pull-policy=Never \
-                          --command tini -- /bin/bash
+
+POD=$(kubectl get pods -l app=backend -o jsonpath={.items[0].metadata.name})
+kubectl exec -it $POD -c backend -- /bin/bash

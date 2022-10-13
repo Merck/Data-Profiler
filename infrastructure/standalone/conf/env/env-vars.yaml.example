@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dp-env-vars
+  name: env-vars
 data:
   # Environment name
   ENVIRONMENT: development
@@ -9,13 +9,13 @@ data:
   # Rules of Use setting
   DP_API_SERVICE_PORT: "9000"
   ROU_DB_DATABASE: rules_of_use
-  ROU_DB_HOST: dp-postgres
+  ROU_DB_HOST: postgres
   ROU_DB_PASSWORD: postgres
   ROU_DB_USERNAME: postgres
   INACTIVE_TIMEOUT_MINUTES: "60"
   TIMEOUT_MINUTES: "60"
 
-  RULES_OF_USE_API_HTTP_PATH: http://dp-rou:8081
+  RULES_OF_USE_API_HTTP_PATH: http://rou:8081
   RULES_OF_USE_API_KEY: dp-rou-key
   RULES_OF_USE_API_PATH: graphql
 
@@ -25,7 +25,7 @@ data:
   POSTGRES_DB: rules_of_use
 
   # Jobs data base
-  JOBS_DB: dp-postgres
+  JOBS_DB: postgres
 
   # Hadoop Settings
   HADOOP_DEFAULT_FS: dataprofilerFS
@@ -46,7 +46,7 @@ data:
   ACCUMULO_USER: root
 
   # Zookeepers
-  ZOOKEEPERS: dp-accumulo:2181
+  ZOOKEEPERS: accumulo:2181
 
   # Matomo settings
   ANALYTICS_API_SITE_ID: "2"

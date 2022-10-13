@@ -4,12 +4,11 @@ This development tool gives a developer the ability to run the DataProfiler appl
 
 The following containerized deployments are currently supported:
 
-* dp-accumulo - MiniAccumuloWithData
-* dp-postgres - postgres database
-* dp-api - data_profiler_api
-* dp-rou - rules_of_use
-* dp-spark-sql-controller - Spark SQL Thriftserver Instance Controller
-* dp-ui - DataProfiler User Interface
+* accumulo - MiniAccumuloWithData
+* postgres - postgres database
+* api - data_profiler_api
+* rou - rules_of_use
+* ui - DataProfiler User Interface
 
 ## Installation
 
@@ -20,7 +19,7 @@ The following is a list of required software to run the standalone image:
 * Docker
 * Minikube
 * Python 3.7 or higher
-* Java 8
+* Java 11
 * Maven 3.6.3
 
 For the rest of the guide, it is assumed that the Data profiler is located in `~/Data-Profiler`.
@@ -89,12 +88,12 @@ Once the services are built, the standalone instance can be deployed to the kube
 Lastly, you may need to port forward the UI because of a bug within minikube.
 
 ```shell
-kubectl port-forward deployment/dp-ui 8080:80 --address='0.0.0.0'
+kubectl port-forward deployment/ui 8080:80 --address='0.0.0.0'
 ```
 
 ## Supplying data
 
-Data files found in the 'data' directory will be loaded by the containerized dp-accumulo deployment. Different files can be added to this folder.
+Data files found in the 'data' directory will be loaded by the containerized backend deployment. Different files can be added to this folder.
 
 ## API
 
@@ -141,7 +140,7 @@ minikube ssh -- docker system prune
 
 ### Building Spark (Optional)
 
-Spark is automatically pulled in for the dp-accumulo container, but if you would like to build a spark image, you can do so with the following instructions.
+Spark is automatically pulled in for the backend container, but if you would like to build a spark image, you can do so with the following instructions.
 
 The Data Profiler standalone image needs some Spark specific jars. These must be build from Spark 3.3.0. To clone the spark repo and build the project, the following commands can be used. Note: Spark will be cloned into the `~/spark` directory.
 

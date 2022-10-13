@@ -22,24 +22,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dp-data-loading-daemon
+  name: jobs-api
   labels:
-    app: dp-data-loading-daemon
+    app: jobs-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dp-data-loading-daemon
+      app: jobs-api
   template:
     metadata:
       labels:
-        app: dp-data-loading-daemon
+        app: jobs-api
     spec:
-      hostname: dp-data-loading-daemon
+      hostname: jobs-api
       containers:
-        - name: dp-data-loading-daemon
-          image: dp/data-loading-daemon
-          command: ["/bin/bash"]
-          imagePullPolicy: Never
+        - name: jobs-api
+          image: ghcr.io/big-wave-tech/data-profiler/jobs-api
+          command: ["yarn", "run", "start"]
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
           stdin: true
           tty: true
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+            limits:
+              memory: 512Mi
+              cpu: "1"
+          envFrom:
+            - configMapRef:
+                name: env-vars

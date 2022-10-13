@@ -5,14 +5,14 @@ import psycopg
 from string import Template
 
 # POSTGRES CONFIG
-PSQL_POD = 'dp-postgres'
+PSQL_POD = 'postgres'
 DB_NAME = 'rules_of_use'
 DB_USER = 'postgres'
 DB_PASS = 'postgres'
 APP_KEY = 'dp-rou-key'
 
 # ROU CONFIG
-ROU_HOSTNAME = 'dp-rou'
+ROU_HOSTNAME = 'rou'
 
 ATTRIBUTES_FILE = 'default_attributes'
 
@@ -58,6 +58,8 @@ ROU_HEADERS = {'Content-Type': 'application/json',
 
 
 def main():
+
+    print(f'host: {PSQL_POD}\tdb_name: {DB_NAME}')
 
     with psycopg.connect(host=PSQL_POD,
                          dbname=DB_NAME,

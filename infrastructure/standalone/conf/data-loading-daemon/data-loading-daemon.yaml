@@ -22,28 +22,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dp-rou
+  name: data-loading-daemon
   labels:
-    app: dp-rou
+    app: data-loading-daemon
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dp-rou
+      app: data-loading-daemon
   template:
     metadata:
       labels:
-        app: dp-rou
+        app: data-loading-daemon
     spec:
-      hostname: dp-rou
+      hostname: data-loading-daemon
       containers:
-        - name: dp-rou
-          image: dp/rou
+        - name: data-loading-daemon
+          image: ghcr.io/big-wave-tech/data-profiler/data-loading-daemon
+          command: ["/bin/bash"]
           imagePullPolicy: Never
-          ports:
-            - containerPort: 8081
           stdin: true
           tty: true
-          envFrom:
-            - configMapRef:
-                name: dp-env-vars
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+            limits:
+              memory: 512Mi
+              cpu: "1"

@@ -19,7 +19,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM container-registry.dataprofiler.com/python:3.8-buster
+FROM data-profiler/python:3.8-buster
 RUN apt-get update && apt-get install bash netcat curl -y && rm -rf /var/lib/apt/lists/*
 WORKDIR /home/root
 ADD requirements.txt .

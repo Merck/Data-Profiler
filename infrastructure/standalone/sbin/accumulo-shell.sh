@@ -23,5 +23,6 @@
 
 
 eval $(minikube docker-env)
-kubectl delete pod accumulo-shell
-kubectl run accumulo-shell --restart=Never --rm -i --tty --image=dp/accumulo --image-pull-policy=Never --command tini -- ./miniaccumulo-shell.sh
+
+POD=$(kubectl get pods -l app=backend -o jsonpath={.items[0].metadata.name})
+kubectl exec -it $POD -c backend -- sh /miniaccumulo-shell.sh

@@ -23,4 +23,5 @@
 
 eval $(minikube docker-env)
 
-kubectl exec -it $(kubectl get pods | grep dp-postgres | awk '{print $1;}') -c dp-postgres -- psql -U postgres -d rules_of_use
+POD=$(kubectl get pods -l app=postgres -o jsonpath={.items[0].metadata.name})
+kubectl exec -it $POD -c postgres -- psql -U postgres -d rules_of_use

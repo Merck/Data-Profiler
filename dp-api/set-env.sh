@@ -95,5 +95,5 @@ OAUTH_STATE=
 USER_FACING_HTTP_PATH=https://dataprofiler
 UPLOAD_YARN_QUEUE=ingest
 USER_FACING_API_HTTP_PATH=http://localhost:9000
-ZOOKEEPERS=dp-accumulo:2181
+ZOOKEEPERS=accumulo:2181
 EOF

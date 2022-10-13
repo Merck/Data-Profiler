@@ -29,7 +29,7 @@ export const normalize = str => {
 }
 
 const apiHost = process.env.DP_API_SERVICE_PORT ?
-  `http://dp-api:${process.env.DP_API_SERVICE_PORT}` : 'http://frontend-docker:7001'
+  `http://api:${process.env.DP_API_SERVICE_PORT}` : 'http://frontend-docker:7001'
 
 export const escapeAccumulo = inputArray =>
   new Promise(async resolve => {

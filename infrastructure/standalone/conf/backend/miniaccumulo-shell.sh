@@ -24,7 +24,7 @@
 set -x
 # Start miniaccumulo shell
 zookeeper1_port=${2:-2181}
-zookeepers="dp-accumulo:${zookeeper1_port}"
+zookeepers="backend:${zookeeper1_port}"
 config="${config_dir}/conf/client.conf"
 java -cp "./dataprofiler-tools-0.1.0.jar" com.dataprofiler.shell.MiniAccumuloShell \
         -u root \

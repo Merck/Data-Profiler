@@ -22,34 +22,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dp-accumulo
+  name: postgres
   labels:
-    app: dp-accumulo
+    app: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dp-accumulo
+      app: postgres
   template:
     metadata:
       labels:
-        app: dp-accumulo
+        app: postgres
     spec:
-      hostname: dp-accumulo
+      hostname: postgres
       containers:
-        - name: dp-accumulo
-          image: dp/accumulo
-          imagePullPolicy: Never
-          volumeMounts:
-            - name: data-volume
-              mountPath: /data
+        - name: postgres
+          image: postgres
           ports:
-            - containerPort: 2181
-            - containerPort: 9999
-            - containerPort: 9997
+            - containerPort: 5432
           stdin: true
           tty: true
-      volumes:
-        - name: data-volume
-          hostPath:
-            path: /dp_data
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+            limits:
+              memory: 512Mi
+              cpu: "1"
+          envFrom:
+            - configMapRef:
+                name: env-vars

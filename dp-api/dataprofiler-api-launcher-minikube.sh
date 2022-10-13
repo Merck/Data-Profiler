@@ -22,7 +22,7 @@
 #
 
 
-while ! nc -z -v -w30 dp-accumulo 2181; do
+while ! nc -z -v -w30 backend 2181; do
   echo "Waiting for accumulo to stand up..."
   sleep 5
 done
