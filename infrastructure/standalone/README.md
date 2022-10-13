@@ -1,14 +1,14 @@
 # Data Profiler Standalone
 
-This development tool gives a developer the ability to run the DataProfiler application stack on their local machines via Minikube and Docker Desktop.
+The standalone environment gives anyone the ability to run the Data Profiler for demonstration purposes or the ability develop features via running the Data Profiler application stack on your local machine via Minikube and Docker Desktop.
 
 The following containerized deployments are currently supported:
 
-* accumulo - MiniAccumuloWithData
-* postgres - postgres database
-* api - data_profiler_api
-* rou - rules_of_use
-* ui - DataProfiler User Interface
+* backend - The Data Profiler backend storage
+* postgres - A postgres database
+* api - Data Profiler API
+* rou - Data Profiler custom access controller
+* ui - Data Profiler User Interface
 
 ## Installation
 
@@ -19,6 +19,9 @@ The following is a list of required software to run the standalone image:
 * Docker
 * Minikube
 * Python 3.7 or higher
+
+To develop using the standalone image the following are also required:
+
 * Java 11
 * Maven 3.6.3
 
@@ -39,7 +42,7 @@ minikube update-context
 minikube addons enable ingress
 ```
 
-Lastly, the environment must be configured to use minikube's Docker daemon. Please note, you will need to run this command in any newly opened shell.
+Lastly, the environment must be configured to use minikube's Docker daemon. **Please note, you will need to run this command in any newly opened shell.**
 
 ```shell
 eval $(minikube docker-env)
@@ -64,13 +67,25 @@ pip install -r python_requirements.txt
 pip install wheel
 ```
 
-### Build and Start the Standalone Instance
+### Standalone Configuration
 
 Before building the standalone instance you must create the configuration file for the instance. The easiest way to start is to create a copy the existing example.
 
 ```shell
 cp ~/Data-Profiler/infrastructure/standalone/conf/env/env-vars.yaml.example ~/Data-Profiler/infrastructure/standalone/conf/env/env-vars.yaml
 ```
+
+## Start the Standalone Instance
+
+If you only want to run the Data Profiler locally without doing any development, you only need to run the following command. This will download, install, and start the Data Profiler.
+
+```shell
+./standalone.py deploy
+```
+
+When the deploy is complete, you can visit the Data Profiler by following in your local browser by visiting <http://localhost:8080>.
+
+## For Development
 
 The following command can be used to build all the dependencies and the standalone instance.
 
@@ -85,13 +100,17 @@ Once the services are built, the standalone instance can be deployed to the kube
 ./standalone.py deploy
 ```
 
-Lastly, you may need to port forward the UI because of a bug within minikube.
+When the deploy is complete, you can visit the Data Profiler by following in your local browser by visiting <http://localhost:8080>.
+
+## Stopping the Standalone Instance
+
+To stop the standalone instance, the following command can be used.
 
 ```shell
-kubectl port-forward deployment/ui 8080:80 --address='0.0.0.0'
+./standalone.py terminate
 ```
 
-## Supplying data
+## Supplying Data
 
 Data files found in the 'data' directory will be loaded by the containerized backend deployment. Different files can be added to this folder.
 
