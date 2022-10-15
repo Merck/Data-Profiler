@@ -38,7 +38,7 @@ spec:
       hostname: dp-postgres
       containers:
         - name: dp-postgres
-          image: postgres
+          image: public.ecr.aws/docker/library/postgres
           ports:
             - containerPort: 5432
           stdin: true
