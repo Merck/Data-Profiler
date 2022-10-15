@@ -19,7 +19,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM container-registry.dataprofiler.com/spark-hive-k8s:2.4.5
+FROM ghcr.io/big-wave-tech/spark-hive-k8s:2.4.5
 
 RUN set -ex && \
     apt update --allow-releaseinfo-change && \
