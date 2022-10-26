@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-vars
+data:
+  # Environment name
+  ENVIRONMENT: development
+
+  # Rules of Use setting
+  DP_API_SERVICE_PORT: "9000"
+  ROU_DB_DATABASE: rules_of_use
+  ROU_DB_HOST: postgres
+  ROU_DB_PASSWORD: postgres
+  ROU_DB_USERNAME: postgres
+  INACTIVE_TIMEOUT_MINUTES: "60"
+  TIMEOUT_MINUTES: "60"
+
+  RULES_OF_USE_API_HTTP_PATH: http://rou:8081
+  RULES_OF_USE_API_KEY: dp-rou-key
+  RULES_OF_USE_API_PATH: graphql
+
+  # Settings for postgres container
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: rules_of_use
+
+  # Jobs data base
+  JOBS_DB: postgres
+
+  # Hadoop Settings
+  HADOOP_DEFAULT_FS: dataprofilerFS
+  HADOOP_NAMENODE1: accumulo-master-production-1
+  HADOOP_NAMENODE2: accumulo-master-production-2
+
+  # Accumulo Tables
+  ACCUMULO_API_TOKENS_TABLE: apiTokens
+  ACCUMULO_COLUMN_COUNTS_TABLE: columnCounts
+  ACCUMULO_DATAWAVE_ROW_TABLE: datawaveRows
+  ACCUMULO_INDEX_TABLE: index
+  ACCUMULO_INSTANCE: miniInstance
+  ACCUMULO_JOBTABLE: dataLoadJobs
+  ACCUMULO_METADATA_TABLE: metadata
+  ACCUMULO_NAMESPACES: curr,next
+  ACCUMULO_PASSWORD: password
+  # ACCUMULO_PASSWORD: ""
+  ACCUMULO_SAMPLES_TABLE: samples
+  ACCUMULO_USER: root
+
+  # Zookeepers
+  ZOOKEEPERS: backend:2181
+
+  # Matomo settings
+  ANALYTICS_API_SITE_ID: "2"
+  ANALYTICS_UI_SITE_ID: "5"
+
+  # Auth Method
+  AUTH_METHOD: local-developer
+  # AUTH_METHOD: oauth
+
+  # AWS credentials
+  AWS_CREDENTIALS: xx
+  AWS_S3_UPLOAD_ACCESS_KEY_ID: xx
+  AWS_S3_UPLOAD_BUCKET: xxxxx
+  AWS_S3_UPLOAD_SECRET_ACCESS_KEY: xx/xxxx
+
+  CLUSTER_NAME: development
+
+  # Cognito settings
+  COGNITO_AUTHSERVER: https://dataprofiler.xxxx
+  COGNITO_CLIENT_ID: x
+  COGNITO_CLIENT_SECRET: x
+
+  DATALOADING_URL: https://production-internal/jobs/graphql
+  DATA_PROFILER_TOOLS_JAR: s3a://xxx/dataprofiler-tools-current.jar
+
+  # DNS Settings
+  DNS_EXTERNAL_ADDRESS: dataprofiler
+  DNS_INTERNAL_ADDRESS: production-internal
+  DOC_PREVIEW_HOST: xxx
+
+  DOWNLOAD_EVENT_LISTENER_URL: http://el-download-listener.production.svc.cluster.local:8080
+
+  #HEALTH_CHECK_PLAY_FRAMEWORK_ENDPOINT: http://dp-ai:8082/health/check/
+  #HEALTH_CHECK_SLACK_ENDPOINT: https://hooks.slack.com/services/xx/xxx/xxxxx
+  JOBS_API_PATH: https://production-internal/jobs/graphql
+  LOAD_OUTPUT_DEST: /loader
+
+  # MS Azure settings
+  MICROSOFT_AZURE_APP_ID: xxx
+
+  # Play framework settings
+  PLAY_FRAMEWORK_SECRET: xyzABC123
+  PLAY_REQUIRE_LOGIN_ATTRIBUTE_FOR_ACCESS: "false"
+
+  S3_BUCKET: dataprofiler-s3
+
+  # Sentry Settings
+  SENTRY_API_DSN: https://xx@xx.ingest.sentry.io/xxxx
+  SENTRY_UI_DSN: https://xx@xx.ingest.sentry.io/xxxx
+  SENTRY_UI_RELEASE_API_TOKEN: xxxx
+
+  # Slack webhook for alerts
+  SLACK_WEBHOOK: https://hooks.slack.com/services/xx/xx/xxxx
+
+  # SQL Sync Settings
+  SQLSYNC_EVENT_LISTENER_URL: http://el-sqlsync-listener.production.svc.cluster.local:8080
+  SQLSYNC_PASSWORD: xx
+  SQLSYNC_URL: jdbc:postgresql://postgres.production.svc.cluster.local:5432/dataprofiler
+  SQLSYNC_USER: postgres
+
+  # Oauth settings
+  # Okta Settings
+  OAUTH_CLIENT_ID: 0oa5qwhsybtGNKDHV5d7
+  OAUTH_CLIENT_SECRET: eF9FySacacq2-5t3t140EyPNtIlv98t5irZLXejF
+  OAUTH_AUTH_URL: https://dev-73754698.okta.com/oauth2/default/v1
+  OAUTH_SCOPE: openid%20profile%20email
+  OAUTH_STATE: xyzABC123
+
+  # PingID Settings
+  # OAUTH_CLIENT_ID: e7850ca9-226f-429a-8024-5a309e119894
+  # OAUTH_CLIENT_SECRET: sZ5szHjVVzlAd_itjOztbCZz4Ad8dRmleX9bRqxF5OfNZ_sNGgUHCCSqbSyC5b5k
+  # OAUTH_AUTH_URL: https://auth.pingone.com/ed56140d-d9c2-4828-8dd9-3d0e94642eff/as
+  # OAUTH_SCOPE: openid%20profile%20email
+  # OAUTH_STATE: xyzABC123
+
+  UI_MAIN_USER_FACING_HTTP_PATH: https://dataprofiler
+  USER_FACING_UI_HTTP_PATH: http://localhost:8080
+  USER_FACING_API_HTTP_PATH: http://localhost:9000
