@@ -1,15 +1,14 @@
 # Data Profiler Standalone
 
-This development tool gives a developer the ability to run the DataProfiler application stack on their local machines via Minikube and Docker Desktop.
+The standalone environment gives anyone the ability to run the Data Profiler for demonstration purposes or the ability develop features via running the Data Profiler application stack on your local machine via Minikube and Docker Desktop.
 
 The following containerized deployments are currently supported:
 
-* dp-accumulo - MiniAccumuloWithData
-* dp-postgres - postgres database
-* dp-api - data_profiler_api
-* dp-rou - rules_of_use
-* dp-spark-sql-controller - Spark SQL Thriftserver Instance Controller
-* dp-ui - DataProfiler User Interface
+* backend - The Data Profiler backend storage
+* postgres - A postgres database
+* api - Data Profiler API
+* rou - Data Profiler custom access controller
+* ui - Data Profiler User Interface
 
 ## Installation
 
@@ -20,7 +19,10 @@ The following is a list of required software to run the standalone image:
 * Docker
 * Minikube
 * Python 3.7 or higher
-* Java 8
+
+To develop using the standalone image the following are also required:
+
+* Java 11
 * Maven 3.6.3
 
 For the rest of the guide, it is assumed that the Data profiler is located in `~/Data-Profiler`.
@@ -40,7 +42,7 @@ minikube update-context
 minikube addons enable ingress
 ```
 
-Lastly, the environment must be configured to use minikube's Docker daemon. Please note, you will need to run this command in any newly opened shell.
+Lastly, the environment must be configured to use minikube's Docker daemon. **Please note, you will need to run this command in any newly opened shell.**
 
 ```shell
 eval $(minikube docker-env)
@@ -65,33 +67,25 @@ pip install -r python_requirements.txt
 pip install wheel
 ```
 
-### Spark
-
-The Data Profiler standalone image needs some Spark specific jars. These must be build from Spark 2.4.5. To clone the spark repo and build the project, the following commands can be used. Note: Spark will be cloned into the `~/spark` directory.
-
-```shell
-git clone https://github.com/apache/spark.git ~/spark
-cd ~/spark
-git checkout tags/v2.4.5 -b v2.4.5-branch
-dev/make-distribution.sh --name k8s-spark --tgz -Phadoop-2.7 -Phive -Phive-thriftserver -Pkubernetes
-cd dist
-docker build -t container-registry.dataprofiler.com/spark-hive-k8s:2.4.5 -f kubernetes/dockerfiles/spark/Dockerfile .
-```
-
-After Spark has been built, the `spark-hive-thriftserver` jar needs to be copied to the Data Profiler `spark-sql-client`.
-
-```shell
-mkdir ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars
-cp ~/spark/dist/jars/spark-hive-thriftserver_2.11-2.4.5.jar ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars/
-```
-
-### Build and Start the Standalone Instance
+### Standalone Configuration
 
 Before building the standalone instance you must create the configuration file for the instance. The easiest way to start is to create a copy the existing example.
 
 ```shell
 cp ~/Data-Profiler/infrastructure/standalone/conf/env/env-vars.yaml.example ~/Data-Profiler/infrastructure/standalone/conf/env/env-vars.yaml
 ```
+
+## Start the Standalone Instance
+
+If you only want to run the Data Profiler locally without doing any development, you only need to run the following command. This will download, install, and start the Data Profiler.
+
+```shell
+./standalone.py deploy
+```
+
+When the deploy is complete, you can visit the Data Profiler by following in your local browser by visiting <http://localhost:8080>.
+
+## For Development
 
 The following command can be used to build all the dependencies and the standalone instance.
 
@@ -106,15 +100,19 @@ Once the services are built, the standalone instance can be deployed to the kube
 ./standalone.py deploy
 ```
 
-Lastly, you may need to port forward the UI because of a bug within minikube.
+When the deploy is complete, you can visit the Data Profiler by following in your local browser by visiting <http://localhost:8080>.
+
+## Stopping the Standalone Instance
+
+To stop the standalone instance, the following command can be used.
 
 ```shell
-kubectl port-forward deployment/dp-ui 8080:80 --address='0.0.0.0'
+./standalone.py terminate
 ```
 
-## Supplying data
+## Supplying Data
 
-Data files found in the 'data' directory will be loaded by the containerized dp-accumulo deployment. Different files can be added to this folder.
+Data files found in the 'data' directory will be loaded by the containerized backend deployment. Different files can be added to this folder.
 
 ## API
 
@@ -157,4 +155,25 @@ Run the following to free up space:
 
 ```shell
 minikube ssh -- docker system prune
+```
+
+### Building Spark (Optional)
+
+Spark is automatically pulled in for the backend container, but if you would like to build a spark image, you can do so with the following instructions.
+
+The Data Profiler standalone image needs some Spark specific jars. These must be build from Spark 3.3.0. To clone the spark repo and build the project, the following commands can be used. Note: Spark will be cloned into the `~/spark` directory.
+
+```shell
+git clone https://github.com/apache/spark.git ~/spark
+cd ~/spark
+git checkout tags/v3.3.0 -b v3.3.0-branch
+./dev/make-distribution.sh --name k8s-spark --tgz -Dhadoop.version=3.3.4 -Dzookeeper.version=3.4.14 -Phive -Phive-thriftserver -Pkubernetes
+./bin/docker-image-tool.sh -u 0 -r big-wave-tech -t 3.3.0 -f ./dist/kubernetes/dockerfiles/spark/Dockerfile build.
+```
+
+After Spark has been built, the `spark-hive-thriftserver` jar needs to be copied to the Data Profiler `spark-sql-client`.
+
+```shell
+mkdir ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars
+cp ~/spark/dist/jars/spark-hive-thriftserver_2.12-3.3.0.jar ~/Data-Profiler/spark-sql/spark-sql-client/spark_jars/
 ```

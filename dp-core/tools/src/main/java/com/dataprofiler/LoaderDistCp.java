@@ -83,9 +83,11 @@ public class LoaderDistCp extends DistCp {
       System.exit(127);
     }
 
-    DistCpOptions distCpOpts =
-        new DistCpOptions(
-            java.util.Collections.singletonList(new Path(config.src)), new Path(config.dest));
+    DistCpOptions distCpOpts = 
+        new DistCpOptions
+            .Builder(java.util.Collections.singletonList(new Path(config.src)),
+                new Path(config.dest))
+            .build();
 
     Context context;
     try {

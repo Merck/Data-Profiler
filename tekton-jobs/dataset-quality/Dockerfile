@@ -32,7 +32,7 @@ COPY python_client .
 RUN python setup.py bdist_wheel
 
 # Final Container
-FROM container-registry.dataprofiler.com/dataprofiler-alpine:latest
+FROM data-profiler/dataprofiler-alpine:latest
 
 WORKDIR /opt/app
 

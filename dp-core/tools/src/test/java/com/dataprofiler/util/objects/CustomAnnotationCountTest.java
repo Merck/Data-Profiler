@@ -85,7 +85,7 @@ public class CustomAnnotationCountTest {
 
   @Test
   public void sanity() throws BasicAccumuloException {
-    Set<String> tables = context.getConnector().tableOperations().list();
+    Set<String> tables = context.getClient().tableOperations().list();
     logger.debug("table " + tables);
     assertTrue(tables.size() > 0);
   }

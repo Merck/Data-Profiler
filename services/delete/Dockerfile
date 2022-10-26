@@ -19,7 +19,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM container-registry.dataprofiler.com/hadoop:latest
+FROM data-profiler/hadoop:latest
 
 
 RUN mkdir -p /usr/lib/dataprofiler/tools/

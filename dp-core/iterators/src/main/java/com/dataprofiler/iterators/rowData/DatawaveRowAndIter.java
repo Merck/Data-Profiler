@@ -31,6 +31,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.dataprofiler.util.Const;
 import com.dataprofiler.util.TextEncoding;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,7 +46,6 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-import org.apache.accumulo.core.util.Base64;
 import org.apache.hadoop.io.Text;
 import org.apache.htrace.fasterxml.jackson.databind.DeserializationFeature;
 import org.apache.htrace.fasterxml.jackson.databind.ObjectMapper;
@@ -135,7 +135,7 @@ public class DatawaveRowAndIter implements SortedKeyValueIterator<Key, Value> {
         bytes[i] = 0;
       }
     }
-    return Base64.encodeBase64String(bytes);
+    return Base64.getEncoder().encodeToString(bytes);
   }
 
   /**
@@ -148,8 +148,7 @@ public class DatawaveRowAndIter implements SortedKeyValueIterator<Key, Value> {
     if (values == null) {
       return null;
     }
-
-    byte[] bytes = Base64.decodeBase64(values.getBytes(UTF_8));
+    byte[] bytes = Base64.getDecoder().decode(values.getBytes(UTF_8));
     boolean[] bFlags = new boolean[bytes.length];
     for (int i = 0; i < bytes.length; i++) {
       bFlags[i] = bytes[i] == 1;

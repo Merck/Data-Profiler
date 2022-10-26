@@ -22,37 +22,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dp-api
+  name: spark-sql-controller
   labels:
-    app: dp-api
+    app: spark-sql-controller
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dp-api
+      app: spark-sql-controller
   template:
     metadata:
       labels:
-        app: dp-api
+        app: spark-sql-controller
     spec:
-      hostname: dp-api
+      hostname: spark-sql-controller
+      serviceAccountName: spark
       containers:
-        - name: dp-api
-          image: dp/api
-          env:
-            - name: APPLICATION_SECRET
-              value: KrQ9CqK0oeg1
-          command: ["/bin/bash"]
-          args:
-            [
-              "-c",
-              "env > /opt/api/target/universal/stage/.env && set -o allexport && source /opt/api/target/universal/stage/.env && ./bin/dataprofiler-api-launcher-minikube.sh",
-            ]
+        - name: spark-sql-controller
+          image: ghcr.io/big-wave-tech/data-profiler/rou-initspark-sql-controller
           imagePullPolicy: Never
           ports:
-            - containerPort: 9000
+            - containerPort: 7999
           stdin: true
           tty: true
-          envFrom:
-            - configMapRef:
-                name: dp-env-vars
+          env:
+            - name: RULES_OF_USE_API_PATH
+              value: http://rou:8081/
+            - name: USER_FACING_API_HTTP_PATH
+              value: http://api:9000/api
+            - name: SPARK_SQL_API_KEY
+              value:
+            - name: SPARK_SQL_ADMIN_USERNAME
+              value:
+            - name: SPARK_SQL_ADMIN_PASSWORD
+              value:
+            - name: SPARK_SQL_API_USERNAME
+              value:
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark
+  namespace: default

@@ -22,28 +22,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dp-rou
+  name: postgres
   labels:
-    app: dp-rou
+    app: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dp-rou
+      app: postgres
   template:
     metadata:
       labels:
-        app: dp-rou
+        app: postgres
     spec:
-      hostname: dp-rou
+      hostname: postgres
       containers:
-        - name: dp-rou
-          image: dp/rou
-          imagePullPolicy: Never
+        - name: postgres
+          image: postgres
           ports:
-            - containerPort: 8081
+            - containerPort: 5432
           stdin: true
           tty: true
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+            limits:
+              memory: 512Mi
+              cpu: "1"
           envFrom:
             - configMapRef:
-                name: dp-env-vars
+                name: env-vars

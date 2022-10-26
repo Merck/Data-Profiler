@@ -22,33 +22,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dp-jobs-api
+  name: backend
   labels:
-    app: dp-jobs-api
+    app: backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dp-jobs-api
+      app: backend
   template:
     metadata:
       labels:
-        app: dp-jobs-api
+        app: backend
     spec:
-      hostname: dp-jobs-api
+      hostname: backend
       containers:
-        - name: dp-jobs-api
-          image: dp/jobs-api
-          command: ["yarn", "run", "start"]
-          envFrom:
-            - configMapRef:
-                name: dp-env-vars
-
-          # env:
-          #   - name: JOBS_DB
-          #     value: dp-postgres
-          imagePullPolicy: Never
+        - name: backend
+          image: ghcr.io/big-wave-tech/data-profiler/backend
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: data-volume
+              mountPath: /data
           ports:
-            - containerPort: 8082
+            - containerPort: 2181
+            - containerPort: 9999
+            - containerPort: 9997
           stdin: true
           tty: true
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+      volumes:
+        - name: data-volume
+          hostPath:
+            path: /dp_data

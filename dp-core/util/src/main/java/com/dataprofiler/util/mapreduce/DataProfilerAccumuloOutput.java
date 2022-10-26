@@ -34,19 +34,21 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import org.apache.accumulo.core.client.AccumuloClient;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
-import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.OutputConfigurator;
 import org.apache.accumulo.core.client.security.SecurityErrorCode;
-import org.apache.accumulo.core.client.security.tokens.AuthenticationToken;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
+import org.apache.accumulo.core.conf.ClientProperty;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.TabletId;
+import org.apache.accumulo.hadoop.mapreduce.AccumuloOutputFormat;
+import org.apache.accumulo.hadoopImpl.mapreduce.lib.OutputConfigurator;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.OutputCommitter;
@@ -87,20 +89,20 @@ public abstract class DataProfilerAccumuloOutput extends OutputFormat<Text, Text
       throw new IOException(e.toString());
     }
 
-    if (!OutputConfigurator.isConnectorInfoSet(CLASS, jobContext.getConfiguration())) {
+    Properties props = OutputConfigurator.getClientProperties(CLASS, jobContext.getConfiguration());
+
+    if (props.isEmpty()) {
       throw new IOException("Connector info has not been set.");
     }
-    try {
-      // if the instance isn't configured, it will complain here
-      String principal = OutputConfigurator.getPrincipal(CLASS, jobContext.getConfiguration());
 
-      AuthenticationToken token =
-          OutputConfigurator.getAuthenticationToken(CLASS, jobContext.getConfiguration());
-      Connector c =
-          OutputConfigurator.getInstance(CLASS, jobContext.getConfiguration())
-              .getConnector(principal, token);
-      if (!c.securityOperations().authenticateUser(principal, token))
+    String principal = props.getProperty(ClientProperty.AUTH_PRINCIPAL.getKey());
+    String token = props.getProperty(ClientProperty.AUTH_TOKEN.getKey());
+    AccumuloClient client = OutputConfigurator.createClient(CLASS, jobContext.getConfiguration());
+
+    try {
+      if (!client.securityOperations().authenticateUser(principal, new PasswordToken(token))){
         throw new IOException("Unable to authenticate user");
+      }
     } catch (AccumuloException e) {
       throw new IOException(e);
     } catch (AccumuloSecurityException e) {
@@ -117,8 +119,7 @@ public abstract class DataProfilerAccumuloOutput extends OutputFormat<Text, Text
 
     private final String tableName;
     private final BatchWriter bw;
-    private final Connector conn;
-
+    private final AccumuloClient client;
     private long mutCount = 0;
     private final long valCount = 0;
 
@@ -137,17 +138,11 @@ public abstract class DataProfilerAccumuloOutput extends OutputFormat<Text, Text
       if (tableName == null) {
         throw new TableNotFoundException(null, "No table name provided", null);
       }
+  
+      this.client = OutputConfigurator.createClient(CLASS, taskAttemptContext.getConfiguration());
 
-      String principal =
-          OutputConfigurator.getPrincipal(CLASS, taskAttemptContext.getConfiguration());
-      AuthenticationToken token =
-          OutputConfigurator.getAuthenticationToken(CLASS, taskAttemptContext.getConfiguration());
-
-      this.conn =
-          OutputConfigurator.getInstance(CLASS, taskAttemptContext.getConfiguration())
-              .getConnector(principal, token);
       this.bw =
-          conn.createBatchWriter(
+          client.createBatchWriter(
               tableName,
               OutputConfigurator.getBatchWriterOptions(
                   CLASS, taskAttemptContext.getConfiguration()));

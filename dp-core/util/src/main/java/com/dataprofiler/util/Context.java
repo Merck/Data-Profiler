@@ -34,38 +34,38 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.accumulo.core.client.Accumulo;
+import org.apache.accumulo.core.client.AccumuloClient;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchDeleter;
 import org.apache.accumulo.core.client.BatchScanner;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
-import org.apache.accumulo.core.client.ClientConfiguration;
-import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.IteratorSetting.Column;
 import org.apache.accumulo.core.client.NamespaceExistsException;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.client.admin.NamespaceOperations;
 import org.apache.accumulo.core.client.admin.TableOperations;
-import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.OutputConfigurator;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
-import org.apache.accumulo.core.util.Pair;
+import org.apache.accumulo.hadoop.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.hadoop.mapreduce.AccumuloOutputFormat;
+import org.apache.accumulo.hadoopImpl.mapreduce.lib.InputConfigurator;
+import org.apache.accumulo.hadoopImpl.mapreduce.lib.OutputConfigurator;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
@@ -76,13 +76,15 @@ import org.apache.hadoop.mapreduce.Job;
  * config.
  */
 public class Context implements Serializable {
-  protected boolean neverConnect =
-      false; // this is used when we want to only use Spark - this is kind of a hack, but
-  // this makes
-  // things fail early
+
+  /*
+   * This is used when we want to only use Spark - this is kind of a hack, but this makes things
+   * fail early
+   */
+  protected boolean neverConnect = false;
   protected Config config;
   protected ObjectMapper mapper = new ObjectMapper();
-  protected Connector connector;
+  protected AccumuloClient client;
   protected Authorizations authorizations;
   protected Configuration hadoopConfiguration;
   protected MiniAccumuloCluster accumulo;
@@ -119,13 +121,13 @@ public class Context implements Serializable {
   private void initFromContext(Context context) {
     this.config = context.config;
     this.mapper = context.mapper;
-    this.connector = context.connector;
+    this.client = context.client;
   }
 
   public void createAllAccumuloTables() throws BasicAccumuloException {
     connect();
-    NamespaceOperations nops = connector.namespaceOperations();
-    TableOperations tops = connector.tableOperations();
+    NamespaceOperations nops = this.client.namespaceOperations();
+    TableOperations tops = this.client.tableOperations();
 
     Set<String> namespaces = new HashSet<>();
     for (String table : config.getAllTables()) {
@@ -153,31 +155,21 @@ public class Context implements Serializable {
   }
 
   public void connect() throws BasicAccumuloException {
-    if (neverConnect) {
+    if (this.neverConnect) {
       throw new BasicAccumuloException("Never connect was set - yet we are connecting!");
     }
-    if (connector != null) {
+    if (this.client != null) {
       return;
     }
-
-    ZooKeeperInstance zkInstance =
-        new ZooKeeperInstance(config.accumuloInstance, config.zookeepers);
-
-    try {
-      connector =
-          zkInstance.getConnector(config.accumuloUser, new PasswordToken(config.accumuloPassword));
-      refreshAuthorizations();
-    } catch (AccumuloException e) {
-      throw new BasicAccumuloException("Unable to create connection to Accumulo");
-    } catch (AccumuloSecurityException e) {
-      throw new BasicAccumuloException("Authentication error while trying to connect to Accumulo");
-    }
+    this.client = Accumulo.newClient().to(config.accumuloInstance, config.zookeepers)
+        .as(config.accumuloUser, new PasswordToken(config.accumuloPassword)).build();
   }
 
   public void refreshAuthorizations() throws BasicAccumuloException {
     connect();
     try {
-      authorizations = connector.securityOperations().getUserAuthorizations(config.accumuloUser);
+      this.authorizations =
+          this.client.securityOperations().getUserAuthorizations(config.accumuloUser);
     } catch (AccumuloException | AccumuloSecurityException e) {
       throw new BasicAccumuloException("Failed to refresh authorizations " + e);
     }
@@ -187,10 +179,8 @@ public class Context implements Serializable {
       throws BasicAccumuloException, IOException {
     connect();
     ArrayList<String> stringAuthorizations = mapper.readValue(authorizationsAsJson, typeReference);
-    List<byte[]> byteAuthorizations =
-        stringAuthorizations.stream()
-            .map(a -> a.getBytes(StandardCharsets.UTF_8))
-            .collect(Collectors.toList());
+    List<byte[]> byteAuthorizations = stringAuthorizations.stream()
+        .map(a -> a.getBytes(StandardCharsets.UTF_8)).collect(Collectors.toList());
 
     authorizations = new Authorizations(byteAuthorizations);
   }
@@ -198,7 +188,7 @@ public class Context implements Serializable {
   public Scanner createScanner(String accumuloTable) throws BasicAccumuloException {
     connect();
     try {
-      return connector.createScanner(accumuloTable, authorizations);
+      return this.client.createScanner(accumuloTable, authorizations);
     } catch (TableNotFoundException e) {
       throw new BasicAccumuloException(String.format("Table '%s' does not exist", accumuloTable));
     }
@@ -207,16 +197,15 @@ public class Context implements Serializable {
   public BatchScanner createBatchScanner(String accumuloTable) throws BasicAccumuloException {
     connect();
     try {
-      return connector.createBatchScanner(
-          accumuloTable, authorizations, config.accumuloScannerThreads);
+      return this.client.createBatchScanner(accumuloTable, authorizations,
+          this.config.accumuloScannerThreads);
     } catch (TableNotFoundException e) {
       throw new BasicAccumuloException(String.format("Table '%s' does not exist", accumuloTable));
     }
   }
 
-  public BatchWriter createBatchWriter(
-      String accumuloTable, Long maxMem, Integer maxThreads, Integer maxLatency)
-      throws BasicAccumuloException {
+  public BatchWriter createBatchWriter(String accumuloTable, Long maxMem, Integer maxThreads,
+      Integer maxLatency) throws BasicAccumuloException {
     connect();
     BatchWriterConfig batchWriterConfig = new BatchWriterConfig();
     batchWriterConfig.setMaxMemory(maxMem);
@@ -224,7 +213,7 @@ public class Context implements Serializable {
     batchWriterConfig.setMaxLatency(maxLatency, TimeUnit.SECONDS);
 
     try {
-      return connector.createBatchWriter(accumuloTable, batchWriterConfig);
+      return this.client.createBatchWriter(accumuloTable, batchWriterConfig);
     } catch (TableNotFoundException e) {
       throw new BasicAccumuloException(e.toString());
     }
@@ -232,91 +221,75 @@ public class Context implements Serializable {
 
   public BatchWriter createBatchWriter(String accumuloTable) throws BasicAccumuloException {
     connect();
-    return createBatchWriter(
-        accumuloTable,
-        Const.DEFAULT_MAX_MEM,
-        Const.DEFAULT_MAX_WRITE_THREADS,
+    return createBatchWriter(accumuloTable, Const.DEFAULT_MAX_MEM, Const.DEFAULT_MAX_WRITE_THREADS,
         Const.DEFAULT_MAX_LATENCY);
   }
 
   public BatchDeleter createBatchDeleter(String accumuloTable) throws BasicAccumuloException {
     connect();
-    return createBatchDeleter(
-        accumuloTable,
-        Const.DEFAULT_MAX_MEM,
-        Const.DEFAULT_MAX_WRITE_THREADS,
+    return createBatchDeleter(accumuloTable, Const.DEFAULT_MAX_MEM, Const.DEFAULT_MAX_WRITE_THREADS,
         Const.DEFAULT_MAX_LATENCY);
   }
 
-  public BatchDeleter createBatchDeleter(
-      String accumuloTable, Long maxMem, Integer maxThreads, Integer maxLatency)
-      throws BasicAccumuloException {
+  public BatchDeleter createBatchDeleter(String accumuloTable, Long maxMem, Integer maxThreads,
+      Integer maxLatency) throws BasicAccumuloException {
     connect();
     BatchWriterConfig batchWriterConfig = new BatchWriterConfig();
     batchWriterConfig.setMaxMemory(maxMem);
     batchWriterConfig.setMaxWriteThreads(maxThreads);
     batchWriterConfig.setMaxLatency(maxLatency, TimeUnit.SECONDS);
     try {
-      return connector.createBatchDeleter(
-          accumuloTable, authorizations, maxThreads, batchWriterConfig);
+      return this.client.createBatchDeleter(accumuloTable, authorizations, maxThreads,
+          batchWriterConfig);
     } catch (TableNotFoundException e) {
       throw new BasicAccumuloException(e.toString());
     }
   }
 
-  public void applyInputConfiguration(
-      Configuration configuration,
-      String table,
-      List<Text> colFams,
-      List<Column> columns,
-      List<Range> ranges,
-      List<IteratorSetting> iterators)
+  public void applyInputConfiguration(Configuration configuration, String table, List<Text> colFams,
+      List<Column> columns, List<Range> ranges, List<IteratorSetting> iterators)
       throws BasicAccumuloException {
     connect();
     Class<?> CLASS = AccumuloInputFormat.class;
     Config config = getConfig();
 
-    InputConfigurator.setZooKeeperInstance(
-        CLASS,
-        configuration,
-        new ClientConfiguration()
-            .withInstance(config.accumuloInstance)
-            .withZkHosts(config.zookeepers));
+    Properties props = Accumulo.newClientProperties()
+        .to(config.accumuloInstance, config.zookeepers)
+        .as(config.accumuloUser, config.accumuloPassword)
+        .build();
 
-    try {
-      InputConfigurator.setConnectorInfo(
-          CLASS, configuration, config.accumuloUser, new PasswordToken(config.accumuloPassword));
-    } catch (AccumuloSecurityException e) {
-      throw new BasicAccumuloException(e.toString());
-    }
-
+    InputConfigurator.setClientProperties(CLASS, configuration, props, null);
     InputConfigurator.setScanAuthorizations(CLASS, configuration, getAuthorizations());
-
     InputConfigurator.setInputTableName(CLASS, configuration, table);
 
     if (ranges.size() > 0) {
       InputConfigurator.setRanges(CLASS, configuration, ranges);
     } else {
-      InputConfigurator.setRanges(
-          CLASS, configuration, Collections.singleton(new Range(Const.LOW_BYTE, Const.HIGH_BYTE)));
+      InputConfigurator.setRanges(CLASS, configuration,
+          Collections.singleton(new Range(Const.LOW_BYTE, Const.HIGH_BYTE)));
     }
 
-    ArrayList<Pair<Text, Text>> cols = new ArrayList<>();
-
+    List<IteratorSetting.Column> cols = new ArrayList<IteratorSetting.Column>();
+    
     for (Text c : colFams) {
-      cols.add(new Pair<Text, Text>(c, null));
+      cols.add(new IteratorSetting.Column(c));
     }
 
     for (Column c : columns) {
-      cols.add(new Pair<Text, Text>(c.getColumnFamily(), c.getColumnQualifier()));
+      cols.add(new IteratorSetting.Column(c.getColumnFamily(), c.getColumnQualifier()));
     }
 
     if (!cols.isEmpty()) {
       InputConfigurator.fetchColumns(CLASS, configuration, cols);
     }
 
-    for (IteratorSetting i : iterators) {
-      InputConfigurator.addIterator(CLASS, configuration, i);
+    List<IteratorSetting> iters = new ArrayList<IteratorSetting>();
+    for (IteratorSetting iter : iterators) {
+      iters.add(iter);
+    }
+
+    if( !iters.isEmpty()) {
+      InputConfigurator.writeIteratorsToConf(CLASS, configuration, iters);
     }
 
     InputConfigurator.setBatchScan(CLASS, configuration, true);
@@ -327,29 +300,18 @@ public class Context implements Serializable {
     Class<?> CLASS = AccumuloOutputFormat.class;
     Config config = getConfig();
 
-    OutputConfigurator.setZooKeeperInstance(
-        CLASS,
-        configuration,
-        new ClientConfiguration()
-            .withInstance(config.accumuloInstance)
-            .withZkHosts(config.zookeepers));
+    System.out.println(MessageFormat.format("Instance: {0}\nUser: {1}\nPass: {2}", config.accumuloInstance, config.accumuloUser, config.accumuloPassword));
+    Properties props = Accumulo.newClientProperties()
+        .to(config.accumuloInstance, config.zookeepers)
+        .as(config.accumuloUser, config.accumuloPassword)
+        .build();
 
-    try {
-      OutputConfigurator.setConnectorInfo(
-          CLASS, configuration, config.accumuloUser, new PasswordToken(config.accumuloPassword));
-    } catch (AccumuloSecurityException e) {
-      throw new BasicAccumuloException(e.toString());
-    }
-
+    OutputConfigurator.setClientProperties(CLASS, configuration, props, null);
     OutputConfigurator.setCreateTables(CLASS, configuration, true);
   }
 
-  public Job createInputJob(
-      String table,
-      List<Text> colFams,
-      List<Column> columns,
-      List<Range> ranges,
-      List<IteratorSetting> iterators)
+  public Job createInputJob(String table, List<Text> colFams, List<Column> columns,
+      List<Range> ranges, List<IteratorSetting> iterators)
       throws IOException, BasicAccumuloException {
     connect();
     Job job = getInstance(getHadoopConfiguration());
@@ -363,7 +325,19 @@ public class Context implements Serializable {
     connect();
     Job job = getInstance(getHadoopConfiguration());
     applyOutputConfiguration(job.getConfiguration());
-    AccumuloOutputFormat.setDefaultTableName(job, table);
+
+    Config config = getConfig();
+
+    Properties props = Accumulo.newClientProperties()
+        .to(config.accumuloInstance, config.zookeepers)
+        .as(config.accumuloUser, config.accumuloPassword)
+        .build();
+
+    AccumuloOutputFormat
+        .configure()
+        .clientProperties(props)
+        .defaultTable(table)
+        .store(job);
 
     return job;
   }
@@ -387,9 +361,8 @@ public class Context implements Serializable {
 
   /***
    * Create a new Hadoop Configuration entirely from our config. This differs from
-   * getHadoopConfiguration - which will pull Configuration from the environment /
-   * filesystem - in that this is entirely based on what is in the Data Profiler
-   * Config object.
+   * getHadoopConfiguration - which will pull Configuration from the environment / filesystem - in
+   * that this is entirely based on what is in the Data Profiler Config object.
    */
   public Configuration createHadoopConfigurationFromConfig() {
     Configuration config = new Configuration();
@@ -400,18 +373,17 @@ public class Context implements Serializable {
     config.set("dfs.nameservices", fs);
     config.set("dfs.ha.namenodes." + fs, "nn1,nn2");
     config.set(String.format("dfs.namenode.rpc-address.%s.nn1", fs), String.format("%s:8020", nn1));
-    config.set(
-        String.format("dfs.namenode.http-address.%s.nn1", fs), String.format("%s:5070", nn1));
-    config.set(
-        String.format("dfs.namenode.https-address.%s.nn1", fs), String.format("%s:5071", nn1));
+    config.set(String.format("dfs.namenode.http-address.%s.nn1", fs),
+        String.format("%s:5070", nn1));
+    config.set(String.format("dfs.namenode.https-address.%s.nn1", fs),
+        String.format("%s:5071", nn1));
     config.set(String.format("dfs.namenode.rpc-address.%s.nn2", fs), String.format("%s:8020", nn2));
-    config.set(
-        String.format("dfs.namenode.http-address.%s.nn2", fs), String.format("%s:5070", nn2));
-    config.set(
-        String.format("dfs.namenode.https-address.%s.nn2", fs), String.format("%s:5071", nn2));
+    config.set(String.format("dfs.namenode.http-address.%s.nn2", fs),
+        String.format("%s:5070", nn2));
+    config.set(String.format("dfs.namenode.https-address.%s.nn2", fs),
+        String.format("%s:5071", nn2));
     config.set("dfs.namenode.shared.edits.dir", String.format("qjournal://%ss/%s", nn1, fs));
-    config.set(
-        "dfs.client.failover.proxy.provider." + fs,
+    config.set("dfs.client.failover.proxy.provider." + fs,
         "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider");
     config.set("dfs.ha.fencing.methods", "shell(/usr/bin/true)");
     config.set("dfs.ha.automatic-failover.enabled", "true");
@@ -435,13 +407,13 @@ public class Context implements Serializable {
     this.mapper = mapper;
   }
 
-  public Connector getConnector() throws BasicAccumuloException {
+  public AccumuloClient getClient() throws BasicAccumuloException {
     connect();
-    return connector;
+    return this.client;
   }
 
-  public void setConnector(Connector connector) {
-    this.connector = connector;
+  public void setClient(AccumuloClient client) {
+    this.client = client;
   }
 
   public Authorizations getAuthorizations() {
@@ -480,7 +452,7 @@ public class Context implements Serializable {
   }
 
   public void setNeverConnect(boolean neverConnect) throws BasicAccumuloException {
-    if (neverConnect == true && connector != null) {
+    if (neverConnect == true && this.client != null) {
       throw new BasicAccumuloException("Attempted to set neverConnect, but was already connected.");
     }
     this.neverConnect = neverConnect;

@@ -22,34 +22,55 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dp-accumulo
+  name: ui
   labels:
-    app: dp-accumulo
+    app: ui
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dp-accumulo
+      app: ui
   template:
     metadata:
       labels:
-        app: dp-accumulo
+        app: ui
     spec:
-      hostname: dp-accumulo
+      hostname: ui
       containers:
-        - name: dp-accumulo
-          image: dp/accumulo
-          imagePullPolicy: Never
-          volumeMounts:
-            - name: data-volume
-              mountPath: /data
+        - name: ui
+          image: ghcr.io/big-wave-tech/data-profiler/ui
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 2181
-            - containerPort: 9999
-            - containerPort: 9997
+            - containerPort: 80
           stdin: true
           tty: true
-      volumes:
-        - name: data-volume
-          hostPath:
-            path: /dp_data
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+            limits:
+              memory: 512Mi
+              cpu: "1"
+          envFrom:
+            - configMapRef:
+                name: env-vars
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ui-ingress
+  labels:
+    name: ui-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ui
+                port:
+                  number: 80

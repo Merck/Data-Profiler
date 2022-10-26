@@ -138,7 +138,7 @@ public class MiniAccumuloContext extends Context implements AutoCloseable {
 
   @Override
   public void connect() throws BasicAccumuloException {
-    if (connector != null) {
+    if (this.client != null) {
       return;
     }
     createMiniAccumulo();
@@ -164,7 +164,7 @@ public class MiniAccumuloContext extends Context implements AutoCloseable {
     }
     logger.info("\n---------using root auths - " + Arrays.toString(this.rootAuths));
     try {
-      getConnector()
+      getClient()
           .securityOperations()
           .changeUserAuthorizations("root", new Authorizations(this.rootAuths));
     } catch (AccumuloException | AccumuloSecurityException e) {

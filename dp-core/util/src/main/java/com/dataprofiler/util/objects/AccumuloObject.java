@@ -267,7 +267,7 @@ public abstract class AccumuloObject<T extends AccumuloObject> implements Serial
     String currTable = getTable(context);
 
     try {
-      TableOperations tops = context.getConnector().tableOperations();
+      TableOperations tops = context.getClient().tableOperations();
 
       // Delete the previous backups
       for (String table : tops.list()) {

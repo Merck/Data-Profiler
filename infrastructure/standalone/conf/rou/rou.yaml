@@ -19,14 +19,38 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-#! /bin/bash
-
-set -x
-# Start miniaccumulo shell
-zookeeper1_port=${2:-2181}
-zookeepers="dp-accumulo:${zookeeper1_port}"
-config="${config_dir}/conf/client.conf"
-java -cp "/opt/spark/jars/*:./dataprofiler-tools-current.jar" com.dataprofiler.shell.MiniAccumuloShell \
-        -u root \
-        -p "" \
-        -z miniInstance "${zookeepers}"
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rou
+  labels:
+    app: rou
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rou
+  template:
+    metadata:
+      labels:
+        app: rou
+    spec:
+      hostname: rou
+      containers:
+        - name: rou
+          image: ghcr.io/big-wave-tech/data-profiler/rou
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          stdin: true
+          tty: true
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+            limits:
+              memory: 512Mi
+              cpu: "1"
+          envFrom:
+            - configMapRef:
+                name: env-vars

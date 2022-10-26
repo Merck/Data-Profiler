@@ -436,7 +436,7 @@ public class DatawaveRowObject extends VersionedPurgableDatasetObject<DatawaveRo
     String currTable = getTable(context);
 
     try {
-      TableOperations tops = context.getConnector().tableOperations();
+      TableOperations tops = context.getClient().tableOperations();
 
       Map<String, Set<Text>> groups = new HashMap<>();
 

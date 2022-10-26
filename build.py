@@ -30,9 +30,6 @@ import shutil
 import xml.etree.ElementTree as ET
 import subprocess
 import argparse
-import datetime
-import platform
-import getpass
 import shlex
 import logging
 
@@ -55,18 +52,6 @@ class SubcommandHelpFormatter(argparse.RawDescriptionHelpFormatter):
 
 DEP_PROJECTS = [
     'dp-core'
-]
-
-TOOL_PROJECTS = [
-    ('dp-core/tools', 'dp-core')
-]
-
-ITERATOR_PROJECTS = [
-    ('dp-core/iterators', 'dp-core')
-]
-
-LASTMILE_PROJECTS = [
-    ('dp-core/lastmile', 'dp-core')
 ]
 
 PYTHON_PROJECTS = [
@@ -112,7 +97,7 @@ PYTHON_OUTPUT_DIRS = [
 # List of projects depending on java projects
 JAR_OUTPUT_DIRS = [
     PROJECT_DIR / 'dp-api',
-    PROJECT_DIR / 'infrastructure/standalone/conf/dp-accumulo'
+    PROJECT_DIR / 'infrastructure/standalone/conf/backend'
 ]
 
 JAR_OUTPUT_DIRS.extend(PYTHON_OUTPUT_DIRS)
@@ -147,48 +132,6 @@ def get_git_info():
         dirty = '*'
 
     return f'{branch} ({hash}){dirty}'
-
-
-def copy_output(project_dir, output_dir):
-    pom_fname = project_dir + '/pom.xml'
-    artifact_name, version, src_jar_fname = pom2jar(project_dir, pom_fname)
-
-    target_jar_name = artifact_name + '-current.jar'
-    target_jar_fname = output_dir / target_jar_name
-    shutil.copy(src_jar_fname, target_jar_fname)
-
-    with open(output_dir / 'versions.txt', 'a') as fd:
-        fd.write(f'{target_jar_name} ({artifact_name}) - {version}/{datetime.datetime.now().isoformat()} - {getpass.getuser()}@{platform.node()} - {get_git_info()}\n')
-
-
-def copy_directory(src_dir, dest_dir):
-    shutil.copytree(src_dir, dest_dir)
-
-
-def pom2jar(project, pom_fname):
-    ns = {'pom': 'http://maven.apache.org/POM/4.0.0'}
-    tree = ET.parse(pom_fname)
-    root = tree.getroot()
-    artifact_name = root.find('pom:artifactId', ns).text
-    version = root.find('pom:version', ns)
-    if version is not None:
-        version = version.text
-    else:
-        version = root.find('pom:parent/pom:version', ns).text
-
-    plugins = [x.text for x in root.findall(
-        'pom:build/pom:plugins/pom:plugin/pom:artifactId', ns)]
-
-    if 'maven-assembly-plugin' in plugins:
-        jar_fname = f'{project}/target/{artifact_name}-{version}-jar-with-dependencies.jar'
-    else:
-        jar_fname = f'{project}/target/{artifact_name}-{version}.jar'
-
-    return artifact_name, version, jar_fname
-
-
-def expand_projects(jar_dir, projects):
-    return [(x, jar_dir) for x in projects]
 
 
 def list_files_in_dir(dirname: Path):
@@ -239,24 +182,6 @@ def build_api(build_opts: str):
             logging.debug(f'Building project: {proj}')
             build_project(proj, build_opts)
             already_built_dirs.add(proj)
-
-    commands = expand_projects(TOOL_JAR_DIR, TOOL_PROJECTS) \
-        + expand_projects(ITERATOR_JAR_DIR, ITERATOR_PROJECTS) \
-        + expand_projects(LASTMILE_JAR_DIR, LASTMILE_PROJECTS)
-
-    # Build any other java projects
-    for project, output_dir in commands:
-        if isinstance(project, tuple):
-            project_dir, build_dir = project
-        else:
-            project_dir = project
-            build_dir = project
-
-        if build_dir not in already_built_dirs:
-            logging.debug(f'Building project: {build_dir}')
-            build_project(build_dir, build_opts)
-            already_built_dirs.add(build_dir)
-        copy_output(project_dir, output_dir)
 
 
 def copy_api():

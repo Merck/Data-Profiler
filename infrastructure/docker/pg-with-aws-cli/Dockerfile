@@ -20,7 +20,7 @@
 #	under the License.
 #
 
-FROM container-registry.com/nodepg:latest
+FROM data-profiler/nodepg:latest
 #https://stackoverflow.com/questions/51033689/how-to-fix-error-on-postgres-install-ubuntu
 RUN mkdir -p /usr/share/man/man1 && mkdir -p /usr/share/man/man7
 

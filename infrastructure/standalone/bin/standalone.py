@@ -50,6 +50,14 @@ CONFIGMAP_FILE = PATH_STANDALONE / 'conf/env/env-vars.yaml'
 TMP_DIR_BASE = 'dataprofiler'
 
 
+def display_failed(name: str):
+    logger.error(4*' ' + f'{name:.<70}' + 'failed')
+
+
+def display_success(name: str):
+    logger.info(4*' ' + f'{name:.<70}' + 'success')
+
+
 class SubcommandHelpFormatter(argparse.RawDescriptionHelpFormatter):
     # TODO fix this method to remove the "Description" from the subparser
     def _format_text(self, text):
@@ -129,7 +137,7 @@ class ContainerImage:
 
         return True
 
-    def wait_for_pod_ready(self):
+    def _get_pod_name(self) -> str:
         # get the pod name
         cmd = ['kubectl',
                'get',
@@ -139,7 +147,10 @@ class ContainerImage:
                '-o',
                'jsonpath="{.items[0].metadata.name}"']
         _, stdout, _ = exec_cmd(cmd)
-        pod = stdout.strip('"')
+        return stdout.strip('"')
+
+    def wait_for_pod_ready(self) -> bool:
+        pod = self._get_pod_name()
 
         # Wait for the pod to be ready
         cmd = ['kubectl',
@@ -147,8 +158,56 @@ class ContainerImage:
                f'pod/{pod}',
                '--for=condition=Ready',
                '--timeout=-1s']
+        (proc, _, _) = exec_cmd(cmd)
+
+        if proc.returncode == 0:
+            return True
+
+        return False
+
+    def wait_for_pod_delete(self) -> bool:
+        pod = self._get_pod_name()
+
+        # Wait for the pod to be deleted
+        cmd = ['kubectl',
+               'wait',
+               f'pod/{pod}',
+               '--for=delete',
+               '--timeout=60s']
+        (proc, _, _) = exec_cmd(cmd)
+
+        if proc.returncode == 0:
+            return True
+
+        return False
+
+    def wait_for_job_complete(self) -> bool:
+        # Wait for the job to be complete
+        cmd = ['kubectl',
+               'wait',
+               f'job/{self.name}',
+               '--for=condition=Complete',
+               '--timeout=60s']
         exec_cmd(cmd)
-        logger.debug(f'Pod "{pod}" is ready')
+        (proc, _, _) = exec_cmd(cmd)
+
+        if proc.returncode == 0:
+            return True
+
+        return False
+
+    def wait_for_job_delete(self) -> bool:
+        cmd = ['kubectl',
+               'wait',
+               f'job/{self.name}',
+               '--for=delete',
+               '--timeout=60s']
+        (proc, _, _) = exec_cmd(cmd)
+
+        if proc.returncode == 0:
+            return True
+
+        return False
 
     def build(self) -> bool:
         build_cmd = [
@@ -167,21 +226,51 @@ class ContainerImage:
         (proc, _, _) = exec_cmd(build_cmd)
 
         if proc.returncode == 0:
-            logger.info(4*' ' + f'{self.name:.<70}' + 'success')
+            display_success(self.name)
             return True
 
-        logger.error(4*' ' + f'{self.name:.<70}' + 'failed')
+        display_failed(self.name)
         return False
+
+    def run(self) -> bool:
+        logger.debug(f'Running: {self.name}')
+
+        if not self._create():
+            display_failed(self.name)
+            return False
+
+        if not self.wait_for_job_complete():
+            display_failed(self.name)
+            return False
+
+        display_success(self.name)
+        return True
 
     def deploy(self) -> bool:
         logger.debug(f'Deploying: {self.name}')
+
+        if not self._create():
+            display_failed(self.name)
+            return False
+
+        if not self.wait_for_pod_ready():
+            display_failed(self.name)
+            return False
+
+        if not self.create_service():
+            display_failed(self.name)
+            return False
+
+        display_success(self.name)
+        return True
+
+    def _create(self) -> bool:
         # Enumerate all config files in a directory
         conf_files = list(
             Path(f'{PATH_STANDALONE}/conf/{self.name}').glob('*.yaml'))
 
         # Create deployment for each config
         for file in conf_files:
-            file_wo_ext = file.with_suffix('').name
             deploy_cmd = [
                 'kubectl',
                 'create',
@@ -190,18 +279,38 @@ class ContainerImage:
             ]
             (proc, _, _) = exec_cmd(deploy_cmd)
 
-            if proc.returncode == 0:
-                logger.info(4*' ' + f'{file_wo_ext:.<70}' + 'success')
-            else:
-                logger.error(4*' ' + f'{file_wo_ext:.<70}' + 'failed')
+            if proc.returncode != 0:
                 return False
 
-        self.wait_for_pod_ready()
-
-        self.create_service()
         return True
 
-    def create_service(self):
+    def _delete(self) -> bool:
+        # Enumerate all config files in a directory
+        conf_files = list(
+            Path(f'{PATH_STANDALONE}/conf/{self.name}').glob('*.yaml'))
+
+        success = True
+
+        # Delete each config
+        for file in conf_files:
+            # file_wo_ext = file.with_suffix('').name
+            delete_deploy_cmd = [
+                'kubectl',
+                'delete',
+                '-f',
+                str(file)
+            ]
+            (proc, _, _) = exec_cmd(delete_deploy_cmd)
+
+            if proc.returncode == 0:
+                if success:
+                    success = True
+            else:
+                success = False
+
+        return success
+
+    def create_service(self) -> bool:
         logger.debug(f'Exposing component {self.name}')
         if self.port == -1:
             cmd_suffix = ['--cluster-ip=None']
@@ -223,134 +332,142 @@ class ContainerImage:
         ] + cmd_suffix
 
         (proc, _, _) = exec_cmd(expose_cmd)
-        return proc
+        if proc.returncode == 0:
+            return True
 
-    def terminate(self) -> bool:
+        return False
+
+    def terminate_app(self) -> bool:
         logger.debug(f'Deleting: {self.name}')
-        success = True
 
-        # Enumerate all config files in a directory
-        conf_files = list(
-            Path(f'{PATH_STANDALONE}/conf/{self.name}').glob('*.yaml'))
+        if not self._delete():
+            display_failed(self.name)
+            return False
 
-        # Delete each config
-        for file in conf_files:
-            file_wo_ext = file.with_suffix('').name
-            delete_deploy_cmd = [
-                'kubectl',
-                'delete',
-                '-f',
-                str(file)
-            ]
-            (proc, _, _) = exec_cmd(delete_deploy_cmd)
+        if not self.wait_for_pod_delete():
+            display_failed(self.name)
+            return False
 
-            if proc.returncode == 0:
-                logger.info(4*' ' + f'{file_wo_ext:.<70}' + 'success')
-                if success:
-                    success = True
-            else:
-                logger.error(4*' ' + f'{file_wo_ext:.<70}' + 'failed')
-                success = False
+        if not self.delete_service():
+            display_failed(self.name)
+            return False
 
+        display_success(self.name)
+        return True
+
+    def terminate_job(self) -> bool:
+        logger.debug(f'Deleting: {self.name}')
+
+        if not self._delete():
+            display_failed(self.name)
+            return False
+
+        if not self.wait_for_job_delete():
+            display_failed(self.name)
+            return False
+
+        display_success(self.name)
+        return True
+
+    def delete_service(self) -> bool:
         # delete service
-        self.delete_service()
-
-        return success
-
-    def delete_service(self):
-        # delete service
-        delete_svc_cmd = [
+        cmd = [
             'kubectl',
             'delete',
             'svc',
             f'{self.name}'
         ]
-        exec_cmd(delete_svc_cmd)
+
+        (proc, _, _) = exec_cmd(cmd)
+        if proc.returncode == 0:
+            return True
+
+        return False
 
 
 # Dependencies
 container_java = ContainerImage(
     'java',
-    'container-registry.dataprofiler.com/java',
+    'data-profiler/java',
     f'{PATH_INFRASTRUCTURE}/docker/java')
 
 container_playframework = ContainerImage(
     'playframework-base',
-    'container-registry.dataprofiler.com/playframework_base',
+    'data-profiler/playframework_base',
     f'{PATH_INFRASTRUCTURE}/docker/playframework_base')
 
 container_hadoop = ContainerImage(
     'hadoop',
-    'container-registry.dataprofiler.com/hadoop',
+    'data-profiler/hadoop',
     f'{PATH_INFRASTRUCTURE}/docker/hadoop')
 
 container_nodepg = ContainerImage(
     'nodepg',
-    'container-registry.dataprofiler.com/nodepg',
+    'data-profiler/nodepg',
     f'{PATH_INFRASTRUCTURE}/docker/nodepg')
 
 container_nodeyarn = ContainerImage(
     'nodeyarn',
-    'container-registry.dataprofiler.com/nodeyarn',
+    'data-profiler/nodeyarn',
     f'{PATH_INFRASTRUCTURE}/docker/nodeyarn')
 
 container_dp_spark_sql_controller = ContainerImage(
-    'dp-spark-sql-controller',
-    'container-registry.dataprofiler.com/spark-sql-controller',
+    'spark-sql-controller',
+    'data-profiler/spark-sql-controller',
     f'{PATH_DATA_PROFILER}/spark-sql/spark-sql-controller')
 
 
-# Data Profiler components
+# Data Profiler component
 container_dp_accumulo = ContainerImage(
-    'dp-accumulo',
-    'dp/accumulo',
-    f'{PATH_STANDALONE}/conf/dp-accumulo')
+    'backend',
+    'ghcr.io/big-wave-tech/data-profiler/backend',
+    f'{PATH_STANDALONE}/conf/backend')
 
 container_dp_postgres = ContainerImage(
-    'dp-postgres',
-    'dp/postgres',
-    f'{PATH_STANDALONE}/conf/dp-postgres')
+    'postgres',
+    'data-profiler/postgres',
+    f'{PATH_STANDALONE}/conf/postgres')
 
 container_dp_api = ContainerImage(
-    'dp-api',
-    'dp/api',
+    'api',
+    'ghcr.io/big-wave-tech/data-profiler/api',
     f'{PATH_DATA_PROFILER}/dp-api')
 
 container_dp_rou = ContainerImage(
-    'dp-rou',
-    'dp/rou',
+    'rou',
+    'ghcr.io/big-wave-tech/data-profiler/rou',
     f'{PATH_DATA_PROFILER}/services/rules-of-use-api')
 
 container_dp_data_loading = ContainerImage(
-    'dp-data-loading-daemon',
-    'dp/data-loading-daemon',
+    'data-loading-daemon',
+    'ghcr.io/big-wave-tech/data-profiler/data-loading-daemon',
     f'{PATH_DATA_PROFILER}/services/data-loading-daemon')
 
 container_dp_jobs_api = ContainerImage(
-    'dp-jobs-api',
-    'dp/jobs-api',
+    'jobs-api',
+    'ghcr.io/big-wave-tech/data-profiler/jobs-api',
     f'{PATH_DATA_PROFILER}/services/jobs-api')
 
 container_dp_ui = ContainerImage(
-    'dp-ui',
-    'dp/ui',
+    'ui',
+    'ghcr.io/big-wave-tech/data-profiler/ui',
     f'{PATH_DATA_PROFILER}/dp-ui')
 
 # Jobs
 container_dp_rou_init = ContainerImage(
-    'dp-rou-init',
-    'dp/rou-init',
-    f'{PATH_STANDALONE}/conf/dp-rou-init')
+    'rou-init',
+    'ghcr.io/big-wave-tech/data-profiler/rou-init',
+    f'{PATH_STANDALONE}/conf/rou-init')
 
 
 # Images that must be built before Data Profiler specific images can be built
 dependencies = {
     container_java.name: container_java,
     container_playframework.name: container_playframework,
-    container_hadoop.name: container_hadoop,
+    # container_hadoop.name: container_hadoop,
     container_nodepg.name: container_nodepg,
     container_nodeyarn.name: container_nodeyarn,
-    container_dp_spark_sql_controller.name: container_dp_spark_sql_controller,
+    # container_dp_spark_sql_controller.name: container_dp_spark_sql_controller,
 }
 
 external_apps = {
@@ -362,8 +479,8 @@ buildable_apps = {
     container_dp_accumulo.name: container_dp_accumulo,
     container_dp_api.name: container_dp_api,
     container_dp_rou.name: container_dp_rou,
-    container_dp_data_loading.name: container_dp_data_loading,
-    container_dp_jobs_api.name: container_dp_jobs_api,
+    # container_dp_data_loading.name: container_dp_data_loading,
+    # container_dp_jobs_api.name: container_dp_jobs_api,
     container_dp_ui.name: container_dp_ui,
 }
 
@@ -452,6 +569,8 @@ def close_tunnel_connections():
     for p in patterns:
         exec_cmd(['pkill', '-f', p])
 
+    TempDir().delete()
+
 
 def test_connection(host, port):
     test_conn_cmd = [
@@ -474,10 +593,10 @@ def build_jars() -> bool:
 
     (proc, _, _) = exec_cmd(build_cmd, cwd=PATH_DATA_PROFILER)
     if proc.returncode == 0:
-        logger.info(4*' ' + f'{app:.<70}' + 'success')
+        display_success(app)
         return True
 
-    logger.error(4*' ' + f'{app:.<70}' + 'failed')
+    display_failed(app)
     return False
 
 
@@ -533,10 +652,10 @@ def deploy_configmap() -> bool:
     configmap = 'configmap'
     (proc, _, _) = exec_cmd(configmap_cmd)
     if proc.returncode == 0:
-        logger.info(4*' ' + f'{configmap:.<70}' + 'success')
+        display_success(configmap)
         return True
 
-    logger.error(4*' ' + f'{configmap:.<70}' + 'failed')
+    display_failed(configmap)
     return False
 
 
@@ -555,38 +674,37 @@ def execute_jobs(job) -> bool:
     if job is None or job == 'all':
         success = True
         for job in jobs.values():
-            if not job.deploy():
+            if not job.run():
                 success = False
             return success
     else:
-        return jobs.get(job).deploy()
+        return jobs.get(job).run()
 
 
 def terminate_apps(app) -> bool:
     if app is None or app == 'all':
         success = True
         for app in deployable_apps.values():
-            if not app.terminate():
+            if not app.terminate_app():
                 success = False
 
         close_tunnel_connections()
-        TempDir().delete()
 
         return success
     else:
-        return deployable_apps.get(app).terminate()
+        return deployable_apps.get(app).terminate_app()
 
 
 def terminate_jobs(job) -> bool:
     success = True
     if job is None or job == 'all':
         for job in jobs.values():
-            if not job.terminate():
+            if not job.terminate_job():
                 success = False
 
         return success
     else:
-        return jobs.get(job).terminate()
+        return jobs.get(job).terminate_job()
 
 
 def exec_cmd(cmd, cwd=PATH_STANDALONE, show_output=True) -> Tuple[subprocess.Popen, str, str]:
@@ -694,7 +812,7 @@ def deploy(args):
             sys.exit(1)
 
     if args.job is not None:
-        logger.info('Deploying Jobs')
+        logger.info('Running Jobs')
         if not execute_jobs(args.job):
             logger.error(
                 "Failed to execute jobs. Re-run with --debug flag for more information")

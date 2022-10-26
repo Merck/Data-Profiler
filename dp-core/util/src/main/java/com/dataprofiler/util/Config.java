@@ -132,7 +132,7 @@ public class Config implements Serializable {
       names = "--accumulo-password",
       description = "The Accumulo user password",
       password = true)
-  public String accumuloPassword = "";
+  public String accumuloPassword = "password";
 
   @Parameter(names = "--accumulo-scanner-threads", description = "Number of threads per scanner")
   public Integer accumuloScannerThreads = 10;

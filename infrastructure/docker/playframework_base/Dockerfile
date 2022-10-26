@@ -19,7 +19,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 # https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html#Ubuntu+and+other+Debian-based+distributions
 
@@ -27,24 +27,26 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/New_York
 ENV BUILD_DEPS="apt-transport-https curl gnupg"
 
-RUN apt-get update && \
-         apt-get upgrade -y && \
-         apt-get install apt-transport-https \
-                curl \
-                gnupg -y && \
-	 apt-get install openjdk-8-jdk maven -y
+RUN apt update && \
+        apt upgrade -y && \
+        apt install -y curl && \
+        apt install -y openjdk-11-jdk && \
+        apt install -y maven && \
+        apt install -y gnupg
 
 RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list && \
         echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list && \
-        curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import && \
-        chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
-RUN apt-get update
-RUN apt-get install sbt=1.6.1 -y && cd /root && sbt --version
+        curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import &&  chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
 
-RUN update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/bin/java 1 && \
-        update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/java-8-openjdk-amd64/bin/javac 1 && \
-        update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/bin/javac && \
-        update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/bin/java
+RUN apt update && \
+        apt install -y sbt && \
+        cd /root && \
+        sbt -version
+
+RUN update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-11-openjdk-amd64/bin/java 1 && \
+        update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac 1 && \
+        update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac && \
+        update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
 
 RUN apt-get remove --purge -y apt-transport-https curl gnupg && \
         apt-get autoremove -y && \

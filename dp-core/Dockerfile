@@ -1,4 +1,4 @@
-FROM container-registry.dataprofiler.com/data_profiler_core:latest
+FROM data-profiler/data_profiler_core:latest
 WORKDIR /opt
 EXPOSE 2181
 

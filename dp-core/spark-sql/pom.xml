@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>dataprofiler-parent</artifactId>
     <groupId>com.dataprofiler</groupId>
-    <version>1</version>
+    <version>0.1.0</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
 
   <artifactId>spark-sql</artifactId>
   <packaging>jar</packaging>
+  <name>Data Profiler Spark SQL</name>
+
 
   <properties>
-    <dataprofiler-tools.version>1</dataprofiler-tools.version>
-    <dataprofiler-util.version>1</dataprofiler-util.version>
+    <dataprofiler-tools.version>0.1.0</dataprofiler-tools.version>
+    <dataprofiler-util.version>0.1.0</dataprofiler-util.version>
     <commons-csv.version>1.6</commons-csv.version>
     <httpclient.version>4.5</httpclient.version>
-    <snappy-java.version>1.1.7.1</snappy-java.version>
+    <snappy-java.version>1.1.8.4</snappy-java.version>
     <statsd-client.version>3.0.1</statsd-client.version>
     <unirest.version>1.4.9</unirest.version>
-    <httpclient.version>4.5</httpclient.version>
-    <hadoop.version>2.9.2</hadoop.version>
+    <hadoop.version>3.3.4</hadoop.version>
+    <commons-text.version>1.10.0</commons-text.version>
+    <akka-http.version>10.1.15</akka-http.version>
+    <akka-stream.version>2.5.32</akka-stream.version>
   </properties>
 
   <dependencies>
@@ -84,6 +87,16 @@
       <artifactId>hadoop-common</artifactId>
       <version>${hadoop.version}</version>
       <scope>${hdfs.scope}</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.zookeeper</groupId>
+          <artifactId>zookeeper</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
@@ -105,7 +118,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>1.6</version>
+      <version>${commons-text.version}</version>
     </dependency>
 
     <!-- Dependencies for accessing S3-->
@@ -130,21 +143,19 @@
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-stream_2.11</artifactId>
-      <version>2.5.26</version>
+      <version>${akka-stream.version}</version>
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-http_2.11</artifactId>
-      <version>10.1.7</version>
+      <version>${akka-http.version}</version>
     </dependency>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-http-spray-json_2.11</artifactId>
-      <version>10.1.7</version>
+      <version>${akka-http.version}</version>
     </dependency>
-
   </dependencies>
-
 
   <build>
     <plugins>
@@ -169,10 +180,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
+        <version>3.10.1</version>
         <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
         </configuration>
       </plugin>
       <plugin>
@@ -198,8 +209,7 @@
               </filters>
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>com.dataprofiler.loader.CsvDataLoader</mainClass>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
@@ -208,8 +218,7 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource> META-INF/services/org.apache.spark.sql.sources.DataSourceRegister</resource>
                 </transformer>
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>reference.conf</resource>
                 </transformer>
               </transformers>

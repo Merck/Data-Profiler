@@ -19,27 +19,13 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dp-data-loading-daemon
-  labels:
-    app: dp-data-loading-daemon
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dp-data-loading-daemon
-  template:
-    metadata:
-      labels:
-        app: dp-data-loading-daemon
-    spec:
-      hostname: dp-data-loading-daemon
-      containers:
-        - name: dp-data-loading-daemon
-          image: dp/data-loading-daemon
-          command: ["/bin/bash"]
-          imagePullPolicy: Never
-          stdin: true
-          tty: true
+#! /bin/bash
+
+set -x
+# To run locally compile the tools project with `mvn clean install -P local -DskipTests`
+# Start miniaccumulo and load csv file
+# try passing csv path like; src/test/resources/basic_test_data.csv
+# Or pass blank args to get some "reasonable default" data as defined in MiniAccumuloWithData#startAndLoadReasonableDefaults
+
+# java -cp "/opt/spark/jars/*:/dataprofiler-tools-1.jar" com.dataprofiler.MiniAccumuloWithData "${@}"
+java -cp "/dataprofiler-tools-0.1.0.jar" com.dataprofiler.MiniAccumuloWithData "${@}"

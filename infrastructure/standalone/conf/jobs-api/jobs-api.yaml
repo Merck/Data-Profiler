@@ -22,45 +22,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dp-spark-sql-controller
+  name: jobs-api
   labels:
-    app: dp-spark-sql-controller
+    app: jobs-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dp-spark-sql-controller
+      app: jobs-api
   template:
     metadata:
       labels:
-        app: dp-spark-sql-controller
+        app: jobs-api
     spec:
-      hostname: dp-spark-sql-controller
-      serviceAccountName: spark
+      hostname: jobs-api
       containers:
-        - name: dp-spark-sql-controller
-          image: dp/spark-sql-controller
-          imagePullPolicy: Never
+        - name: jobs-api
+          image: ghcr.io/big-wave-tech/data-profiler/jobs-api
+          command: ["yarn", "run", "start"]
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 7999
+            - containerPort: 8082
           stdin: true
           tty: true
-          env:
-            - name: RULES_OF_USE_API_PATH
-              value: http://dp-rou:8081/
-            - name: USER_FACING_API_HTTP_PATH
-              value: http://dp-api:9000/api
-            - name: SPARK_SQL_API_KEY
-              value:
-            - name: SPARK_SQL_ADMIN_USERNAME
-              value:
-            - name: SPARK_SQL_ADMIN_PASSWORD
-              value:
-            - name: SPARK_SQL_API_USERNAME
-              value:
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: spark
-  namespace: default
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+            limits:
+              memory: 512Mi
+              cpu: "1"
+          envFrom:
+            - configMapRef:
+                name: env-vars

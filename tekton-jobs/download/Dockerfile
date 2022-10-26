@@ -32,7 +32,7 @@ COPY python_client .
 RUN python setup.py bdist_wheel
 
 # Final Container
-FROM container-registry.dataprofiler.com/hadoop:latest
+FROM data-profiler/hadoop:latest
 
 WORKDIR /opt/app
 

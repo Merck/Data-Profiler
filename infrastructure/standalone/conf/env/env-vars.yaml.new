@@ -42,18 +42,20 @@ data:
   ACCUMULO_METADATA_TABLE: metadata
   ACCUMULO_NAMESPACES: curr,next
   ACCUMULO_PASSWORD: password
+  # ACCUMULO_PASSWORD: ""
   ACCUMULO_SAMPLES_TABLE: samples
   ACCUMULO_USER: root
 
   # Zookeepers
-  ZOOKEEPERS: accumulo:2181
+  ZOOKEEPERS: backend:2181
 
   # Matomo settings
   ANALYTICS_API_SITE_ID: "2"
   ANALYTICS_UI_SITE_ID: "5"
 
-  # Auth Method: local-developer or oauth
+  # Auth Method
   AUTH_METHOD: local-developer
+  # AUTH_METHOD: oauth
 
   # AWS credentials
   AWS_CREDENTIALS: xx
@@ -107,12 +109,20 @@ data:
   SQLSYNC_USER: postgres
 
   # Oauth settings
-  OAUTH_CLIENT_ID: xxx
-  OAUTH_CLIENT_SECRET: xxx
-  OAUTH_AUTH_URL: https://iapi/authentication
+  # Okta Settings
+  OAUTH_CLIENT_ID: 0oa5qwhsybtGNKDHV5d7
+  OAUTH_CLIENT_SECRET: eF9FySacacq2-5t3t140EyPNtIlv98t5irZLXejF
+  OAUTH_AUTH_URL: https://dev-73754698.okta.com/oauth2/default/v1
   OAUTH_SCOPE: openid%20profile%20email
   OAUTH_STATE: xyzABC123
 
+  # PingID Settings
+  # OAUTH_CLIENT_ID: e7850ca9-226f-429a-8024-5a309e119894
+  # OAUTH_CLIENT_SECRET: sZ5szHjVVzlAd_itjOztbCZz4Ad8dRmleX9bRqxF5OfNZ_sNGgUHCCSqbSyC5b5k
+  # OAUTH_AUTH_URL: https://auth.pingone.com/ed56140d-d9c2-4828-8dd9-3d0e94642eff/as
+  # OAUTH_SCOPE: openid%20profile%20email
+  # OAUTH_STATE: xyzABC123
+
   UI_MAIN_USER_FACING_HTTP_PATH: https://dataprofiler
-  USER_FACING_UI_HTTP_PATH: http://localhost
+  USER_FACING_UI_HTTP_PATH: http://localhost:8080
   USER_FACING_API_HTTP_PATH: http://localhost:9000

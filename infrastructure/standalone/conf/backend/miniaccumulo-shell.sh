@@ -19,14 +19,14 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM container-registry.dataprofiler.com/spark-sql-controller
+#! /bin/bash
 
-COPY data_profiler_core_jars/dataprofiler-tools-current.jar entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh /
-
-ENV SPARK_HOME=/opt/spark
-
-WORKDIR /
-
-RUN chmod +x entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh
-
-ENTRYPOINT [ "/entrypoint.sh" ]
+set -x
+# Start miniaccumulo shell
+zookeeper1_port=${2:-2181}
+zookeepers="backend:${zookeeper1_port}"
+config="${config_dir}/conf/client.conf"
+java -cp "./dataprofiler-tools-0.1.0.jar" com.dataprofiler.shell.MiniAccumuloShell \
+        -u root \
+        -p password \
+        -z miniInstance "${zookeepers}"

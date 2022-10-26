@@ -47,7 +47,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
-import org.apache.accumulo.minicluster.impl.MiniAccumuloConfigImpl;
+import org.apache.accumulo.miniclusterImpl.MiniAccumuloConfigImpl;
 
 /**
  * @See

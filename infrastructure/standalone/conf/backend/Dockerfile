@@ -19,30 +19,14 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dp-postgres
-  labels:
-    app: dp-postgres
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dp-postgres
-  template:
-    metadata:
-      labels:
-        app: dp-postgres
-    spec:
-      hostname: dp-postgres
-      containers:
-        - name: dp-postgres
-          image: public.ecr.aws/docker/library/postgres
-          ports:
-            - containerPort: 5432
-          stdin: true
-          tty: true
-          envFrom:
-            - configMapRef:
-                name: dp-env-vars
+FROM ghcr.io/big-wave-tech/spark-hive-k8s:3.3.0
+
+COPY data_profiler_core_jars/dataprofiler-tools-0.1.0.jar entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh /
+
+ENV SPARK_HOME=/opt/spark
+
+WORKDIR /
+
+RUN chmod +x entrypoint.sh miniaccumulo.sh miniaccumulo-shell.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]

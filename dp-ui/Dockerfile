@@ -19,7 +19,7 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM container-registry.dataprofiler.com/nodeyarn:latest AS builder
+FROM data-profiler/nodeyarn:latest AS builder
 
 EXPOSE 80
 WORKDIR /opt/app

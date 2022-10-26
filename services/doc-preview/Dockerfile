@@ -20,7 +20,7 @@
 #	under the License.
 #
 
-FROM container-registry.dataprofiler.com/doc-preview-base:latest
+FROM data-profiler/doc-preview-base:latest
 
 # Change working directory
 WORKDIR /unoconvservice

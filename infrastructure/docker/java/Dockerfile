@@ -19,6 +19,8 @@
 #	specific language governing permissions and limitations
 #	under the License.
 #
-FROM openjdk:8
-RUN apt-get update && apt-get install -y netcat && apt-get autoremove -y && \
+FROM openjdk:11
+RUN apt-get update && \
+    apt-get install -y netcat && \
+    apt-get autoremove -y && \
     rm -R /var/lib/apt/lists/*

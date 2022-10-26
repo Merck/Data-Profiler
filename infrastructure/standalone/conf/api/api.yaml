@@ -22,35 +22,66 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dp-ui
+  name: api
   labels:
-    app: dp-ui
+    app: api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dp-ui
+      app: api
   template:
     metadata:
       labels:
-        app: dp-ui
+        app: api
     spec:
-      hostname: dp-ui
+      hostname: api
       containers:
-        - name: dp-ui
-          image: dp/ui
-          imagePullPolicy: Never
+        - name: api
+          image: ghcr.io/big-wave-tech/data-profiler/api
+          env:
+            - name: APPLICATION_SECRET
+              value: KrQ9CqK0oeg1
+          command: ["/bin/bash"]
+          args:
+            [
+              "-c",
+              "env > /opt/api/target/universal/stage/.env && set -o allexport && source /opt/api/target/universal/stage/.env && ./bin/dataprofiler-api-launcher-minikube.sh",
+            ]
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 9000
           stdin: true
           tty: true
           resources:
             requests:
-              memory: 256Mi
-              cpu: "0.2"
+              memory: "1Gi"
+              cpu: "0.5"
             limits:
-              memory: 512Mi
+              memory: "2Gi"
               cpu: "1"
+
           envFrom:
             - configMapRef:
-                name: dp-env-vars
+                name: env-vars
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  labels:
+    name: api-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: "/api(/|$)(.*)"
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 9000
