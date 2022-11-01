@@ -10,7 +10,7 @@
   "main": "./dist/index.js",
   "types": "./dist/types.d.ts",
   "scripts": {
-    "build": "rimraf dist/ && tsc; cp -r src/assets dist/assets",
+    "build": "rimraf dist/ && tsc && cp -r src/assets dist/assets",
     "develop": "nodemon -x \"yarn run build\"",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --quiet --fix && prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
     "test": "jest --no-cache",

@@ -151,6 +151,8 @@ export const fetchAndSetTableMetadata =
 export const fetchAndSetColumnMetadata =
   (selectedDataset: string, selectedTable: string) =>
   (dispatch): Promise<CommonMetadata[]> => {
+    console.log('test')
+    console.log('test')
     const dataset = (selectedDataset || '').trim()
     const table = (selectedTable || '').trim()
     if (isEmpty(dataset)) {

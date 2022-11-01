@@ -56,7 +56,7 @@ async function build() {
   await run(buildLibCmd)
 
   const buildNonParentCmd =
-    'lerna run --parallel build --scope ' +
+    'lerna run build --scope ' +
     `'{${allPackages
       .filter(e => e !== 'parent' && e !== 'lib')
       .map(e => '@dp-ui/' + e)
