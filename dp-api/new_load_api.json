@@ -4,7 +4,7 @@
     "status": "string (new, in-progress, completed, cancelled, error)",
     "submissionTimeStamp": 13123123,
     "creatingUser": "dataprofiler",
-    "datasetVisibilityExpression": "LIST.Public_Data - can be left empty if dataset is not new",
+    "datasetVisibilityExpression": "LIST.PUBLIC_DATA - can be left empty if dataset is not new",
     "deleteDatasetBeforeReload": false,
     "datasetProperties": {
         "key": "value"
@@ -12,7 +12,7 @@
     "tables": [
         {
             "tableName": "someTable",
-            "tableVisibilityExpression": "LIST.Public_Data",
+            "tableVisibilityExpression": "LIST.PUBLIC_DATA",
             "dataFormat": "format (csv, avro, parquet)",
             "sourceS3Bucket": "bucketName",
             "sourceS3Key": "/some/key/in/bucket",

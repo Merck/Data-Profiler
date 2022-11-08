@@ -107,7 +107,7 @@
             visibility:
               type: string
               description: The visibility string for the element.
-              example: "LIST.Public_Data&LIST.other_viz"
+              example: "LIST.PUBLIC_DATA&LIST.other_viz"
             timestamp:
               type: integer
               example: 1570556733031

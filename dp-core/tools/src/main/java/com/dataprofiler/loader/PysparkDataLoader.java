@@ -59,7 +59,7 @@ public class PysparkDataLoader {
    *
    * <p><code>
    * sc._jvm.PysparkDataLoader.loadFromPyspark(dpSparkContext, dataframe._jdf,
-   * "dataset_name", "table_name", False, "LIST.Public_Data", 10000, False)</code>
+   * "dataset_name", "table_name", False, "LIST.PUBLIC_DATA", 10000, False)</code>
    *
    * @param context A DPSparkContext
    * @param data A Java DataFrame

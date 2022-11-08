@@ -1,8 +1,0 @@
-accumuloRowLevelVisibilities,Name,Phone,Location,Manager,Salary
-"{""row"":""LIST.EMPLOYEE"",""column"":{""Salary"":""LIST.TOPFLOOR|LIST.HR""}}",H HUNTER,333-101-3456,CA,J CEO,100000
-"{""column"":{""Salary"":""LIST.TOPFLOOR|LIST.SALESMANAGER|LIST.HR""}}",J SMITH,123-456-7890,TX,T LEADER,50000
-"{""column"":{""Manager"":""LIST.EMPLOYEE"",""Salary"":""LIST.TOPFLOOR|LIST.HR""}}",T LEADER,123-456-0987,TX,J CEO,100000
-"{""column"":{""Salary"":""LIST.TOPFLOOR|LIST.HR""}}",J CEO,111-123-4568,NJ,,1000000
-"{""row"":""LIST.EMPLOYEE"",""column"":{""Name"":""LIST.TOPFLOOR|LIST.HR"",""Salary"":""LIST.TOPFLOOR|LIST.HR""}}",J CEO,111-123-4568,NJ,,200000
-"{""column"":{""Salary"":""LIST.TOPFLOOR|LIST.TECHMANAGER|LIST.HR""}}",T GUY,123-456-1010,TX,T BOSS,50000
-"{""column"":{""Salary"":""LIST.TOPFLOOR|LIST.HR""}}",T BOSS,111-123-9864,NJ,J CEO,100000

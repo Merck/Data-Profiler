@@ -3,7 +3,7 @@
     "metadataId": "uuid",
     "datasetName": "someDataset",
     "tableName": "someTable",
-    "tableVisibilityExpression": "LIST.Public_Data",
+    "tableVisibilityExpression": "LIST.PUBLIC_DATA",
     "dataFormat": "format (csv, avro, parquet)",
     "sourceS3Bucket": "bucketName",
     "sourceS3Key": "some/key/in/bucket",

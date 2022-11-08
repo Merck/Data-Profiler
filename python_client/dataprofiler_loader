@@ -2654,4 +2654,4 @@ if __name__ == '__main__':
     # [x.sniff_csv_format(d.jobserver) for x in fs]
     # print(fs)
 
-# {"jobId":"test","datasetName":"Upload Test","visibilities":"LIST.Public_Data","delimiter":",","s3Path":"dataprofiler-modern-production/uploads/Upload_Test/","status":7,"statusMessage":"Complete","submissionDateTime":1523290225343,"creatingUser":"unknown"}
+# {"jobId":"test","datasetName":"Upload Test","visibilities":"LIST.PUBLIC_DATA","delimiter":",","s3Path":"dataprofiler-modern-production/uploads/Upload_Test/","status":7,"statusMessage":"Complete","submissionDateTime":1523290225343,"creatingUser":"unknown"}

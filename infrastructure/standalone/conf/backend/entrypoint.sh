@@ -21,10 +21,10 @@
 #	under the License.
 #
 
-
 data_dir=/data
 
-/miniaccumulo.sh --load-type live $(find $data_dir -type f -name "*.csv")
+readarray -d '' data_files < <(find ${data_dir} -type f -print0)
+/miniaccumulo.sh --load-type live "${data_files[@]}" | tee /tmp/miniaccumulo.log
 
 while true;
 do

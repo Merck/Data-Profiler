@@ -28,7 +28,9 @@ package com.dataprofiler.util.objects;
 
 import com.dataprofiler.MiniAccumuloWithData;
 import com.dataprofiler.util.MiniAccumuloContext;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -40,8 +42,8 @@ public class ObjectTest {
   public static void createContext()
       throws Exception {
     mad = new MiniAccumuloWithData();
-    HashMap<String, String> datasets = new HashMap<>();
-    datasets.put("basic-test", "src/test/resources/basic_test_data.csv");
+    HashMap<String, List<String>> datasets = new HashMap<>();
+    datasets.put("basic-test", Arrays.asList("src/test/resources/basic_test_data.csv"));
     context = mad.startForTesting();
     mad.loadDatasets(datasets);
   }

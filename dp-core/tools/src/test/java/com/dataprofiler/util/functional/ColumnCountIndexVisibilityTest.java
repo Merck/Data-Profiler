@@ -59,7 +59,6 @@ public class ColumnCountIndexVisibilityTest {
   private static final String[] rootAuths = new String[]{
       "hr.manager.karl \\\"the big bad wolf\\\" o'mac",
       "LIST.Nick_1",
-      "LIST.Public_Data",
       "LIST.PUBLIC_DATA",
       "LIST.HR",
       "LIST.TOPFLOOR",

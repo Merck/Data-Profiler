@@ -8,9 +8,4 @@ system.ui_discover_tab
 system.ui_understand_tab
 system.ui_use_tab
 LIST.PUBLIC_DATA
-LIST.Public_Data
-LIST.HR
-LIST.EMPLOYEE
-LIST.TECHMANAGER
-LIST.SALESMANAGER
-LIST.TOPFLOOR
+LIST.PRIVATE_DATA

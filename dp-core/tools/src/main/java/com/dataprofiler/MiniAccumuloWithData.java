@@ -47,6 +47,9 @@ import com.dataprofiler.util.Const.Origin;
 import com.dataprofiler.util.MiniAccumuloContext;
 import com.dataprofiler.util.objects.MetadataVersionObject;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -97,24 +100,23 @@ public class MiniAccumuloWithData implements AutoCloseable {
     System.out.println("MiniAccumulo!");
     String[] rootAuths =
         new String[] {
-          "hr.manager.karl \\\"the big bad wolf\\\" o'mac",
-          "LIST.Nick_1",
-          "LIST.NICK_1",
-          "LIST.Public_Data",
           "LIST.PUBLIC_DATA",
-          "LIST.TOPFLOOR",
-          "LIST.TECHMANAGER",
-          "LIST.SALESMANAGER",
-          "LIST.EMPLOYEE",
-          "LIST.HR",
+          "LIST.PRIVATE_DATA"
         };
     MiniAccumuloWithData mad = new MiniAccumuloWithData(config, rootAuths);
     MiniAccumuloContext madContext;
     if (config.parameters.size() < 1) {
       madContext = mad.startAndLoadReasonableDefaults();
     } else {
-      Map<String, String> datasets =
-          config.parameters.stream().collect(toMap(friendlyDatasetNameFromPath(), identity()));
+      Map<String, List<String>> datasets = new HashMap<>();
+      for (String inputFile : config.parameters) {
+        String datasetName = friendlyDatasetNameFromPath(inputFile);
+
+        if (!datasets.containsKey(datasetName)) {
+          datasets.put(datasetName, new LinkedList<String>());
+        }
+        datasets.get(datasetName).add(inputFile);
+      }
       madContext = mad.startAndLoadData(datasets);
     }
     logger.info("Writing mini config");
@@ -168,10 +170,11 @@ public class MiniAccumuloWithData implements AutoCloseable {
     }
   }
 
-  public void loadDatasets(Map<String, String> datasets) throws Exception {
+  public void loadDatasets(Map<String, List<String>> datasets) throws Exception {
     for (String datasetFriendlyName : datasets.keySet()) {
-      String datasetPath = datasets.get(datasetFriendlyName);
-      loadDataset(datasetFriendlyName, datasetPath);
+      for (String datasetPath : datasets.get(datasetFriendlyName)) {
+        loadDataset(datasetFriendlyName, datasetPath);
+      }
     }
   }
 
@@ -206,7 +209,7 @@ public class MiniAccumuloWithData implements AutoCloseable {
                 spark,
                 datasetFriendlyName,
                 TableLoader.tableNameFromFileName(datasetPath),
-                "LIST.Public_Data",
+                "LIST.PUBLIC_DATA",
                 "",
                 (getContext().getConfig()).rowVisibilityColumnName,
                 params)
@@ -226,7 +229,7 @@ public class MiniAccumuloWithData implements AutoCloseable {
                 spark,
                 datasetFriendlyName,
                 TableLoader.tableNameFromFileName(datasetPath),
-                "LIST.Public_Data",
+                "LIST.PUBLIC_DATA",
                 "",
                 (getContext().getConfig()).rowVisibilityColumnName,
                 params)
@@ -247,7 +250,7 @@ public class MiniAccumuloWithData implements AutoCloseable {
                 spark,
                 datasetFriendlyName,
                 TableLoader.tableNameFromFileName(datasetPath),
-                "LIST.Public_Data",
+                "LIST.PUBLIC_DATA",
                 "",
                 (getContext().getConfig()).rowVisibilityColumnName,
                 params)
@@ -267,7 +270,7 @@ public class MiniAccumuloWithData implements AutoCloseable {
                 spark,
                 datasetFriendlyName,
                 TableLoader.tableNameFromFileName(datasetPath),
-                "LIST.Public_Data",
+                "LIST.PUBLIC_DATA",
                 "",
                 (getContext().getConfig()).rowVisibilityColumnName,
                 params)
@@ -282,7 +285,7 @@ public class MiniAccumuloWithData implements AutoCloseable {
    *
    * @param datasets a map of friendly names to file paths
    */
-  public MiniAccumuloContext startAndLoadData(Map<String, String> datasets) throws Exception {
+  public MiniAccumuloContext startAndLoadData(Map<String, List<String>> datasets) throws Exception {
     start();
     loadDatasets(datasets);
     return context;
@@ -292,14 +295,13 @@ public class MiniAccumuloWithData implements AutoCloseable {
     return "./dp-core/tools/src/test/resources/" + filename + ".csv";
   }
 
-  public static Function<String, String> friendlyDatasetNameFromPath() {
-    return new Function<String, String>() {
-      @Override
-      public String apply(String t) {
-        String datasetName = t.substring(t.lastIndexOf("/") + 1, t.lastIndexOf("."));
-        return datasetName;
-      }
-    };
+  public static String friendlyDatasetNameFromPath(String path) {
+    String[] parts = path.split("/");
+    if (parts.length >= 2) {
+      return parts[parts.length - 2];
+    } else {
+      return path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
+    }
   }
 
   /** Just load some reasonable defaults (multiple datasets,tables,visibilities etc) */
@@ -323,14 +325,14 @@ public class MiniAccumuloWithData implements AutoCloseable {
           fullCsvPath("basic_test_data"),
           "Dataset 1",
           "Table 1",
-          "LIST.Public_Data");
+          "LIST.PUBLIC_DATA");
       loadCsvTable(
           context,
           spark,
           fullCsvPath("tiny_test_data_copy"),
           "Dataset 1",
           "Table 2",
-          "LIST.Public_Data");
+          "LIST.PUBLIC_DATA");
       loadCsvTable(
           context, spark, fullCsvPath("basic_test_data"), "Dataset 1", "Table 3", "LIST.Nick_1");
       loadCsvTable(
@@ -339,7 +341,7 @@ public class MiniAccumuloWithData implements AutoCloseable {
           fullCsvPath("annotation_test_data_ds2"),
           "Dataset 2",
           "Table 2",
-          "LIST.Public_Data");
+          "LIST.PUBLIC_DATA");
     } finally {
       if (spark != null) {
         spark.close();

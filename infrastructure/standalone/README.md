@@ -119,7 +119,7 @@ Data files found in the 'data' directory will be loaded by the containerized bac
 Try hitting the api with the following curl command:
 
 ```shell
-curl http://localhost:9000/v1/datasets -H 'Authorization: dp-rou-key' -H 'Accept: application/json' -H 'X-Authorization-Token: local-developer' -H '\"LIST.Public_Data\",\"LIST.PUBLIC_DATA\"'
+curl http://localhost:9000/v1/datasets -H 'Authorization: dp-rou-key' -H 'Accept: application/json' -H 'X-Authorization-Token: local-developer' -H '\"LIST.PUBLIC_DATA\",\"LIST.PRIVATE_DATA\"'
 ```
 
 * bin - main executables

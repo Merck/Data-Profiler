@@ -288,7 +288,7 @@ const Tutorial = (props) => {
             <span className="str">'visibility'</span>
             <span className="pun">:</span>
             <span className="pln"> </span>
-            <span className="str">'LIST.Public_Data'</span>
+            <span className="str">'LIST.PUBLIC_DATA'</span>
             <span className="pun">,</span>
             <span className="pln">{'\n'} </span>
             <span className="str">'timestamp'</span>
@@ -461,7 +461,7 @@ const Tutorial = (props) => {
             <span className="str">'visibility'</span>
             <span className="pun">:</span>
             <span className="pln"> </span>
-            <span className="str">'LIST.Public_Data'</span>
+            <span className="str">'LIST.PUBLIC_DATA'</span>
             <span className="pun">,</span>
             <span className="pln">{'\n'} </span>
             <span className="str">'timestamp'</span>
@@ -1497,7 +1497,7 @@ const Tutorial = (props) => {
             <span className="str">'visibility'</span>
             <span className="pun">:</span>
             <span className="pln"> </span>
-            <span className="str">'LIST.Public_Data'</span>
+            <span className="str">'LIST.PUBLIC_DATA'</span>
             <span className="pun">,</span>
             <span className="pln">{'\n'} </span>
             <span className="str">'timestamp'</span>
@@ -2284,7 +2284,7 @@ const Tutorial = (props) => {
             <span className="str">'visibility'</span>
             <span className="pun">:</span>
             <span className="pln"> </span>
-            <span className="str">'LIST.Public_Data'</span>
+            <span className="str">'LIST.PUBLIC_DATA'</span>
             <span className="pun">,</span>
             <span className="pln">{'\n'} </span>
             <span className="str">'timestamp'</span>
@@ -4295,7 +4295,7 @@ const Tutorial = (props) => {
             <span className="str">'visibility'</span>
             <span className="pun">:</span>
             <span className="pln"> </span>
-            <span className="str">'LIST.Public_Data'</span>
+            <span className="str">'LIST.PUBLIC_DATA'</span>
             <span className="pun">,</span>
             <span className="pln">{'\n'} </span>
             <span className="str">'timestamp'</span>

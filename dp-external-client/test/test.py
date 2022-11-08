@@ -31,11 +31,11 @@ import logging
 import pandas as pd
 
 # Dataset 1 (3 Tables)
-#  - Table 1 (basic_test_data) LIST.Public_Data
-#  - Table 2 (tiny_test_data_copy) LIST.Public_Data
+#  - Table 1 (basic_test_data) LIST.PUBLIC_DATA
+#  - Table 2 (tiny_test_data_copy) LIST.PUBLIC_DATA
 #  - Table 3 (basic_test_data) LIST.Nick_1
 # Dataset 2 (1 Table)
-#  - Table 2 (annotation_test_data_ds2) LIST.Public_Data
+#  - Table 2 (annotation_test_data_ds2) LIST.PUBLIC_DATA
 
 ROOT_URL = 'http://playframework:9000'
 API_URL = ROOT_URL + '/api'
@@ -92,7 +92,7 @@ class TestApiClient(unittest.TestCase):
         self.assertEqual(self.env.getDatasetCount(),2)
 
     def test_Environment_UserAccessList(self):
-        UAL = self.env.getUserAccessList(visibility = 'LIST.Public_Data')
+        UAL = self.env.getUserAccessList(visibility = 'LIST.PUBLIC_DATA')
         self.assertEqual(UAL[0],'developer')
         
     def test_Environment_SampleJoin(self):
@@ -175,7 +175,7 @@ class TestApiClient(unittest.TestCase):
     def test_Dataset_Visibility(self):
         dataset = "Dataset 1"
         dataset_class = dpe.Dataset(self.env, dataset)
-        self.assertEqual(dataset_class.getVisibility(),"LIST.Public_Data")
+        self.assertEqual(dataset_class.getVisibility(),"LIST.PUBLIC_DATA")
 
     def test_Dataset_TableCount(self):
         dataset = "Dataset 2"
@@ -310,7 +310,7 @@ class TestApiClient(unittest.TestCase):
         dataset = "Dataset 1"
         table = 'Table 2'
         table_class = dpe.Table(self.env, dataset, table)
-        self.assertEqual(table_class.getVisibility(), "LIST.Public_Data")
+        self.assertEqual(table_class.getVisibility(), "LIST.PUBLIC_DATA")
 
     def test_Table_ColumnCount(self):
         dataset = "Dataset 2"
@@ -555,7 +555,7 @@ class TestApiClient(unittest.TestCase):
         table = 'Table 2'
         column = 'Annotation Type'
         column_class = dpe.Column(self.env, dataset, table, column)
-        self.assertEqual(column_class.getVisibility(),"LIST.Public_Data")
+        self.assertEqual(column_class.getVisibility(),"LIST.PUBLIC_DATA")
     
     def test_Column_UserAccessList(self):
         dataset = "Dataset 1"

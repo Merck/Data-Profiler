@@ -24,8 +24,6 @@
 # Activate ROU attributes
 curl localhost:8081/graphql -H 'Authorization: dp-rou-key' -H 'Content-Type: application/json' -XPOST --data '{"query":"mutation {markAttributeActive(value:\"system.admin\"){id value is_active}}"}'
 curl localhost:8081/graphql -H 'Authorization: dp-rou-key' -H 'Content-Type: application/json' -XPOST --data '{"query":"mutation {markAttributeActive(value:\"LIST.PUBLIC_DATA\"){id value is_active}}"}'
-curl localhost:8081/graphql -H 'Authorization: dp-rou-key' -H 'Content-Type: application/json' -XPOST --data '{"query":"mutation {markAttributeActive(value:\"LIST.Public_Data\"){id value is_active}}"}'
-curl localhost:8081/graphql -H 'Authorization: dp-rou-key' -H 'Content-Type: application/json' -XPOST --data '{"query":"mutation {markAttributeActive(value:\"LIST.HR\"){id value is_active}}"}'
 
 # Activate ROU attributes for 'developer' user
-curl localhost:8081/graphql -H 'Authorization: dp-rou-key' -H 'Content-Type: application/json' -XPOST --data '{"query":"mutation {createUpdateUser(username: \"local-developer\", attributes: [\"system.admin\",\"LIST.PUBLIC_DATA\",\"LIST.HR\"]) {id}}" }'
+curl localhost:8081/graphql -H 'Authorization: dp-rou-key' -H 'Content-Type: application/json' -XPOST --data '{"query":"mutation {createUpdateUser(username: \"local-developer\", attributes: [\"system.admin\",\"LIST.PUBLIC_DATA\",\"LIST.PRIVATE_DATA\"]) {id}}" }'

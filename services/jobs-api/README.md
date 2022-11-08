@@ -80,7 +80,7 @@ This is the information that goes in the details field per job type.
     "datasetName": "someName",
     "tableName": "someTable",
     "metadataVersion", "uuid",
-    "tableVisibilityExpression": "LIST.Public_Data",
+    "tableVisibilityExpression": "LIST.PUBLIC_DATA",
     "dataFormat": "format (csv, avro, parquet)",
     "sourceS3Bucket": "bucketName",
     "sourceS3Key": "/some/key/in/bucket",
@@ -105,6 +105,6 @@ Options will vary according to dataFormat. The ones listed are valid for CSV.
 
 {
   "metadataVersion": "uuid",
-  "datasetVisibilityExpression": "LIST.Public_Data",
+  "datasetVisibilityExpression": "LIST.PUBLIC_DATA",
   "fullDatasetLoad": false
 }

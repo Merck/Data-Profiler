@@ -15,7 +15,7 @@ insert into applications (app,key,created_at,updated_at) values('Data Profiler',
 ```
 
 # Add a legacy auth
-$ echo "insert into attributes (value,created_at,updated_at,is_active) values('LIST.Public_Data', current_timestamp, current_timestamp, true);" | docker exec rulesofuseapi_db_1 psql -U postgres rules_of_use
+$ echo "insert into attributes (value,created_at,updated_at,is_active) values('LIST.PUBLIC_DATA', current_timestamp, current_timestamp, true);" | docker exec rulesofuseapi_db_1 psql -U postgres rules_of_use
 ```
 
 ### Dumping from other databases

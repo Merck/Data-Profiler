@@ -8,7 +8,7 @@ import sys
 
 class Dataset:
     MDL = '/usr/bin/dataprofiler_loader'
-    VIS = 'LIST.Public_Data'
+    VIS = 'LIST.PUBLIC_DATA'
 
     def __init__(self, dataset_fname, extra_args=None):
         self.dataset_fname = dataset_fname

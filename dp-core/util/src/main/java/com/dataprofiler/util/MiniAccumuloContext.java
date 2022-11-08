@@ -49,7 +49,7 @@ public class MiniAccumuloContext extends Context implements AutoCloseable {
   private static final Logger logger = Logger.getLogger(MiniAccumuloContext.class);
   private Path tempPath;
   private MiniAccumuloCluster accumulo;
-  private static final String[] DEFAULT_AUTHS = new String[] {"LIST.Public_Data", "LIST.PUBLIC_DATA"};
+  private static final String[] DEFAULT_AUTHS = new String[] {"LIST.PUBLIC_DATA", "LIST.PRIVATE_DATA"};
   private String[] rootAuths;
   private boolean randomZookeeperPort = false;
 
@@ -157,9 +157,8 @@ public class MiniAccumuloContext extends Context implements AutoCloseable {
       logger.warn("assigning rootAuths again...");
       this.rootAuths =
           new String[] {
-            "hr.manager.karl \\\"the big bad wolf\\\" o'mac",
-            "LIST.Nick_1",
-            "LIST.Public_Data",
+            "LIST.PUBLIC_DATA",
+            "LIST.PRIVATE_DATA"
           };
     }
     logger.info("\n---------using root auths - " + Arrays.toString(this.rootAuths));

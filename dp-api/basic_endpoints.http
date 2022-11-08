@@ -450,7 +450,7 @@ X-Username: {{username}}
     "datasetName": "someName",
     "tableName": "someTable",
     "metadataVersion": "1712C81A-A65A-4818-ABEA-A967235EC594",
-    "tableVisibilityExpression": "LIST.Public_Data",
+    "tableVisibilityExpression": "LIST.PUBLIC_DATA",
     "dataFormat": "csv",
     "sourceS3Bucket": "bucketName",
     "sourceS3Key": "some/key/in/bucket",
@@ -480,7 +480,7 @@ X-Username: {{username}}
 
 {
       "metadataVersion": "1712C81A-A65A-4818-ABEA-A967235EC594",
-      "datasetVisibilityExpression": "LIST.Public_Data",
+      "datasetVisibilityExpression": "LIST.PUBLIC_DATA",
       "fullDatasetLoad": false
 }
 
@@ -528,9 +528,9 @@ X-Username: {{username}}
   "queryType": "simple",
   "query": "SELECT Status,`Completion Date`,`Street Address` FROM `dataset/someValidView` WHERE `Completion Date` < cast('2012-01-01' as TIMESTAMP)",
   "queryVisibilities": [
-    "LIST.Public_Data"
+    "LIST.PUBLIC_DATA"
   ],
-  "outputVisibility": "LIST.Public_Data",
+  "outputVisibility": "LIST.PUBLIC_DATA",
   "tables": [
     {
       "dataset": "d1",

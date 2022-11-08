@@ -6,9 +6,9 @@
     "date_column": "foo/bar/date_column_name",
     "query": "SELECT * FROM foo/bar WHERE foo/bar/date_column_name >= $START_TIMESTAMP AND foo/bar/date_column_name < $END_TIMESTAMP",
     "query_visibilities": [
-      "LIST.Public_Data"
+      "LIST.PUBLIC_DATA"
     ],
-    "output_visibility": "LIST.Public_Data",
+    "output_visibility": "LIST.PUBLIC_DATA",
     "tables": [
       {
         "dataset": "foo",
@@ -37,5 +37,5 @@
       }
     ]
   },
-  "visibility": "LIST.Public_Data"
+  "visibility": "LIST.PUBLIC_DATA"
 }

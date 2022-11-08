@@ -59,7 +59,7 @@ import static org.junit.Assert.*;
 public class DatawaveRowShardIndexObjectTest {
   private static final String DATASET_NAME = "Chuck";
   private static final String TABLE_NAME = "Norris";
-  private static final String VISIBILITY = "LIST.Public_Data";
+  private static final String VISIBILITY = "LIST.PUBLIC_DATA";
   private static final String DATASET = "src/test/resources/basic_test_data.csv";
   private static MiniAccumuloWithData mad;
 
