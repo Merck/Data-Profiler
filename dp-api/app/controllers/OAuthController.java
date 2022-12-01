@@ -28,10 +28,13 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import org.apache.log4j.Logger;
 
 import javax.inject.Inject;
 
 public class OAuthController extends Controller {
+
+  private final Logger logger = Logger.getLogger(OAuthController.class);
 
   private Config config;
   private RulesOfUseHelper rulesOfUseHelper;
@@ -58,16 +61,20 @@ public class OAuthController extends Controller {
     }
 
     OAuthHelper oAuthHelper;
-    oAuthHelper = new OAuthHelper(this.config.getString("oAuthAuthUrl"),
-        this.config.getString("oAuthClientId"), this.config.getString("oAuthClientSecret"),
-        this.config.getString("oAuthScope"), uiPath);
+    oAuthHelper = new OAuthHelper(this.config.getString("oAuthAuthorizationEndpoint"),
+                                  this.config.getString("oAuthTokenEndpoint"),
+                                  this.config.getString("oAuthUserInfoEndpoint"),
+                                  this.config.getString("oAuthClientId"),
+                                  this.config.getString("oAuthClientSecret"),
+                                  this.config.getString("oAuthScope"),
+                                  uiPath);
 
     ObjectNode ret = (ObjectNode) oAuthHelper.tokenRequest(code);
     if (ret != null && ret.has("access_token")) {
       String token = ret.get("access_token").asText();
       String username = oAuthHelper.getUsername(token);
-      System.out.println("Username Found: " + username);
-      System.out.println("Token for user: " + token);
+      logger.info("Username Found: " + username);
+      logger.info("Token for user: " + token);
       if (rulesOfUseHelper.storeLoginInRou(username, token) == true) {
         ret.put("username", username);
         EmailNotifier.sendLoginNotification(username, this.clusterName);

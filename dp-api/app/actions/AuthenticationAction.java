@@ -106,19 +106,28 @@ public class AuthenticationAction extends Action<Authenticated> {
         Boolean.valueOf(config.getString("auth.requireLoginAttributeForAccess"));
     rulesOfUseHelper = new RulesOfUseHelper(config.getString("rulesOfUse.baseApi"),
         config.getString("rulesOfUse.apiKey"));
-    String oAuthAuthUrl;
+    String authorizationEndpoint;
+    String tokenEndpoint;
+    String userInfoEndpoint;
     String oAuthClientId;
     String oAuthClientSecret;
     String callbackUrlBase;
     String oAuthScope;
     switch (authMethod) {
       case "oauth":
-        oAuthAuthUrl = config.getString("oAuthAuthUrl");
+        authorizationEndpoint = config.getString("oAuthAuthorizationEndpoint");
+        tokenEndpoint = config.getString("oAuthTokenEndpoint");
+        userInfoEndpoint = config.getString("oAuthUserInfoEndpoint");
         oAuthClientId = config.getString("oAuthClientId");
         oAuthClientSecret = config.getString("oAuthClientSecret");
         oAuthScope = config.getString("oAuthScope");
-        oAuthHelper =
-            new OAuthHelper(oAuthAuthUrl, oAuthClientId, oAuthClientSecret, oAuthScope, null);
+        oAuthHelper = new OAuthHelper(authorizationEndpoint,
+                                      tokenEndpoint,
+                                      userInfoEndpoint,
+                                      oAuthClientId, 
+                                      oAuthClientSecret, 
+                                      oAuthScope, 
+                                      null);
         break;
       case LOCAL_DEVELOPER:
         break;

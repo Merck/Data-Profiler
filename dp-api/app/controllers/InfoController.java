@@ -58,8 +58,8 @@ public class InfoController extends Controller {
       ret.put("oAuthState", oAuthState);
     }
 
-    String oAuthAuthUrl = this.config.getString("oAuthAuthUrl");
-    ret.put("oAuthAuthUrl", oAuthAuthUrl);
+    String oAuthAuthorizationEndpoint = this.config.getString("oAuthAuthorizationEndpoint");
+    ret.put("oAuthAuthorizationEndpoint", oAuthAuthorizationEndpoint);
 
     String oAuthClientId = this.config.getString("oAuthClientId");
     ret.put("oAuthClientId", oAuthClientId);

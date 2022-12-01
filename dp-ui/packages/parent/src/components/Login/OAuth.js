@@ -26,14 +26,14 @@ import { DPContext } from '@dp-ui/lib'
 class OAuth extends React.Component {
   componentDidMount() {
     const {
-      oAuthAuthUrl,
+      oAuthAuthorizationEndpoint,
       oAuthClientId,
       oAuthState,
       oAuthCallbackUrl,
       oAuthScope,
     } = this.props.dataprofiler.state.session
 
-    const loginUrl = `${oAuthAuthUrl}/authorize?response_type=code&client_id=${oAuthClientId}&redirect_uri=${oAuthCallbackUrl}&state=${oAuthState}&login_method=form&scope=${oAuthScope}`
+    const loginUrl = `${oAuthAuthorizationEndpoint}?response_type=code&client_id=${oAuthClientId}&redirect_uri=${oAuthCallbackUrl}&state=${oAuthState}&login_method=form&scope=${oAuthScope}`
     externalRedirect(loginUrl)
   }
 

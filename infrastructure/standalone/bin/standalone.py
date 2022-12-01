@@ -608,13 +608,13 @@ def build_deps() -> bool:
     return success
 
 
-def build_images(app, url, port) -> bool:
+def build_images(app, url) -> bool:
 
     # Set the UI URL and PORT
     container_dp_ui.options.extend(['--build-arg',
-                                    f'USER_FACING_API_HTTP_PATH={url}:{port}/api',
+                                    f'USER_FACING_API_HTTP_PATH={url}/api',
                                     '--build-arg',
-                                    f'USER_FACING_UI_HTTP_PATH={url}:{port}'])
+                                    f'USER_FACING_UI_HTTP_PATH={url}'])
 
     if app is None or app == 'all':
         success = True
@@ -779,7 +779,7 @@ def build(args):
 
     if args.app is not None:
         logger.info('Building Applications')
-        if not build_images(args.app, args.url, args.port):
+        if not build_images(args.app, args.url):
             logger.error(
                 "Failed building data profiler images. Re-run with --debug flag for more information")
             sys.exit(1)
@@ -921,13 +921,8 @@ def main():
     parser_build.add_argument(
         '--url',
         type=str,
-        default=DEFAULT_URL,
-        help=f'URL to access UI (Default: {DEFAULT_URL})')
-    parser_build.add_argument(
-        '--port',
-        type=int,
-        default=DEFAULT_PORT,
-        help=f'External port to access UI (Default: {DEFAULT_PORT})')
+        default=f'{DEFAULT_URL}:{DEFAULT_PORT}',
+        help=f'URL to access UI (Default: {DEFAULT_URL}:{DEFAULT_PORT})')    
     parser_build.set_defaults(func=build)
 
     # deploy

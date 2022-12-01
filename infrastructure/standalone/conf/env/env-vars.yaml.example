@@ -46,7 +46,7 @@ data:
   ACCUMULO_USER: root
 
   # Zookeepers
-  ZOOKEEPERS: accumulo:2181
+  ZOOKEEPERS: backend:2181
 
   # Matomo settings
   ANALYTICS_API_SITE_ID: "2"
@@ -106,9 +106,11 @@ data:
   SQLSYNC_URL: jdbc:postgresql://postgres.production.svc.cluster.local:5432/dataprofiler
   SQLSYNC_USER: postgres
 
-  # Oauth settings
   OAUTH_CLIENT_ID: xxx
   OAUTH_CLIENT_SECRET: xxx
+  OAUTH_AUTHORIZATION_ENDPOINT: https://iapi/authentication/authorization.oauth2
+  OAUTH_TOKEN_ENDPOINT: https://iapi/authentication/token.oauth2
+  OAUTH_USERINFO_ENDPOINT: https://iapi/authentication/userinfo.openid
   OAUTH_AUTH_URL: https://iapi/authentication
   OAUTH_SCOPE: openid%20profile%20email
   OAUTH_STATE: xyzABC123
