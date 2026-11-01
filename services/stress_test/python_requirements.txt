@@ -9,7 +9,7 @@ itsdangerous==1.1.0
 Jinja2==2.10
 locustio==0.9.0
 MarkupSafe==1.1.1
-msgpack==0.6.1
+msgpack==1.2.3
 pyzmq==18.0.1
 requests==2.21.0
 six==1.12.0
